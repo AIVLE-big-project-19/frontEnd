@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import MapView from '../components/MapView';
 import SearchBar from '../components/SearchBar';
 import '../styles/MainPage.css';
 import { transform } from 'ol/proj';
 
 const MainPage = () => {
+  const navigate = useNavigate();
   const [map, setMap] = useState(null);
   const [results, setResults] = useState([]);
   const [isSearched, setIsSearched] = useState(false);
@@ -81,9 +83,20 @@ const handleMoveEnd = () => {
       <header>
         <div className="logo">SolarAivle</div>
         <nav className="nav-menu">
-          <a href="/login">로그인</a>
-          <a href="/signup">회원가입</a>
-        </nav>
+
+          <button onClick={() => navigate("/boards")}>
+            게시판
+          </button>
+
+          <button onClick={() => navigate("/login")}>
+            로그인
+          </button>
+
+          <button onClick={() => navigate("/signup")}>
+            회원가입
+          </button>
+
+</nav>
       </header>
 
       <main className="main-content">
