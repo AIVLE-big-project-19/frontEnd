@@ -21,7 +21,7 @@ const SearchBar = ({ onSearchResult }) => {
   return (
     <div style={{ padding: '10px' }}>
       <input value={keyword} onKeyDown={handleKeyDown} onChange={(e) => setKeyword(e.target.value)} />
-      <button className="custom-search-button" onClick={handleSearch}>검색</button>
+      <button className="search-button" onClick={handleSearch}>검색</button>
     </div>
   );
 };
