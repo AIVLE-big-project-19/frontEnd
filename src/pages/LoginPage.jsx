@@ -51,6 +51,7 @@ const LoginPage = () => {
             value={loginId}
             onChange={(e) => setLoginId(e.target.value)}
             autoComplete="username"
+            placeholder="아이디"
           />
         </div>
         <div className="auth-field">
@@ -61,6 +62,7 @@ const LoginPage = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             autoComplete="current-password"
+            placeholder="비밀번호"
           />
         </div>
         <label className="auth-checkbox">

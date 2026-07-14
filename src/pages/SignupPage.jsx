@@ -118,6 +118,7 @@ const SignupPage = () => {
               value={loginId}
               onChange={handleLoginIdChange}
               autoComplete="username"
+              placeholder="아이디 입력 (4~20자)"
             />
             <button type="button" className="auth-sub-button" onClick={handleCheckLoginId}>
               중복확인
@@ -140,6 +141,7 @@ const SignupPage = () => {
               onChange={handleEmailChange}
               disabled={emailVerified}
               autoComplete="email"
+              placeholder="이메일 주소"
             />
             <button
               type="button"
@@ -161,6 +163,7 @@ const SignupPage = () => {
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
                 maxLength={6}
+                placeholder="인증번호 6자리"
               />
               <button type="button" className="auth-sub-button" onClick={handleVerifyCode}>
                 인증 확인
@@ -182,6 +185,7 @@ const SignupPage = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             autoComplete="new-password"
+            placeholder="비밀번호 입력 (8~50자)"
           />
         </div>
 
@@ -193,6 +197,7 @@ const SignupPage = () => {
             value={passwordConfirm}
             onChange={(e) => setPasswordConfirm(e.target.value)}
             autoComplete="new-password"
+            placeholder="비밀번호 재입력"
           />
           {passwordMismatch && <p className="auth-error">비밀번호가 일치하지 않습니다.</p>}
           {passwordMatches && <p className="auth-info">비밀번호가 일치합니다.</p>}
@@ -205,6 +210,7 @@ const SignupPage = () => {
             value={name}
             onChange={(e) => setName(e.target.value)}
             autoComplete="name"
+            placeholder="이름 입력"
           />
         </div>
 
