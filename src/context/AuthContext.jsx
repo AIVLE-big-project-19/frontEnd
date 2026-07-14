@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import instance from '../api/axiosInstance';
 import * as authApi from '../api/authApi';
 import {
@@ -53,10 +53,13 @@ export const AuthProvider = ({ children }) => {
     setLoginId(null);
   }, []);
 
+  const value = useMemo(
+    () => ({ isLoggedIn: loginId !== null, loginId, isInitializing, login, logout }),
+    [loginId, isInitializing, login, logout],
+  );
+
   return (
-    <AuthContext.Provider
-      value={{ isLoggedIn: loginId !== null, loginId, isInitializing, login, logout }}
-    >
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );
