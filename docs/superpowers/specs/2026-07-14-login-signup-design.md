@@ -20,7 +20,7 @@
 | 6 | 토큰 재발급 | `POST /auth/token/refresh` | `{ refreshToken }` | `data: { accessToken, refreshToken }` (재사용 불가, 매번 교체 저장). 401 `INVALID_REFRESH_TOKEN` |
 | 7 | 로그아웃 | `POST /auth/logout` | `{ refreshToken }` | 무효 토큰이어도 200 |
 
-검증 규칙(가정): `loginId` 4~20자, `password` 8~50자, `email` 형식, 전부 필수. `@Valid` 실패 시 `data`에 `{필드명: 메시지}` 형태로 들어옴.
+검증 규칙: `loginId` 4~20자, `password` 8~16자(영문/숫자/특수문자 포함), `email` 형식, 전부 필수. `@Valid` 실패 시 `data`에 `{필드명: 메시지}` 형태로 들어옴.
 
 ## 범위
 
@@ -57,7 +57,7 @@
 4. 비밀번호/비밀번호 확인은 프론트에서 일치 여부만 검증
 5. 이메일 인증 완료 + 아이디 중복확인 통과해야 "가입하기" 버튼 활성화
 6. 제출(`signup`) 성공 시 로그인 페이지로 이동(가입 완료 안내 메시지 포함)
-7. 프론트 검증: loginId 4~20자, password 8~50자, email 형식. 백엔드 에러(`DUPLICATE_LOGIN_ID`, `DUPLICATE_EMAIL`, `EMAIL_VERIFICATION_REQUIRED` 등)는 그대로 화면에 표시
+7. 프론트 검증: loginId 4~20자, password 8~16자(영문/숫자/특수문자 포함), email 형식. 백엔드 에러(`DUPLICATE_LOGIN_ID`, `DUPLICATE_EMAIL`, `EMAIL_VERIFICATION_REQUIRED` 등)는 그대로 화면에 표시
 
 ## 로그인 페이지 (LoginPage)
 

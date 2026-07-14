@@ -80,8 +80,12 @@ const SignupPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (password.length < 8 || password.length > 50) {
-      setFormError('비밀번호는 8~50자여야 합니다.');
+    const validLength = password.length >= 8 && password.length <= 16;
+    const hasLetter = /[A-Za-z]/.test(password);
+    const hasDigit = /\d/.test(password);
+    const hasSpecial = /[^A-Za-z0-9]/.test(password);
+    if (!validLength || !hasLetter || !hasDigit || !hasSpecial) {
+      setFormError('비밀번호는 영문, 숫자, 특수문자를 포함한 8~16자여야 합니다.');
       return;
     }
     if (!name) {
@@ -185,7 +189,7 @@ const SignupPage = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             autoComplete="new-password"
-            placeholder="비밀번호 입력 (8~50자)"
+            placeholder="비밀번호 입력 (8~16자리/영문 숫자 특수기호 포함)"
           />
         </div>
 
