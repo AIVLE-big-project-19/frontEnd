@@ -8,6 +8,25 @@ const instance = axios.create({ baseURL: '/api' });
 // 401이 와도 토큰 재발급을 시도하면 안 되는 엔드포인트
 const NO_REFRESH_URLS = ['/auth/login', '/auth/token/refresh'];
 
+// 동시에 여러 요청이 401을 받아도 refresh는 한 번만 수행되도록 공유하는 in-flight promise
+let refreshPromise = null;
+
+const refreshAccessToken = (session) => {
+  if (!refreshPromise) {
+    refreshPromise = instance
+      .post('/auth/token/refresh', { refreshToken: session.refreshToken })
+      .then(({ data }) => {
+        setAccessToken(data.data.accessToken);
+        updateRefreshToken(data.data.refreshToken);
+        return data.data.accessToken;
+      })
+      .finally(() => {
+        refreshPromise = null;
+      });
+  }
+  return refreshPromise;
+};
+
 export const attachAuthHeader = (config) => {
   const token = getAccessToken();
   if (token) {
@@ -34,12 +53,8 @@ export const handleResponseError = async (error) => {
 
   config._retry = true;
   try {
-    const { data } = await instance.post('/auth/token/refresh', {
-      refreshToken: session.refreshToken,
-    });
-    setAccessToken(data.data.accessToken);
-    updateRefreshToken(data.data.refreshToken);
-    config.headers.Authorization = `Bearer ${data.data.accessToken}`;
+    const accessToken = await refreshAccessToken(session);
+    config.headers.Authorization = `Bearer ${accessToken}`;
     return instance.request(config);
   } catch (refreshError) {
     clearSession();

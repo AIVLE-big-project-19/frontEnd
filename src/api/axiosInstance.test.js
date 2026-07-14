@@ -66,4 +66,30 @@ describe('handleResponseError', () => {
     const error = { config: { url: '/x' }, response: { status: 500 } };
     await expect(handleResponseError(error)).rejects.toBe(error);
   });
+
+  test('동시에 여러 401이 발생해도 refresh는 한 번만 호출된다', async () => {
+    saveSession({ refreshToken: 'rt-old', loginId: 'tester01', rememberMe: true });
+    vi.spyOn(instance, 'post').mockResolvedValue({
+      data: { success: true, data: { accessToken: 'at-new', refreshToken: 'rt-new' } },
+    });
+    vi.spyOn(instance, 'request').mockResolvedValue({ data: 'ok' });
+
+    const [result1, result2] = await Promise.all([
+      handleResponseError(make401('/some/protected')),
+      handleResponseError(make401('/some/other-protected')),
+    ]);
+
+    expect(instance.post).toHaveBeenCalledTimes(1);
+    expect(instance.post).toHaveBeenCalledWith('/auth/token/refresh', { refreshToken: 'rt-old' });
+    expect(instance.request).toHaveBeenCalledTimes(2);
+    expect(result1).toEqual({ data: 'ok' });
+    expect(result2).toEqual({ data: 'ok' });
+  });
+
+  test('세션이 없으면 refresh를 시도하지 않고 그대로 reject한다', async () => {
+    clearSession();
+    const spy = vi.spyOn(instance, 'post');
+    await expect(handleResponseError(make401('/some/protected'))).rejects.toBeTruthy();
+    expect(spy).not.toHaveBeenCalled();
+  });
 });
