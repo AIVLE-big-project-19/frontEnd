@@ -1,0 +1,146 @@
+import { vi } from 'vitest';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { MemoryRouter, Routes, Route } from 'react-router-dom';
+import SignupPage from './SignupPage';
+import * as authApi from '../api/authApi';
+
+vi.mock('../api/authApi');
+
+const renderSignup = () =>
+  render(
+    <MemoryRouter initialEntries={['/signup']}>
+      <Routes>
+        <Route path="/signup" element={<SignupPage />} />
+        <Route path="/login" element={<div>로그인페이지</div>} />
+      </Routes>
+    </MemoryRouter>
+  );
+
+// 이메일 인증 + 아이디 중복확인까지 완료하는 헬퍼
+const completeVerifications = async () => {
+  authApi.sendEmailCode.mockResolvedValue({ success: true });
+  authApi.verifyEmailCode.mockResolvedValue({ success: true });
+  authApi.checkLoginId.mockResolvedValue({ success: true, data: { available: true } });
+
+  await userEvent.type(screen.getByLabelText('이메일'), 'user@example.com');
+  await userEvent.click(screen.getByRole('button', { name: '인증코드 발송' }));
+  await userEvent.type(screen.getByLabelText('인증코드'), '123456');
+  await userEvent.click(screen.getByRole('button', { name: '인증 확인' }));
+  await waitFor(() => expect(screen.getByText('이메일 인증이 완료되었습니다.')).toBeInTheDocument());
+
+  await userEvent.type(screen.getByLabelText('아이디'), 'tester01');
+  await userEvent.click(screen.getByRole('button', { name: '중복확인' }));
+  await waitFor(() => expect(screen.getByText('사용 가능한 아이디입니다.')).toBeInTheDocument());
+};
+
+beforeEach(() => {
+  vi.clearAllMocks();
+});
+
+test('처음에는 가입하기 버튼이 비활성화되어 있다', () => {
+  renderSignup();
+  expect(screen.getByRole('button', { name: '가입하기' })).toBeDisabled();
+});
+
+test('이메일 인증과 아이디 중복확인 후 가입이 성공하면 로그인 페이지로 이동한다', async () => {
+  authApi.signup.mockResolvedValue({ success: true });
+  renderSignup();
+
+  await completeVerifications();
+  await userEvent.type(screen.getByLabelText('비밀번호'), 'password123');
+  await userEvent.type(screen.getByLabelText('비밀번호 확인'), 'password123');
+  await userEvent.type(screen.getByLabelText('이름'), '홍길동');
+
+  const submit = screen.getByRole('button', { name: '가입하기' });
+  expect(submit).toBeEnabled();
+  await userEvent.click(submit);
+
+  await waitFor(() => expect(screen.getByText('로그인페이지')).toBeInTheDocument());
+  expect(authApi.signup).toHaveBeenCalledWith({
+    loginId: 'tester01', email: 'user@example.com', password: 'password123', name: '홍길동',
+  });
+});
+
+test('아이디가 중복이면 사용 불가 메시지를 보여준다', async () => {
+  authApi.checkLoginId.mockResolvedValue({ success: true, data: { available: false } });
+  renderSignup();
+
+  await userEvent.type(screen.getByLabelText('아이디'), 'tester01');
+  await userEvent.click(screen.getByRole('button', { name: '중복확인' }));
+
+  await waitFor(() => expect(screen.getByText('이미 사용 중인 아이디입니다.')).toBeInTheDocument());
+  expect(screen.getByRole('button', { name: '가입하기' })).toBeDisabled();
+});
+
+test('인증코드 발송 쿨다운(429) 시 서버 메시지를 보여준다', async () => {
+  authApi.sendEmailCode.mockRejectedValue({
+    response: { status: 429, data: { success: false, message: '잠시 후 다시 시도해주세요.' } },
+  });
+  renderSignup();
+
+  await userEvent.type(screen.getByLabelText('이메일'), 'user@example.com');
+  await userEvent.click(screen.getByRole('button', { name: '인증코드 발송' }));
+
+  await waitFor(() => expect(screen.getByText('잠시 후 다시 시도해주세요.')).toBeInTheDocument());
+});
+
+test('인증코드가 틀리면 에러 메시지를 보여준다', async () => {
+  authApi.sendEmailCode.mockResolvedValue({ success: true });
+  authApi.verifyEmailCode.mockRejectedValue({
+    response: { status: 400, data: { success: false, message: '인증번호가 일치하지 않거나 만료되었습니다.' } },
+  });
+  renderSignup();
+
+  await userEvent.type(screen.getByLabelText('이메일'), 'user@example.com');
+  await userEvent.click(screen.getByRole('button', { name: '인증코드 발송' }));
+  await userEvent.type(screen.getByLabelText('인증코드'), '000000');
+  await userEvent.click(screen.getByRole('button', { name: '인증 확인' }));
+
+  await waitFor(() =>
+    expect(screen.getByText('인증번호가 일치하지 않거나 만료되었습니다.')).toBeInTheDocument()
+  );
+});
+
+test('비밀번호가 8자 미만이면 검증 에러를 보여주고 API를 호출하지 않는다', async () => {
+  authApi.signup.mockResolvedValue({ success: true });
+  renderSignup();
+
+  await completeVerifications();
+  await userEvent.type(screen.getByLabelText('비밀번호'), 'short');
+  await userEvent.type(screen.getByLabelText('비밀번호 확인'), 'short');
+  await userEvent.type(screen.getByLabelText('이름'), '홍길동');
+  await userEvent.click(screen.getByRole('button', { name: '가입하기' }));
+
+  await waitFor(() =>
+    expect(screen.getByText('비밀번호는 8~50자여야 합니다.')).toBeInTheDocument()
+  );
+  expect(authApi.signup).not.toHaveBeenCalled();
+});
+
+test('비밀번호 확인이 일치하지 않으면 에러를 보여준다', async () => {
+  renderSignup();
+
+  await completeVerifications();
+  await userEvent.type(screen.getByLabelText('비밀번호'), 'password123');
+  await userEvent.type(screen.getByLabelText('비밀번호 확인'), 'password124');
+  await userEvent.type(screen.getByLabelText('이름'), '홍길동');
+  await userEvent.click(screen.getByRole('button', { name: '가입하기' }));
+
+  await waitFor(() =>
+    expect(screen.getByText('비밀번호가 일치하지 않습니다.')).toBeInTheDocument()
+  );
+  expect(authApi.signup).not.toHaveBeenCalled();
+});
+
+test('아이디 값을 바꾸면 중복확인 상태가 리셋된다', async () => {
+  authApi.checkLoginId.mockResolvedValue({ success: true, data: { available: true } });
+  renderSignup();
+
+  await userEvent.type(screen.getByLabelText('아이디'), 'tester01');
+  await userEvent.click(screen.getByRole('button', { name: '중복확인' }));
+  await waitFor(() => expect(screen.getByText('사용 가능한 아이디입니다.')).toBeInTheDocument());
+
+  await userEvent.type(screen.getByLabelText('아이디'), 'x');
+  expect(screen.queryByText('사용 가능한 아이디입니다.')).not.toBeInTheDocument();
+});
