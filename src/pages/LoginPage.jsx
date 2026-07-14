@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import * as authApi from '../api/authApi';
 import { useAuth } from '../context/AuthContext';
+import { consumeAuthExpiredMessage } from '../auth/tokenStorage';
 import '../styles/AuthPage.css';
 
 const LoginPage = () => {
@@ -10,6 +11,8 @@ const LoginPage = () => {
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  // sessionStorage에 남아있을 수 있는 "세션 만료" 1회성 메시지를 마운트 시 한 번만 읽고 지운다.
+  const [expiredMessage] = useState(() => consumeAuthExpiredMessage());
 
   const auth = useAuth();
   const navigate = useNavigate();
@@ -40,6 +43,7 @@ const LoginPage = () => {
       <form className="auth-card" onSubmit={handleSubmit}>
         <h1>로그인</h1>
         {infoMessage && <p className="auth-info">{infoMessage}</p>}
+        {!infoMessage && expiredMessage && <p className="auth-error">{expiredMessage}</p>}
         <div className="auth-field">
           <label htmlFor="loginId">아이디</label>
           <input

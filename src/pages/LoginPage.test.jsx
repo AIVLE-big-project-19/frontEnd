@@ -24,6 +24,7 @@ const renderLogin = (initialEntries = ['/login']) =>
 
 beforeEach(() => {
   vi.clearAllMocks();
+  sessionStorage.removeItem('authExpiredMessage');
 });
 
 test('로그인 성공 시 auth.login을 호출하고 메인으로 이동한다', async () => {
@@ -71,4 +72,13 @@ test('빈 필드로 제출하면 API를 호출하지 않는다', async () => {
 test('회원가입 완료 안내 메시지를 표시한다', () => {
   renderLogin([{ pathname: '/login', state: { message: '회원가입이 완료되었습니다. 로그인해주세요.' } }]);
   expect(screen.getByText('회원가입이 완료되었습니다. 로그인해주세요.')).toBeInTheDocument();
+});
+
+test('세션 만료 메시지가 sessionStorage에 있으면 표시하고 이후 제거한다', () => {
+  sessionStorage.setItem('authExpiredMessage', '로그인이 만료되었습니다. 다시 로그인해주세요.');
+  renderLogin();
+  expect(
+    screen.getByText('로그인이 만료되었습니다. 다시 로그인해주세요.')
+  ).toBeInTheDocument();
+  expect(sessionStorage.getItem('authExpiredMessage')).toBeNull();
 });

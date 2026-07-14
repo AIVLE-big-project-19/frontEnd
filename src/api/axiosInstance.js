@@ -1,6 +1,7 @@
 import axios from 'axios';
 import {
   getAccessToken, setAccessToken, loadSession, updateRefreshToken, clearSession,
+  setAuthExpiredMessage,
 } from '../auth/tokenStorage';
 
 const instance = axios.create({ baseURL: '/api' });
@@ -57,6 +58,7 @@ export const handleResponseError = async (error) => {
     config.headers.Authorization = `Bearer ${accessToken}`;
     return instance.request(config);
   } catch (refreshError) {
+    setAuthExpiredMessage();
     clearSession();
     window.location.href = '/login';
     return Promise.reject(refreshError);

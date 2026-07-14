@@ -4,6 +4,7 @@ import { setAccessToken, getAccessToken, saveSession, loadSession, clearSession 
 
 beforeEach(() => {
   clearSession();
+  sessionStorage.removeItem('authExpiredMessage');
   vi.restoreAllMocks();
 });
 
@@ -60,6 +61,9 @@ describe('handleResponseError', () => {
 
     await expect(handleResponseError(make401('/some/protected'))).rejects.toBeTruthy();
     expect(loadSession()).toBeNull();
+    expect(sessionStorage.getItem('authExpiredMessage')).toBe(
+      '로그인이 만료되었습니다. 다시 로그인해주세요.'
+    );
   });
 
   test('401이 아닌 에러는 그대로 reject한다', async () => {

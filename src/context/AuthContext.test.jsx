@@ -32,6 +32,7 @@ const renderWithProvider = () =>
 
 beforeEach(() => {
   clearSession();
+  sessionStorage.removeItem('authExpiredMessage');
   vi.restoreAllMocks();
 });
 
@@ -72,6 +73,9 @@ test('부팅 시 refresh 실패하면 비로그인 상태로 시작하고 세션
 
   await waitFor(() => expect(screen.getByTestId('status')).toHaveTextContent('비로그인'));
   expect(loadSession()).toBeNull();
+  expect(sessionStorage.getItem('authExpiredMessage')).toBe(
+    '로그인이 만료되었습니다. 다시 로그인해주세요.'
+  );
 });
 
 test('logout 호출 시 비로그인 상태가 되고 세션이 삭제된다', async () => {

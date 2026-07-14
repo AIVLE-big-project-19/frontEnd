@@ -3,6 +3,7 @@ import instance from '../api/axiosInstance';
 import * as authApi from '../api/authApi';
 import {
   setAccessToken, saveSession, loadSession, updateRefreshToken, clearSession,
+  setAuthExpiredMessage,
 } from '../auth/tokenStorage';
 
 const AuthContext = createContext(null);
@@ -26,6 +27,7 @@ export const AuthProvider = ({ children }) => {
         updateRefreshToken(data.data.refreshToken);
         setLoginId(session.loginId);
       } catch {
+        setAuthExpiredMessage();
         clearSession();
       } finally {
         setIsInitializing(false);
