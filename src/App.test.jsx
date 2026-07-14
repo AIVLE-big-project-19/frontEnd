@@ -24,10 +24,12 @@ test('/ 경로에서 메인 페이지를 보여준다', async () => {
 
 test('/login 경로에서 로그인 페이지를 보여준다', async () => {
   renderAt('/login');
-  await waitFor(() => expect(screen.getByRole('heading', { name: '로그인' })).toBeInTheDocument());
+  await waitFor(() => expect(screen.getByRole('heading', { name: 'SolarAivle' })).toBeInTheDocument());
 });
 
 test('/signup 경로에서 회원가입 페이지를 보여준다', async () => {
   renderAt('/signup');
-  await waitFor(() => expect(screen.getByRole('heading', { name: '회원가입' })).toBeInTheDocument());
+  await waitFor(() =>
+    expect(screen.getByRole('heading', { name: 'SolarAivle에 오신 것을 환영합니다' })).toBeInTheDocument()
+  );
 });

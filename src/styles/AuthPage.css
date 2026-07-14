@@ -8,21 +8,22 @@
 
 .auth-card {
   width: 100%;
-  max-width: 400px;
-  padding: 32px;
+  max-width: 440px;
+  padding: 40px;
   background: #fff;
   border-radius: 12px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
 }
 
 .auth-card h1 {
-  margin: 0 0 24px;
-  font-size: 24px;
+  margin: 0 0 28px;
+  font-size: 26px;
+  font-weight: 800;
   text-align: center;
 }
 
 .auth-field {
-  margin-bottom: 16px;
+  margin-bottom: 18px;
 }
 
 .auth-field label {
@@ -30,15 +31,21 @@
   margin-bottom: 6px;
   font-size: 14px;
   font-weight: 600;
+  color: #344054;
 }
 
 .auth-field input {
   width: 100%;
-  padding: 10px 12px;
+  padding: 12px 14px;
   border: 1px solid #d0d5dd;
-  border-radius: 8px;
+  border-radius: 6px;
   font-size: 14px;
   box-sizing: border-box;
+}
+
+.auth-field input:focus {
+  outline: none;
+  border-color: #14b8a6;
 }
 
 .auth-field-row {
@@ -54,20 +61,25 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 16px;
+  margin-bottom: 18px;
   font-size: 14px;
+  color: #344054;
 }
 
 .auth-submit {
   width: 100%;
-  padding: 12px;
+  padding: 14px;
   border: none;
-  border-radius: 8px;
-  background: #2563eb;
+  border-radius: 6px;
+  background: #14b8a6;
   color: #fff;
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
+}
+
+.auth-submit:hover:not(:disabled) {
+  background: #0d9488;
 }
 
 .auth-submit:disabled {
@@ -76,14 +88,19 @@
 }
 
 .auth-sub-button {
-  padding: 10px 12px;
-  border: 1px solid #2563eb;
-  border-radius: 8px;
+  padding: 12px 14px;
+  border: 1px solid #14b8a6;
+  border-radius: 6px;
   background: #fff;
-  color: #2563eb;
+  color: #14b8a6;
   font-size: 13px;
+  font-weight: 600;
   white-space: nowrap;
   cursor: pointer;
+}
+
+.auth-sub-button:hover:not(:disabled) {
+  background: #f0fdfa;
 }
 
 .auth-sub-button:disabled {
@@ -105,7 +122,31 @@
 }
 
 .auth-links {
-  margin-top: 16px;
+  margin-top: 20px;
   text-align: center;
   font-size: 14px;
+  color: #475467;
+}
+
+.auth-links a {
+  color: #14b8a6;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.auth-links a:hover {
+  text-decoration: underline;
+}
+
+.auth-links-row {
+  margin-top: 16px;
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  font-size: 13px;
+  color: #98a2b3;
+}
+
+.auth-link-placeholder {
+  cursor: default;
 }

@@ -41,7 +41,7 @@ const LoginPage = () => {
   return (
     <div className="auth-page">
       <form className="auth-card" onSubmit={handleSubmit}>
-        <h1>로그인</h1>
+        <h1>SolarAivle</h1>
         {infoMessage && <p className="auth-info">{infoMessage}</p>}
         {!infoMessage && expiredMessage && <p className="auth-error">{expiredMessage}</p>}
         <div className="auth-field">
@@ -77,6 +77,11 @@ const LoginPage = () => {
         </button>
         <div className="auth-links">
           계정이 없으신가요? <Link to="/signup">회원가입</Link>
+        </div>
+        <div className="auth-links-row">
+          <span className="auth-link-placeholder">아이디 찾기</span>
+          <span>|</span>
+          <span className="auth-link-placeholder">비밀번호 찾기</span>
         </div>
       </form>
     </div>

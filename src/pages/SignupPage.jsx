@@ -109,7 +109,27 @@ const SignupPage = () => {
   return (
     <div className="auth-page">
       <form className="auth-card" onSubmit={handleSubmit}>
-        <h1>회원가입</h1>
+        <h1>SolarAivle에 오신 것을 환영합니다</h1>
+
+        <div className="auth-field">
+          <label htmlFor="signup-loginId">아이디</label>
+          <div className="auth-field-row">
+            <input
+              id="signup-loginId"
+              value={loginId}
+              onChange={handleLoginIdChange}
+              autoComplete="username"
+            />
+            <button type="button" className="auth-sub-button" onClick={handleCheckLoginId}>
+              중복확인
+            </button>
+          </div>
+        </div>
+        {loginIdMessage.text && (
+          <p className={loginIdMessage.type === 'error' ? 'auth-error' : 'auth-info'}>
+            {loginIdMessage.text}
+          </p>
+        )}
 
         <div className="auth-field">
           <label htmlFor="signup-email">이메일</label>
@@ -152,26 +172,6 @@ const SignupPage = () => {
         {emailMessage.text && (
           <p className={emailMessage.type === 'error' ? 'auth-error' : 'auth-info'}>
             {emailMessage.text}
-          </p>
-        )}
-
-        <div className="auth-field">
-          <label htmlFor="signup-loginId">아이디</label>
-          <div className="auth-field-row">
-            <input
-              id="signup-loginId"
-              value={loginId}
-              onChange={handleLoginIdChange}
-              autoComplete="username"
-            />
-            <button type="button" className="auth-sub-button" onClick={handleCheckLoginId}>
-              중복확인
-            </button>
-          </div>
-        </div>
-        {loginIdMessage.text && (
-          <p className={loginIdMessage.type === 'error' ? 'auth-error' : 'auth-info'}>
-            {loginIdMessage.text}
           </p>
         )}
 
