@@ -3,6 +3,7 @@ import MapView from '../components/MapView';
 import SearchBar from '../components/SearchBar';
 import '../styles/MainPage.css';
 import { transform } from 'ol/proj';
+import AuthNav from '../components/AuthNav';
 
 const MainPage = () => {
   const [map, setMap] = useState(null);
@@ -80,10 +81,7 @@ const handleMoveEnd = () => {
     <div className="app-container">
       <header>
         <div className="logo">SolarAivle</div>
-        <nav className="nav-menu">
-          <a href="/login">로그인</a>
-          <a href="/signup">회원가입</a>
-        </nav>
+        <AuthNav />
       </header>
 
       <main className="main-content">
