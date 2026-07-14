@@ -75,8 +75,6 @@ const handleMoveEnd = () => {
     setIsSearched(true);
   };
 
-  if (!apiKey) return <div>지도를 불러오는 중...</div>;
-
   return (
     <div className="app-container">
       <header>
@@ -84,39 +82,45 @@ const handleMoveEnd = () => {
         <AuthNav />
       </header>
 
-      <main className="main-content">
-        <div className="search-bar-container">
-          <SearchBar onSearchResult={handleSearch} />
-          
-          {isSearched && (
-            results.length > 0 ? (
-              <ul className="dropdown-list">
-                {results.map((item, i) => (
-                  <li key={i} onClick={() => handleMove(item.point.x, item.point.y)} className="result-item">
-                    <div className="item-title">{item.title}</div>
-                    <div className="item-address">{item.address?.road || item.address?.parcel}</div>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <div className="no-result">검색 결과가 없습니다.</div>
-            )
-          )}
-        </div>
-        
-        <div className="map-container">
-          <MapView apiKey={apiKey} setMap={setMap} />
-          
-          <div className="address-display"> {currentAddress}</div>
+      {!apiKey ? (
+        <main className="main-content">
+          <div>지도를 불러오는 중...</div>
+        </main>
+      ) : (
+        <main className="main-content">
+          <div className="search-bar-container">
+            <SearchBar onSearchResult={handleSearch} />
 
-          {map && (
-            <div className="zoom-controls">
-              <button onClick={() => map.getView().setZoom(map.getView().getZoom() + 1)}>+</button>
-              <button onClick={() => map.getView().setZoom(map.getView().getZoom() - 1)}>-</button>
-            </div>
-          )}
-        </div>
-      </main>
+            {isSearched && (
+              results.length > 0 ? (
+                <ul className="dropdown-list">
+                  {results.map((item, i) => (
+                    <li key={i} onClick={() => handleMove(item.point.x, item.point.y)} className="result-item">
+                      <div className="item-title">{item.title}</div>
+                      <div className="item-address">{item.address?.road || item.address?.parcel}</div>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <div className="no-result">검색 결과가 없습니다.</div>
+              )
+            )}
+          </div>
+
+          <div className="map-container">
+            <MapView apiKey={apiKey} setMap={setMap} />
+
+            <div className="address-display"> {currentAddress}</div>
+
+            {map && (
+              <div className="zoom-controls">
+                <button onClick={() => map.getView().setZoom(map.getView().getZoom() + 1)}>+</button>
+                <button onClick={() => map.getView().setZoom(map.getView().getZoom() - 1)}>-</button>
+              </div>
+            )}
+          </div>
+        </main>
+      )}
 
       <footer>
         © 2026 19th Big Project. All rights reserved.
