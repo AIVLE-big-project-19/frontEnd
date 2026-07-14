@@ -9,8 +9,8 @@ import react from '@vitejs/plugin-react'
 // NODE_OPTIONS에 있으면 Node가 아예 기동을 거부하므로, 반드시 Node 버전을 확인한 뒤에만 붙여야 한다.
 // Node의 Web Storage API가 정식(stable)이 되거나 제거되거나, jsdom/vitest 쪽에서 이 충돌이
 // 해결되면 이 워크어라운드 전체를 제거할 것.
-const nodeMajor = Number(process.versions.node.split('.')[0])
-if (nodeMajor >= 22) {
+const [nodeMajor, nodeMinor] = process.versions.node.split('.').map(Number)
+if (nodeMajor > 22 || (nodeMajor === 22 && nodeMinor >= 4)) {
   process.env.NODE_OPTIONS = [process.env.NODE_OPTIONS, '--no-experimental-webstorage']
     .filter(Boolean)
     .join(' ')
