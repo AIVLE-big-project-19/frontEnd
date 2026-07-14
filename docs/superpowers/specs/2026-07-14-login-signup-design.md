@@ -36,12 +36,14 @@
 - **인증 상태**: `src/context/AuthContext.jsx`
   - `accessToken`은 React state(메모리)에만 보관 — 새로고침 시 사라짐
   - `refreshToken`은 로그인 시 `rememberMe` 여부에 따라 `localStorage`(true) 또는 `sessionStorage`(false)에 저장
-  - 앱 부팅 시 `AuthProvider`가 localStorage → sessionStorage 순으로 refreshToken 존재 여부 확인 → 있으면 `/auth/token/refresh` 호출해 로그인 상태 복원, 실패 시 비로그인 상태로 시작
-  - `login(tokens, rememberMe)`, `logout()`, `user` 등 필요한 값/함수를 Context로 제공
+  - 백엔드에 사용자 정보 조회 API가 없으므로, 로그인 시 입력한 `loginId`도 refreshToken과 같은 스토리지에 함께 저장해 헤더 표시에 사용
+  - 앱 부팅 시 `AuthProvider`가 localStorage → sessionStorage 순으로 refreshToken 존재 여부 확인 → 있으면 `/auth/token/refresh` 호출해 로그인 상태 복원(저장된 loginId도 함께 복원), 실패 시 비로그인 상태로 시작
+  - `login(tokens, loginId, rememberMe)`, `logout()`, `loginId`, `isLoggedIn` 등 필요한 값/함수를 Context로 제공
 - **API 계층**
   - `src/api/axiosInstance.js`: `baseURL: '/api'`인 axios 인스턴스
     - 요청 인터셉터: accessToken 있으면 `Authorization: Bearer {token}` 자동 첨부
     - 응답 인터셉터: 401 + 미재시도 요청이면 `/auth/token/refresh` 호출 → 성공 시 토큰 교체 후 원요청 재시도, 실패 시 로그아웃 처리(토큰 삭제 + `/login`으로 이동)
+    - 무한루프 방지: `/auth/login`, `/auth/token/refresh` 등 인증 엔드포인트 자체의 401은 재발급을 트리거하지 않고 그대로 호출자에게 에러 반환
   - `src/api/authApi.js`: 위 axios 인스턴스를 사용하는 엔드포인트별 함수 (`checkLoginId`, `sendEmailCode`, `verifyEmailCode`, `signup`, `login`, `refreshToken`, `logout`)
 
 ## 회원가입 페이지 (SignupPage)
@@ -65,7 +67,7 @@
 
 ## 헤더 로그인 상태 표시 (MainPage)
 
-- `AuthContext` 참조하여 로그인 상태면 "닉네임 / 로그아웃" 표시, 비로그인이면 "로그인 / 회원가입" 링크(현재 `<a href>`로 되어있는 것을 `react-router-dom`의 `<Link>`로 교체)
+- `AuthContext` 참조하여 로그인 상태면 "{loginId}님 / 로그아웃" 표시, 비로그인이면 "로그인 / 회원가입" 링크(현재 `<a href>`로 되어있는 것을 `react-router-dom`의 `<Link>`로 교체)
 - "로그아웃" 클릭 시 `logout` API 호출 후 토큰 삭제 및 상태 초기화
 
 ## 에러 메시지 매핑
