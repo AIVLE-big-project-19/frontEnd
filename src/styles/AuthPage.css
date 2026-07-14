@@ -3,23 +3,28 @@
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background: #f5f6f8;
+  background: #fff;
 }
 
 .auth-card {
   width: 100%;
-  max-width: 440px;
-  padding: 40px;
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  max-width: 640px;
+  padding: 60px 48px;
 }
 
 .auth-card h1 {
-  margin: 0 0 28px;
+  margin: 0 0 32px;
   font-size: 26px;
   font-weight: 800;
   text-align: center;
+  white-space: nowrap;
+}
+
+@media (max-width: 480px) {
+  .auth-card h1 {
+    font-size: 20px;
+    white-space: normal;
+  }
 }
 
 .auth-field {
