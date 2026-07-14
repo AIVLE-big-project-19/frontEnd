@@ -84,10 +84,6 @@ const SignupPage = () => {
       setFormError('비밀번호는 8~50자여야 합니다.');
       return;
     }
-    if (password !== passwordConfirm) {
-      setFormError('비밀번호가 일치하지 않습니다.');
-      return;
-    }
     if (!name) {
       setFormError('이름을 입력해주세요.');
       return;
@@ -104,7 +100,10 @@ const SignupPage = () => {
     }
   };
 
-  const canSubmit = emailVerified && loginIdChecked && !isSubmitting;
+  const passwordMismatch = passwordConfirm.length > 0 && password !== passwordConfirm;
+  const passwordMatches = passwordConfirm.length > 0 && password === passwordConfirm;
+
+  const canSubmit = emailVerified && loginIdChecked && !passwordMismatch && !isSubmitting;
 
   return (
     <div className="auth-page">
@@ -195,6 +194,8 @@ const SignupPage = () => {
             onChange={(e) => setPasswordConfirm(e.target.value)}
             autoComplete="new-password"
           />
+          {passwordMismatch && <p className="auth-error">비밀번호가 일치하지 않습니다.</p>}
+          {passwordMatches && <p className="auth-info">비밀번호가 일치합니다.</p>}
         </div>
 
         <div className="auth-field">
