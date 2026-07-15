@@ -2,6 +2,8 @@ import { vi } from 'vitest';
 import instance from './axiosInstance';
 import {
   checkLoginId, sendEmailCode, verifyEmailCode, signup, login, logout,
+  sendFindIdCode, verifyFindIdCode, sendFindPasswordCode, verifyFindPasswordCode,
+  getPasswordResetStatus, resetPassword,
 } from './authApi';
 
 const ok = (data) => ({ data: { success: true, message: '', data } });
@@ -49,4 +51,49 @@ test('logout은 refreshToken을 POST한다', async () => {
   vi.spyOn(instance, 'post').mockResolvedValue(ok(null));
   await logout('rt-1');
   expect(instance.post).toHaveBeenCalledWith('/auth/logout', { refreshToken: 'rt-1' });
+});
+
+test('sendFindIdCode는 이메일을 POST한다', async () => {
+  vi.spyOn(instance, 'post').mockResolvedValue(ok(null));
+  await sendFindIdCode('a@b.com');
+  expect(instance.post).toHaveBeenCalledWith('/auth/find-id/send-code', { email: 'a@b.com' });
+});
+
+test('verifyFindIdCode는 이메일과 코드를 POST하고 결과를 반환한다', async () => {
+  vi.spyOn(instance, 'post').mockResolvedValue(
+    ok({ loginId: 'tester01', maskedLoginId: 'te******', createdAt: '2026-01-01T12:00:00' })
+  );
+  const result = await verifyFindIdCode('a@b.com', '123456');
+  expect(instance.post).toHaveBeenCalledWith('/auth/find-id/verify-code', { email: 'a@b.com', code: '123456' });
+  expect(result.data.loginId).toBe('tester01');
+  expect(result.data.maskedLoginId).toBe('te******');
+});
+
+test('sendFindPasswordCode는 아이디와 이메일을 POST한다', async () => {
+  vi.spyOn(instance, 'post').mockResolvedValue(ok(null));
+  await sendFindPasswordCode('tester01', 'a@b.com');
+  expect(instance.post).toHaveBeenCalledWith('/auth/password/send-code', { loginId: 'tester01', email: 'a@b.com' });
+});
+
+test('verifyFindPasswordCode는 아이디/이메일/코드를 POST한다', async () => {
+  vi.spyOn(instance, 'post').mockResolvedValue(ok(null));
+  await verifyFindPasswordCode('tester01', 'a@b.com', '123456');
+  expect(instance.post).toHaveBeenCalledWith('/auth/password/verify-code', {
+    loginId: 'tester01', email: 'a@b.com', code: '123456',
+  });
+});
+
+test('getPasswordResetStatus는 loginId 쿼리로 GET 요청한다', async () => {
+  vi.spyOn(instance, 'get').mockResolvedValue(ok({ verified: true }));
+  const result = await getPasswordResetStatus('tester01');
+  expect(instance.get).toHaveBeenCalledWith('/auth/password/verification-status', { params: { loginId: 'tester01' } });
+  expect(result.data.verified).toBe(true);
+});
+
+test('resetPassword는 아이디와 새 비밀번호를 POST한다', async () => {
+  vi.spyOn(instance, 'post').mockResolvedValue(ok(null));
+  await resetPassword('tester01', 'NewPassword1!');
+  expect(instance.post).toHaveBeenCalledWith('/auth/password/reset', {
+    loginId: 'tester01', newPassword: 'NewPassword1!',
+  });
 });

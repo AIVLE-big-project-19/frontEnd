@@ -82,3 +82,8 @@ test('세션 만료 메시지가 sessionStorage에 있으면 표시하고 이후
   ).toBeInTheDocument();
   expect(sessionStorage.getItem('authExpiredMessage')).toBeNull();
 });
+
+test('location.state.loginId가 있으면 아이디 입력란에 자동으로 채워진다', () => {
+  renderLogin([{ pathname: '/login', state: { loginId: 'tester01' } }]);
+  expect(screen.getByLabelText('아이디')).toHaveValue('tester01');
+});
