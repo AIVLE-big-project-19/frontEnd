@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
 import MapView from '../components/MapView';
 import SearchBar from '../components/SearchBar';
+import ChatBot from '../components/ChatBot';
 import '../styles/MainPage.css';
 import { transform } from 'ol/proj';
 
@@ -149,6 +150,8 @@ const MainPage = () => {
           </div>
         </>
       )}
+
+      <ChatBot />
     </Layout>
   );
 };
