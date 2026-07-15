@@ -21,7 +21,7 @@ const ResetPasswordPage = () => {
   const [retryToken, setRetryToken] = useState(0);
 
   useEffect(() => {
-    if (!loginId) {
+    if (!loginId || !state?.verified) {
       return undefined;
     }
     let cancelled = false;

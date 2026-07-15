@@ -27,6 +27,14 @@ test('state가 없으면 아이디 찾기 페이지로 리다이렉트한다', (
   expect(screen.getByText('아이디찾기페이지')).toBeInTheDocument();
 });
 
+test('state가 없거나 verified가 false이면 getPasswordResetStatus를 호출하지 않는다', () => {
+  renderPage(undefined);
+  expect(authApi.getPasswordResetStatus).not.toHaveBeenCalled();
+
+  renderPage({ loginId: 'tester01', verified: false });
+  expect(authApi.getPasswordResetStatus).not.toHaveBeenCalled();
+});
+
 test('인증 상태가 유효하면 아이디가 readonly로 채워진 폼을 보여준다', async () => {
   authApi.getPasswordResetStatus.mockResolvedValue({ success: true, data: { verified: true } });
   renderPage({ loginId: 'tester01', verified: true });
