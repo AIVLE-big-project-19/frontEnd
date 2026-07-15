@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { deleteBoard, getBoard } from "../api/boardApi";
+import { useAuth } from "../context/AuthContext";
 import CommentList from "../components/CommentList";
 import Layout from "../components/Layout";
 import "../styles/board.css";
@@ -8,6 +9,7 @@ import "../styles/board.css";
 function BoardDetailPage() {
     const { boardId } = useParams();
     const navigate = useNavigate();
+    const { loginId } = useAuth();
 
     const [board, setBoard] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -30,11 +32,16 @@ function BoardDetailPage() {
     };
 
     const handleDelete = async () => {
-        const confirmDelete = window.confirm("게시글을 삭제하시겠습니까?");
+        if (!board) return;
 
-        if (!confirmDelete) {
+        if (board.writer !== loginId) {
+            alert("본인이 작성한 게시글만 삭제할 수 있습니다.");
             return;
         }
+
+        const confirmDelete = window.confirm("게시글을 삭제하시겠습니까?");
+
+        if (!confirmDelete) return;
 
         try {
             await deleteBoard(boardId);
@@ -66,6 +73,8 @@ function BoardDetailPage() {
         );
     }
 
+    const isMyBoard = board.writer === loginId;
+
     return (
         <Layout>
             <div className="board-detail-page">
@@ -80,12 +89,23 @@ function BoardDetailPage() {
                             목록으로
                         </button>
 
-                        <button
-                            className="board-btn danger"
-                            onClick={handleDelete}
-                        >
-                            삭제
-                        </button>
+                        {isMyBoard && (
+                            <>
+                                <button
+                                    className="board-btn"
+                                    onClick={() => navigate(`/boards/${boardId}/edit`)}
+                                >
+                                    수정
+                                </button>
+
+                                <button
+                                    className="board-btn danger"
+                                    onClick={handleDelete}
+                                >
+                                    삭제
+                                </button>
+                            </>
+                        )}
                     </div>
                 </div>
 
