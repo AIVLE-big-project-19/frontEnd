@@ -1,51 +1,86 @@
-import { useEffect,useState } from "react";
-import { getBoard } from "../api/boardApi";
-import CommentList from "../components/CommentList";
+import { useEffect, useState } from "react";
+import { deleteComment, getComments } from "../api/commentApi";
+import CommentForm from "./CommentForm";
 
-function BoardDetailPage(){
+function CommentList({ boardId }) {
+    const [comments, setComments] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-    const [board,setBoard]=useState(null);
+    useEffect(() => {
+        loadComments();
+    }, [boardId]);
 
-    const boardId = 1;
+    const loadComments = async () => {
+        try {
+            const response = await getComments(boardId);
+            setComments(response.data.data);
+        } catch (error) {
+            console.log(error);
+            alert("댓글 목록을 불러오지 못했습니다.");
+        } finally {
+            setLoading(false);
+        }
+    };
 
-    useEffect(()=>{
+    const handleDelete = async (commentId) => {
+        const confirmDelete = window.confirm("댓글을 삭제하시겠습니까?");
 
-        loadBoard();
+        if (!confirmDelete) {
+            return;
+        }
 
-    },[]);
+        try {
+            await deleteComment(commentId);
+            alert("댓글이 삭제되었습니다.");
+            loadComments();
+        } catch (error) {
+            console.log(error);
+            alert("댓글 삭제에 실패했습니다.");
+        }
+    };
 
-    const loadBoard = async()=>{
+    return (
+        <div className="comment-section">
+            <h3 className="comment-title">댓글</h3>
 
-        const response = await getBoard(boardId);
+            {loading ? (
+                <div className="board-loading">댓글을 불러오는 중...</div>
+            ) : comments.length === 0 ? (
+                <div className="board-empty">등록된 댓글이 없습니다.</div>
+            ) : (
+                <div className="comment-list">
+                    {comments.map((comment) => (
+                        <div
+                            key={comment.commentId}
+                            className="comment-item"
+                        >
+                            <div className="comment-item-header">
+                                <span className="comment-writer">
+                                    {comment.writer}
+                                </span>
 
-        setBoard(response.data.data);
+                                <button
+                                    className="board-btn danger"
+                                    onClick={() => handleDelete(comment.commentId)}
+                                >
+                                    삭제
+                                </button>
+                            </div>
 
-    }
+                            <p className="comment-content">
+                                {comment.content}
+                            </p>
+                        </div>
+                    ))}
+                </div>
+            )}
 
-    if(!board){
-
-        return <div>Loading...</div>
-
-    }
-
-    return(
-
-        <div>
-
-            <h2>{board.title}</h2>
-
-            <p>{board.writer}</p>
-
-            <hr/>
-
-            <p>{board.content}</p>
-
-            <CommentList boardId={boardId}/>
-
+            <CommentForm
+                boardId={boardId}
+                onCommentCreated={loadComments}
+            />
         </div>
-
     );
-
 }
 
-export default BoardDetailPage;
+export default CommentList;

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from "react-router-dom";
 import Layout from '../components/Layout';
 import MapView from '../components/MapView';
 import SearchBar from '../components/SearchBar';
@@ -13,6 +14,7 @@ const MainPage = () => {
   const [apiKey, setApiKey] = useState(null);
   const [currentAddress, setCurrentAddress] = useState("지도를 이동해 보세요.");
   const [recentSearches, setRecentSearches] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetch('/api/vworld-key')
@@ -139,7 +141,12 @@ const MainPage = () => {
               <button className="pdf-download-btn" onClick={handleDownloadPdf} style={{marginLeft: '10px'}}>
                 보고서 다운로드
               </button>
+
+              <button className="board-move-btn" onClick={() => navigate("/boards")} style={{ marginLeft: '10px' }}>
+                게시판
+              </button>
             </div>
+
 
             {map && (
               <div className="zoom-controls">
