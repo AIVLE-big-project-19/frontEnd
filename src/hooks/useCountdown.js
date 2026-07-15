@@ -9,6 +9,7 @@ export const formatCountdown = (totalSeconds) => {
 export const useCountdown = (durationSeconds) => {
   const [secondsLeft, setSecondsLeft] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
+  const [hasStarted, setHasStarted] = useState(false);
   const intervalRef = useRef(null);
 
   const stop = useCallback(() => {
@@ -25,6 +26,7 @@ export const useCountdown = (durationSeconds) => {
     }
     setSecondsLeft(durationSeconds);
     setIsRunning(true);
+    setHasStarted(true);
     intervalRef.current = setInterval(() => {
       setSecondsLeft((prev) => {
         if (prev <= 1) {
@@ -43,7 +45,7 @@ export const useCountdown = (durationSeconds) => {
   return {
     secondsLeft,
     isRunning,
-    isExpired: !isRunning && secondsLeft === 0,
+    isExpired: hasStarted && !isRunning && secondsLeft === 0,
     start,
     stop,
     label: formatCountdown(secondsLeft),

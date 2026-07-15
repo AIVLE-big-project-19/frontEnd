@@ -58,6 +58,26 @@ test('start를 다시 호출하면 타이머가 재시작된다', () => {
   expect(result.current.secondsLeft).toBe(300);
 });
 
+test('start를 호출하기 전에는 isExpired가 false이다', () => {
+  const { result } = renderHook(() => useCountdown(300));
+  expect(result.current.isExpired).toBe(false);
+});
+
+test('완료 전에 stop을 호출하면 isExpired는 false로 유지된다', () => {
+  const { result } = renderHook(() => useCountdown(300));
+  act(() => {
+    result.current.start();
+  });
+  act(() => {
+    vi.advanceTimersByTime(5000);
+  });
+  act(() => {
+    result.current.stop();
+  });
+  expect(result.current.isRunning).toBe(false);
+  expect(result.current.isExpired).toBe(false);
+});
+
 test('stop을 호출하면 타이머가 멈춘다', () => {
   const { result } = renderHook(() => useCountdown(300));
   act(() => {
