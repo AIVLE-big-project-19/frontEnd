@@ -1,13 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
-import { useNavigate } from 'react-router-dom';
 import MapView from '../components/MapView';
 import SearchBar from '../components/SearchBar';
 import '../styles/MainPage.css';
 import { transform } from 'ol/proj';
 
 const MainPage = () => {
-  const navigate = useNavigate();
   const [map, setMap] = useState(null);
   const [results, setResults] = useState([]);
   const [isSearched, setIsSearched] = useState(false);
@@ -27,7 +25,7 @@ const MainPage = () => {
       const handleMoveEnd = () => {
         const center = map.getView().getCenter();
         const latLon = transform(center, 'EPSG:3857', 'EPSG:4326');
-        
+
         fetch(`/vworld-api/req/address?service=address&request=getAddress&point=${latLon[0]},${latLon[1]}&type=road&key=${apiKey}`)
           .then((res) => res.json())
           .then((data) => {
@@ -39,7 +37,7 @@ const MainPage = () => {
           })
           .catch(() => setCurrentAddress("통신 오류 발생"));
       };
-      
+
       map.on('moveend', handleMoveEnd);
       return () => map.un('moveend', handleMoveEnd);
     }
@@ -92,61 +90,65 @@ const MainPage = () => {
     setIsSearched(true);
   };
 
-  if (!apiKey) return <div>지도를 불러오는 중...</div>;
-
   return (
     <Layout>
-      <div className="search-bar-container">
-        <SearchBar onSearchResult={handleSearch} />
-        
-        {(isSearched || recentSearches.length > 0) && (
-          <div className="results-wrapper">
-            {isSearched && (
-              results.length > 0 ? (
-                <ul className="dropdown-list">
-                  {results.map((item, i) => (
-                    <li key={i} onClick={() => handleItemClick(item)} className="result-item">
-                      <div className="item-title">{item.title}</div>
-                      <div className="item-address">{item.address?.road || item.address?.parcel}</div>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <div className="no-result">검색 결과가 없습니다.</div>
-              )
-            )}
+      {!apiKey ? (
+        <div>지도를 불러오는 중...</div>
+      ) : (
+        <>
+          <div className="search-bar-container">
+            <SearchBar onSearchResult={handleSearch} />
 
-            {recentSearches.length > 0 && (
-              <div className="recent-searches">
-                <h4>최근 검색 기록</h4>
-                {recentSearches.map((item, i) => (
-                  <div key={i} className="recent-item" onClick={() => handleItemClick(item)}>
-                    {item.title}
+            {(isSearched || recentSearches.length > 0) && (
+              <div className="results-wrapper">
+                {isSearched && (
+                  results.length > 0 ? (
+                    <ul className="dropdown-list">
+                      {results.map((item, i) => (
+                        <li key={i} onClick={() => handleItemClick(item)} className="result-item">
+                          <div className="item-title">{item.title}</div>
+                          <div className="item-address">{item.address?.road || item.address?.parcel}</div>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <div className="no-result">검색 결과가 없습니다.</div>
+                  )
+                )}
+
+                {recentSearches.length > 0 && (
+                  <div className="recent-searches">
+                    <h4>최근 검색 기록</h4>
+                    {recentSearches.map((item, i) => (
+                      <div key={i} className="recent-item" onClick={() => handleItemClick(item)}>
+                        {item.title}
+                      </div>
+                    ))}
                   </div>
-                ))}
+                )}
               </div>
             )}
           </div>
-        )}
-      </div>
-      
-      <div className="map-container">
-        <MapView apiKey={apiKey} setMap={setMap} />
-        
-        <div className="address-display">
-          {currentAddress}
-          <button className="pdf-download-btn" onClick={handleDownloadPdf} style={{marginLeft: '10px'}}>
-            보고서 다운로드
-          </button>
-        </div>
 
-        {map && (
-          <div className="zoom-controls">
-            <button onClick={() => map.getView().setZoom(map.getView().getZoom() + 1)}>+</button>
-            <button onClick={() => map.getView().setZoom(map.getView().getZoom() - 1)}>-</button>
+          <div className="map-container">
+            <MapView apiKey={apiKey} setMap={setMap} />
+
+            <div className="address-display">
+              {currentAddress}
+              <button className="pdf-download-btn" onClick={handleDownloadPdf} style={{marginLeft: '10px'}}>
+                보고서 다운로드
+              </button>
+            </div>
+
+            {map && (
+              <div className="zoom-controls">
+                <button onClick={() => map.getView().setZoom(map.getView().getZoom() + 1)}>+</button>
+                <button onClick={() => map.getView().setZoom(map.getView().getZoom() - 1)}>-</button>
+              </div>
+            )}
           </div>
-        )}
-      </div>
+        </>
+      )}
     </Layout>
   );
 };
