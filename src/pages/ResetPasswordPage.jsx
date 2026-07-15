@@ -12,17 +12,21 @@ const ResetPasswordPage = () => {
 
   const [statusChecked, setStatusChecked] = useState(false);
   const [statusVerified, setStatusVerified] = useState(false);
+  const [statusCheckFailed, setStatusCheckFailed] = useState(false);
   const [password, setPassword] = useState('');
   const [passwordConfirm, setPasswordConfirm] = useState('');
   const [formError, setFormError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [resetDone, setResetDone] = useState(false);
+  const [retryToken, setRetryToken] = useState(0);
 
   useEffect(() => {
     if (!loginId) {
       return undefined;
     }
     let cancelled = false;
+    setStatusChecked(false);
+    setStatusCheckFailed(false);
     authApi
       .getPasswordResetStatus(loginId)
       .then((response) => {
@@ -34,13 +38,16 @@ const ResetPasswordPage = () => {
       .catch(() => {
         if (!cancelled) {
           setStatusVerified(false);
+          setStatusCheckFailed(true);
           setStatusChecked(true);
         }
       });
     return () => {
       cancelled = true;
     };
-  }, [loginId]);
+  }, [loginId, retryToken]);
+
+  const handleRetryStatusCheck = () => setRetryToken((token) => token + 1);
 
   if (!state?.loginId || !state?.verified) {
     return <Navigate to="/find-id" replace />;
@@ -80,6 +87,20 @@ const ResetPasswordPage = () => {
         <div className="auth-card">
           <h1>비밀번호 찾기</h1>
           <p>인증 상태를 확인하는 중...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (statusCheckFailed) {
+    return (
+      <div className="auth-page">
+        <div className="auth-card">
+          <h1>비밀번호 찾기</h1>
+          <p className="auth-error">인증 상태를 확인하는 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.</p>
+          <button type="button" className="auth-submit" onClick={handleRetryStatusCheck}>
+            다시 시도
+          </button>
         </div>
       </div>
     );

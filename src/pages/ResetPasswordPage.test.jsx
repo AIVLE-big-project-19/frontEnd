@@ -60,6 +60,19 @@ test('비밀번호 변경 성공 시 완료 모달을 보여준다', async () =>
   expect(authApi.resetPassword).toHaveBeenCalledWith('tester01', 'Password1!');
 });
 
+test('인증 상태 확인 자체가 실패하면 만료 메시지 대신 오류 메시지와 재시도 버튼을 보여준다', async () => {
+  authApi.getPasswordResetStatus.mockRejectedValue(new Error('Network Error'));
+  renderPage({ loginId: 'tester01', verified: true });
+
+  await waitFor(() =>
+    expect(
+      screen.getByText('인증 상태를 확인하는 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.')
+    ).toBeInTheDocument()
+  );
+  expect(screen.queryByText('인증이 만료되었습니다. 아이디 찾기를 다시 진행해주세요.')).not.toBeInTheDocument();
+  expect(screen.getByRole('button', { name: '다시 시도' })).toBeInTheDocument();
+});
+
 test('비밀번호가 일치하지 않으면 변경하기 버튼이 비활성화된다', async () => {
   authApi.getPasswordResetStatus.mockResolvedValue({ success: true, data: { verified: true } });
   renderPage({ loginId: 'tester01', verified: true });
