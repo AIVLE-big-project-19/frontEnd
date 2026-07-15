@@ -7,6 +7,7 @@ import BoardListPage from './pages/BoardListPage';
 import BoardDetailPage from './pages/BoardDetailPage';
 import BoardWritePage from './pages/BoardWritePage';
 import TestPage from './pages/TestPage';
+import BoardEditPage from './pages/BoardEditPage';
 
 export const AppRoutes = () => (
   <Routes>
@@ -17,6 +18,7 @@ export const AppRoutes = () => (
     <Route path="/boards/write" element={<BoardWritePage />} />
     <Route path="/boards/:boardId" element={<BoardDetailPage />} />
     <Route path="/test" element={<TestPage />} />
+    <Route path="/boards/:boardId/edit" element={<BoardEditPage />} />
   </Routes>
 );
 

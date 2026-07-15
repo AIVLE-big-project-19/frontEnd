@@ -1,28 +1,61 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { createBoard } from "../api/boardApi";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { getBoard, updateBoard } from "../api/boardApi";
 import { useAuth } from "../context/AuthContext";
 import { BOARD_CATEGORIES } from "../constants/boardCategory";
 import Layout from "../components/Layout";
 import "../styles/board.css";
 
-function BoardWritePage() {
+function BoardEditPage() {
+    const { boardId } = useParams();
     const navigate = useNavigate();
     const { isLoggedIn, loginId, isInitializing } = useAuth();
 
     const [title, setTitle] = useState("");
     const [content, setContent] = useState("");
+    const [writer, setWriter] = useState("");
     const [category, setCategory] = useState(BOARD_CATEGORIES[0]);
+    const [loading, setLoading] = useState(true);
 
-    const submit = async () => {
-        if (isInitializing) return;
+    useEffect(() => {
+        if (isInitializing) {
+            return;
+        }
 
         if (!isLoggedIn) {
-            alert("로그인 후 게시글을 작성할 수 있습니다.");
+            alert("로그인 후 수정할 수 있습니다.");
             navigate("/login");
             return;
         }
 
+        loadBoard();
+    }, [boardId, isInitializing, isLoggedIn]);
+
+    const loadBoard = async () => {
+        try {
+            const response = await getBoard(boardId);
+            const board = response.data.data;
+
+            if (board.writer !== loginId) {
+                alert("본인이 작성한 게시글만 수정할 수 있습니다.");
+                navigate(`/boards/${boardId}`);
+                return;
+            }
+
+            setTitle(board.title);
+            setContent(board.content);
+            setWriter(board.writer);
+            setCategory(board.category);
+        } catch (error) {
+            console.log(error);
+            alert("게시글 정보를 불러오지 못했습니다.");
+            navigate("/boards");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const submit = async () => {
         if (!title.trim()) {
             alert("제목을 입력해주세요.");
             return;
@@ -39,43 +72,26 @@ function BoardWritePage() {
         }
 
         try {
-            await createBoard({
+            await updateBoard(boardId, {
                 title,
                 content,
-                writer: loginId,
+                writer,
                 category,
             });
 
-            alert("게시글이 등록되었습니다.");
-            navigate("/boards");
+            alert("게시글이 수정되었습니다.");
+            navigate(`/boards/${boardId}`);
         } catch (error) {
             console.log(error);
-            alert("게시글 등록에 실패했습니다.");
+            alert("게시글 수정에 실패했습니다.");
         }
     };
 
-    if (isInitializing) {
+    if (isInitializing || loading) {
         return (
             <Layout>
                 <div className="board-page">
-                    <div className="board-loading">로그인 정보를 확인하는 중...</div>
-                </div>
-            </Layout>
-        );
-    }
-
-    if (!isLoggedIn) {
-        return (
-            <Layout>
-                <div className="board-page">
-                    <div className="board-empty">로그인 후 게시글을 작성할 수 있습니다.</div>
-
-                    <button
-                        className="board-btn"
-                        onClick={() => navigate("/login")}
-                    >
-                        로그인으로 이동
-                    </button>
+                    <div className="board-loading">게시글을 불러오는 중...</div>
                 </div>
             </Layout>
         );
@@ -85,13 +101,13 @@ function BoardWritePage() {
         <Layout>
             <div className="board-write-page">
                 <div className="board-header">
-                    <h1 className="board-title">게시글 작성</h1>
+                    <h1 className="board-title">게시글 수정</h1>
 
                     <button
                         className="board-btn secondary"
-                        onClick={() => navigate("/boards")}
+                        onClick={() => navigate(`/boards/${boardId}`)}
                     >
-                        목록으로
+                        상세로
                     </button>
                 </div>
 
@@ -100,7 +116,6 @@ function BoardWritePage() {
                         <label>제목</label>
                         <input
                             className="board-input"
-                            placeholder="제목을 입력하세요"
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
                         />
@@ -110,7 +125,7 @@ function BoardWritePage() {
                         <label>작성자</label>
                         <input
                             className="board-input readonly"
-                            value={loginId}
+                            value={writer}
                             readOnly
                         />
                     </div>
@@ -134,20 +149,22 @@ function BoardWritePage() {
                         <label>내용</label>
                         <textarea
                             className="board-textarea"
-                            placeholder="내용을 입력하세요"
                             value={content}
                             onChange={(e) => setContent(e.target.value)}
                         />
                     </div>
 
                     <div className="board-actions">
-                        <button className="board-btn" onClick={submit}>
-                            등록
+                        <button
+                            className="board-btn"
+                            onClick={submit}
+                        >
+                            수정 완료
                         </button>
 
                         <button
                             className="board-btn secondary"
-                            onClick={() => navigate("/boards")}
+                            onClick={() => navigate(`/boards/${boardId}`)}
                         >
                             취소
                         </button>
@@ -158,4 +175,4 @@ function BoardWritePage() {
     );
 }
 
-export default BoardWritePage;
+export default BoardEditPage;
