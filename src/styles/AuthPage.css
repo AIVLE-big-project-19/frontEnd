@@ -191,3 +191,10 @@
   width: auto;
   padding: 10px 32px;
 }
+
+.auth-countdown {
+  font-size: 13px;
+  color: #dc2626;
+  white-space: nowrap;
+  align-self: center;
+}
