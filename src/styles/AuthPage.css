@@ -198,3 +198,38 @@
   white-space: nowrap;
   align-self: center;
 }
+
+.auth-subtitle {
+  text-align: center;
+  color: #475467;
+  margin: -16px 0 24px;
+  font-size: 14px;
+}
+
+.found-id-box {
+  border: 1px solid #d0d5dd;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 24px;
+  font-size: 14px;
+  color: #101828;
+}
+
+.found-id-box div {
+  margin-bottom: 8px;
+}
+
+.found-id-box div:last-child {
+  margin-bottom: 0;
+}
+
+.auth-submit-secondary {
+  margin-top: 12px;
+  background: #fff;
+  color: #14b8a6;
+  border: 1px solid #14b8a6;
+}
+
+.auth-submit-secondary:hover:not(:disabled) {
+  background: #f0fdfa;
+}
