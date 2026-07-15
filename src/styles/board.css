@@ -291,3 +291,37 @@
   border-color: #2563eb;
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
 }
+
+.comment-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.comment-actions .board-btn {
+  padding: 7px 12px;
+}
+
+.comment-edit-textarea {
+  width: 100%;
+  min-height: 90px;
+  box-sizing: border-box;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  padding: 11px 13px;
+  resize: vertical;
+}
+
+.comment-current-writer {
+  margin-bottom: 10px;
+  color: #4b5563;
+  font-size: 14px;
+}
+
+.comment-login-notice {
+  margin-top: 24px;
+  padding: 18px;
+  border-radius: 12px;
+  background: #f3f4f6;
+  color: #4b5563;
+  text-align: center;
+}
