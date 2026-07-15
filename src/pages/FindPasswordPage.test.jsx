@@ -68,6 +68,20 @@ test('아이디를 바꾸면 인증 상태가 리셋된다', async () => {
   expect(screen.queryByLabelText('인증번호')).not.toBeInTheDocument();
 });
 
+test('이메일을 바꾸면 인증 상태가 리셋된다', async () => {
+  authApi.sendFindPasswordCode.mockResolvedValue({ success: true });
+  renderPage();
+
+  await userEvent.type(screen.getByLabelText('아이디'), 'tester01');
+  await userEvent.type(screen.getByLabelText('이메일'), 'user@example.com');
+  await userEvent.click(screen.getByRole('button', { name: '인증번호 받기' }));
+  await waitFor(() => expect(screen.getByLabelText('인증번호')).toBeInTheDocument());
+
+  await userEvent.type(screen.getByLabelText('이메일'), 'x');
+
+  expect(screen.queryByLabelText('인증번호')).not.toBeInTheDocument();
+});
+
 test('회원 정보가 없으면 서버 메시지를 보여준다', async () => {
   authApi.sendFindPasswordCode.mockRejectedValue({
     response: { status: 404, data: { success: false, message: '일치하는 회원 정보를 찾을 수 없습니다.' } },
