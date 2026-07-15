@@ -6,7 +6,11 @@ import { consumeAuthExpiredMessage } from '../auth/tokenStorage';
 import '../styles/AuthPage.css';
 
 const LoginPage = () => {
-  const [loginId, setLoginId] = useState('');
+  const auth = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const [loginId, setLoginId] = useState(location.state?.loginId || '');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState('');
@@ -14,9 +18,6 @@ const LoginPage = () => {
   // sessionStorage에 남아있을 수 있는 "세션 만료" 1회성 메시지를 마운트 시 한 번만 읽고 지운다.
   const [expiredMessage] = useState(() => consumeAuthExpiredMessage());
 
-  const auth = useAuth();
-  const navigate = useNavigate();
-  const location = useLocation();
   const infoMessage = location.state?.message;
 
   const handleSubmit = async (e) => {
@@ -81,9 +82,9 @@ const LoginPage = () => {
           계정이 없으신가요? <Link to="/signup">회원가입</Link>
         </div>
         <div className="auth-links-row">
-          <span className="auth-link-placeholder">아이디 찾기</span>
+          <Link to="/find-id">아이디 찾기</Link>
           <span>|</span>
-          <span className="auth-link-placeholder">비밀번호 찾기</span>
+          <Link to="/find-password">비밀번호 찾기</Link>
         </div>
       </form>
     </div>

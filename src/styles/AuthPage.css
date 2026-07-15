@@ -233,3 +233,13 @@
 .auth-submit-secondary:hover:not(:disabled) {
   background: #f0fdfa;
 }
+
+.auth-links-row a {
+  color: #14b8a6;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.auth-links-row a:hover {
+  text-decoration: underline;
+}
