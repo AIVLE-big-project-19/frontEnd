@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from "react-router-dom";
 import Layout from '../components/Layout';
 import MapView from '../components/MapView';
 import SearchBar from '../components/SearchBar';
+import ChatBot from '../components/ChatBot';
 import '../styles/MainPage.css';
 import { transform } from 'ol/proj';
 
@@ -12,6 +14,7 @@ const MainPage = () => {
   const [apiKey, setApiKey] = useState(null);
   const [currentAddress, setCurrentAddress] = useState("지도를 이동해 보세요.");
   const [recentSearches, setRecentSearches] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetch('/api/vworld-key')
@@ -140,6 +143,7 @@ const MainPage = () => {
               </button>
             </div>
 
+
             {map && (
               <div className="zoom-controls">
                 <button onClick={() => map.getView().setZoom(map.getView().getZoom() + 1)}>+</button>
@@ -149,6 +153,8 @@ const MainPage = () => {
           </div>
         </>
       )}
+
+      <ChatBot />
     </Layout>
   );
 };

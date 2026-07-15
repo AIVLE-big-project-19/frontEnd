@@ -1,4 +1,4 @@
-import api from "./axios";
+import api from "./axiosInstance";
 
 export const getComments = (boardId) => {
     return api.get(`/boards/${boardId}/comments`);

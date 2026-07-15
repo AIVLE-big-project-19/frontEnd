@@ -1,56 +1,43 @@
 import { useState } from "react";
 import { createComment } from "../api/commentApi";
+import { useAuth } from "../context/AuthContext";
 
-function CommentForm({boardId}){
+function CommentForm({ boardId, onCommentCreated }) {
+    const { isLoggedIn, loginId } = useAuth();
+    const [content, setContent] = useState("");
 
-    const [writer,setWriter]=useState("");
+    const submit = async () => {
+        if (!content.trim()) {
+            alert("댓글 내용을 입력해주세요.");
+            return;
+        }
 
-    const [content,setContent]=useState("");
+        try {
+            await createComment(boardId, { content: content.trim() });
+            setContent("");
+            await onCommentCreated?.();
+        } catch (error) {
+            console.error(error);
+            alert("댓글 등록에 실패했습니다.");
+        }
+    };
 
-    const submit = async()=>{
-
-        await createComment(boardId,{
-
-            writer,
-
-            content
-
-        });
-
-        alert("댓글 등록 완료");
-
+    if (!isLoggedIn) {
+        return <div className="comment-login-notice">댓글을 작성하려면 로그인해주세요.</div>;
     }
 
-    return(
-
-        <div>
-
-            <input
-
-                placeholder="작성자"
-
-                onChange={(e)=>setWriter(e.target.value)}
-
-            />
-
+    return (
+        <div className="comment-form">
+            <h4>댓글 작성</h4>
+            <div className="comment-current-writer">작성자: {loginId}</div>
             <textarea
-
-                placeholder="댓글"
-
-                onChange={(e)=>setContent(e.target.value)}
-
+                placeholder="댓글을 입력하세요."
+                value={content}
+                onChange={(event) => setContent(event.target.value)}
             />
-
-            <button onClick={submit}>
-
-                등록
-
-            </button>
-
+            <button className="board-btn" onClick={submit}>댓글 등록</button>
         </div>
-
     );
-
 }
 
 export default CommentForm;
