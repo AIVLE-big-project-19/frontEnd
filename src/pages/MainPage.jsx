@@ -141,10 +141,6 @@ const MainPage = () => {
               <button className="pdf-download-btn" onClick={handleDownloadPdf} style={{marginLeft: '10px'}}>
                 보고서 다운로드
               </button>
-
-              <button className="board-move-btn" onClick={() => navigate("/boards")} style={{ marginLeft: '10px' }}>
-                게시판
-              </button>
             </div>
 
 
