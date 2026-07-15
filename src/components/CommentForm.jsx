@@ -1,56 +1,65 @@
 import { useState } from "react";
 import { createComment } from "../api/commentApi";
 
-function CommentForm({boardId}){
+function CommentForm({ boardId, onCommentCreated }) {
+    const [writer, setWriter] = useState("");
+    const [content, setContent] = useState("");
 
-    const [writer,setWriter]=useState("");
+    const submit = async () => {
+        if (!writer.trim()) {
+            alert("작성자를 입력해주세요.");
+            return;
+        }
 
-    const [content,setContent]=useState("");
+        if (!content.trim()) {
+            alert("댓글 내용을 입력해주세요.");
+            return;
+        }
 
-    const submit = async()=>{
+        try {
+            await createComment(boardId, {
+                writer,
+                content,
+            });
 
-        await createComment(boardId,{
+            alert("댓글이 등록되었습니다.");
 
-            writer,
+            setWriter("");
+            setContent("");
 
-            content
+            if (onCommentCreated) {
+                onCommentCreated();
+            }
+        } catch (error) {
+            console.log(error);
+            alert("댓글 등록에 실패했습니다.");
+        }
+    };
 
-        });
-
-        alert("댓글 등록 완료");
-
-    }
-
-    return(
-
-        <div>
+    return (
+        <div className="comment-form">
+            <h4>댓글 작성</h4>
 
             <input
-
                 placeholder="작성자"
-
-                onChange={(e)=>setWriter(e.target.value)}
-
+                value={writer}
+                onChange={(e) => setWriter(e.target.value)}
             />
 
             <textarea
-
-                placeholder="댓글"
-
-                onChange={(e)=>setContent(e.target.value)}
-
+                placeholder="댓글을 입력하세요"
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
             />
 
-            <button onClick={submit}>
-
-                등록
-
+            <button
+                className="board-btn"
+                onClick={submit}
+            >
+                댓글 등록
             </button>
-
         </div>
-
     );
-
 }
 
 export default CommentForm;

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { getBoards } from "../api/boardApi";
 import BoardCard from "../components/BoardCard";
 import Layout from "../components/Layout";
+import "../styles/board.css";
 
 function BoardListPage() {
     const navigate = useNavigate();
@@ -17,7 +18,6 @@ function BoardListPage() {
     const loadBoards = async () => {
         try {
             const response = await getBoards();
-
             setBoards(response.data.data.content);
         } catch (error) {
             console.log(error);
@@ -30,32 +30,39 @@ function BoardListPage() {
     return (
         <Layout>
             <div className="board-page">
-                <h1>게시판</h1>
+                <div className="board-header">
+                    <h1 className="board-title">게시판</h1>
 
-                <div style={{ marginBottom: "20px" }}>
-                    <button onClick={() => navigate("/")}>
-                        메인으로
-                    </button>
+                    <div className="board-actions">
+                        <button
+                            className="board-btn secondary"
+                            onClick={() => navigate("/")}
+                        >
+                            메인으로
+                        </button>
 
-                    <button
-                        onClick={() => navigate("/boards/write")}
-                        style={{ marginLeft: "10px" }}
-                    >
-                        글쓰기
-                    </button>
+                        <button
+                            className="board-btn"
+                            onClick={() => navigate("/boards/write")}
+                        >
+                            글쓰기
+                        </button>
+                    </div>
                 </div>
 
                 {loading ? (
-                    <div>게시글을 불러오는 중...</div>
+                    <div className="board-loading">게시글을 불러오는 중...</div>
                 ) : boards.length === 0 ? (
-                    <div>등록된 게시글이 없습니다.</div>
+                    <div className="board-empty">등록된 게시글이 없습니다.</div>
                 ) : (
-                    boards.map((board) => (
-                        <BoardCard
-                            key={board.boardId}
-                            board={board}
-                        />
-                    ))
+                    <div className="board-list">
+                        {boards.map((board) => (
+                            <BoardCard
+                                key={board.boardId}
+                                board={board}
+                            />
+                        ))}
+                    </div>
                 )}
             </div>
         </Layout>

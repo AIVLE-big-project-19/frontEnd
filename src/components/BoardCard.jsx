@@ -3,15 +3,17 @@ import { Link } from "react-router-dom";
 function BoardCard({ board }) {
     return (
         <div className="board-card">
-            <Link to={`/boards/${board.boardId}`}>
-                <h3>{board.title}</h3>
-            </Link>
+            <h3 className="board-card-title">
+                <Link to={`/boards/${board.boardId}`}>
+                    {board.title}
+                </Link>
+            </h3>
 
-            <p>작성자 : {board.writer}</p>
-            <p>카테고리 : {board.category}</p>
-            <p>조회수 : {board.viewCount}</p>
-
-            <hr />
+            <div className="board-card-meta">
+                <span className="board-badge">{board.category}</span>
+                <span>작성자: {board.writer}</span>
+                <span>조회수: {board.viewCount}</span>
+            </div>
         </div>
     );
 }

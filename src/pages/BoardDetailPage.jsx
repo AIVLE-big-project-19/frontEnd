@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { deleteBoard, getBoard } from "../api/boardApi";
 import CommentList from "../components/CommentList";
 import Layout from "../components/Layout";
+import "../styles/board.css";
 
 function BoardDetailPage() {
     const { boardId } = useParams();
@@ -18,7 +19,6 @@ function BoardDetailPage() {
     const loadBoard = async () => {
         try {
             const response = await getBoard(boardId);
-
             setBoard(response.data.data);
         } catch (error) {
             console.log(error);
@@ -38,7 +38,6 @@ function BoardDetailPage() {
 
         try {
             await deleteBoard(boardId);
-
             alert("게시글이 삭제되었습니다.");
             navigate("/boards");
         } catch (error) {
@@ -50,7 +49,9 @@ function BoardDetailPage() {
     if (loading) {
         return (
             <Layout>
-                <div>게시글을 불러오는 중...</div>
+                <div className="board-page">
+                    <div className="board-loading">게시글을 불러오는 중...</div>
+                </div>
             </Layout>
         );
     }
@@ -58,7 +59,9 @@ function BoardDetailPage() {
     if (!board) {
         return (
             <Layout>
-                <div>게시글이 없습니다.</div>
+                <div className="board-page">
+                    <div className="board-empty">게시글이 없습니다.</div>
+                </div>
             </Layout>
         );
     }
@@ -66,27 +69,39 @@ function BoardDetailPage() {
     return (
         <Layout>
             <div className="board-detail-page">
-                <button onClick={() => navigate("/boards")}>
-                    목록으로
-                </button>
+                <div className="board-header">
+                    <h1 className="board-title">게시글 상세</h1>
 
-                <h2>{board.title}</h2>
+                    <div className="board-actions">
+                        <button
+                            className="board-btn secondary"
+                            onClick={() => navigate("/boards")}
+                        >
+                            목록으로
+                        </button>
 
-                <p>작성자 : {board.writer}</p>
-                <p>카테고리 : {board.category}</p>
-                <p>조회수 : {board.viewCount}</p>
-
-                <hr />
-
-                <p>{board.content}</p>
-
-                <div style={{ marginTop: "20px" }}>
-                    <button onClick={handleDelete}>
-                        삭제
-                    </button>
+                        <button
+                            className="board-btn danger"
+                            onClick={handleDelete}
+                        >
+                            삭제
+                        </button>
+                    </div>
                 </div>
 
-                <hr />
+                <div className="board-detail-card">
+                    <h2 className="board-detail-title">{board.title}</h2>
+
+                    <div className="board-detail-meta">
+                        <span className="board-badge">{board.category}</span>
+                        <span>작성자: {board.writer}</span>
+                        <span>조회수: {board.viewCount}</span>
+                    </div>
+
+                    <div className="board-detail-content">
+                        {board.content}
+                    </div>
+                </div>
 
                 <CommentList boardId={boardId} />
             </div>
