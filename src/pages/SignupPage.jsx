@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import * as authApi from '../api/authApi';
+import { isValidPassword, PASSWORD_RULE_MESSAGE } from '../utils/passwordRules';
 import '../styles/AuthPage.css';
 
 const SignupPage = () => {
@@ -80,12 +81,8 @@ const SignupPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const validLength = password.length >= 8 && password.length <= 16;
-    const hasLetter = /[A-Za-z]/.test(password);
-    const hasDigit = /\d/.test(password);
-    const hasSpecial = /[^A-Za-z0-9]/.test(password);
-    if (!validLength || !hasLetter || !hasDigit || !hasSpecial) {
-      setFormError('비밀번호는 영문, 숫자, 특수문자를 포함한 8~16자여야 합니다.');
+    if (!isValidPassword(password)) {
+      setFormError(PASSWORD_RULE_MESSAGE);
       return;
     }
     if (!name) {
