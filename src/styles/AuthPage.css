@@ -151,7 +151,7 @@
 .auth-links-row {
   margin-top: 16px;
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 12px;
   font-size: 13px;
   color: #98a2b3;
