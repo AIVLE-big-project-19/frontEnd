@@ -55,10 +55,12 @@ googleLogin({ code, redirectUri }) → POST /auth/google/login
 
 ### `GoogleCallbackPage` (`/oauth/google/callback`, 신규)
 
+- **StrictMode 이중 마운트 가드(필수)**: 구글 인가 `code`는 1회용이므로, mount effect가 두 번 실행되면 두 번째 호출이 소모된 code로 나가 502를 받고 첫 호출의 성공 상태를 덮어쓸 수 있다. `AuthContext` 세션 복원과 동일하게 `useRef` 가드로 최초 1회만 실행되게 한다
 - 마운트 시 URL 쿼리스트링에서 `code` 파싱
-  - `code`가 없으면 즉시 실패 처리(아래 에러 처리와 동일하게 `/login`으로 리다이렉트)
+  - `code`가 없으면(사용자가 동의화면에서 취소해 `?error=access_denied`로 돌아온 경우 포함) 즉시 실패 처리(아래 에러 처리와 동일하게 `/login`으로 리다이렉트)
 - `code`가 있으면 `googleLogin({ code, redirectUri: buildGoogleRedirectUri() })` 호출
   - 성공: 응답의 `{ accessToken, refreshToken }`을 임시로 `setAccessToken`에 반영한 뒤 `myPageApi.getMyProfile()`을 호출해 `loginId`를 조회하고, `auth.login(tokens, loginId, true)`로 세션 저장(항상 `rememberMe=true`) → `/`로 이동
+  - `getMyProfile()`이 실패하면(토큰은 발급됐지만 프로필 조회 실패) 어중간한 세션을 남기지 않도록 일반 실패로 간주 — `setAccessToken(null)` 후 아래 "그 외 에러"와 동일하게 처리
   - 실패(409 `EMAIL_ALREADY_REGISTERED_AS_LOCAL`): `/login`으로 리다이렉트, `state: { message: '이미 일반 회원가입된 이메일입니다. 일반 로그인을 이용해주세요.' }`
   - 실패(502 `GOOGLE_AUTH_FAILED`) 또는 그 외 에러: `/login`으로 리다이렉트, `state: { message: '구글 로그인에 실패했습니다. 다시 시도해주세요.' }`
 - 처리 중에는 "로그인 처리 중..." 텍스트만 표시(폼 없음, 사용자 조작 불필요)
@@ -72,4 +74,6 @@ googleLogin({ code, redirectUri }) → POST /auth/google/login
   - `code` 파라미터 없을 때 `/login`으로 리다이렉트
   - 409 응답 시 해당 메시지와 함께 `/login`으로 리다이렉트
   - 502(또는 기타) 응답 시 일반 실패 메시지와 함께 `/login`으로 리다이렉트
+  - `getMyProfile` 실패 시 세션이 저장되지 않고 실패 메시지와 함께 `/login`으로 리다이렉트
+  - StrictMode 이중 마운트에서도 `googleLogin`이 1번만 호출되는지
 - `LoginPage`: 구글 버튼 클릭 시 `window.location.href`가 `buildGoogleAuthUrl()` 결과로 설정되는지
