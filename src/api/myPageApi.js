@@ -1,0 +1,21 @@
+import instance from './axiosInstance';
+
+export const getMyProfile = async () => {
+  const { data } = await instance.get('/users/me');
+  return data.data;
+};
+
+export const updateMyProfile = async (name) => {
+  const { data } = await instance.patch('/users/me', { name });
+  return data.data;
+};
+
+export const changeMyPassword = async (currentPassword, newPassword) => {
+  const { data } = await instance.put('/users/me/password', { currentPassword, newPassword });
+  return data;
+};
+
+export const getMyBoards = async () => {
+  const { data } = await instance.get('/users/me/boards');
+  return data.data;
+};
