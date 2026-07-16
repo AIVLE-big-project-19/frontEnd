@@ -32,6 +32,27 @@ header {
   padding: 0 30px;
 }
 
+.logo-link {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  height: 100%;
+  text-decoration: none;
+}
+
+.logo-image {
+  display: block;
+  width: auto;
+  height: 48px;
+  object-fit: contain;
+}
+
+.logo-link:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
 .nav-menu a {
   color: #fff;
   text-decoration: none;
