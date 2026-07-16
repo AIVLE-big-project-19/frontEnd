@@ -8,6 +8,8 @@ import BoardDetailPage from './pages/BoardDetailPage';
 import BoardWritePage from './pages/BoardWritePage';
 import TestPage from './pages/TestPage';
 import BoardEditPage from './pages/BoardEditPage';
+import MyPage from './pages/MyPage';
+import ProtectedRoute from './components/ProtectedRoute';
 
 export const AppRoutes = () => (
   <Routes>
@@ -19,6 +21,7 @@ export const AppRoutes = () => (
     <Route path="/boards/:boardId" element={<BoardDetailPage />} />
     <Route path="/test" element={<TestPage />} />
     <Route path="/boards/:boardId/edit" element={<BoardEditPage />} />
+    <Route path="/mypage" element={<ProtectedRoute><MyPage /></ProtectedRoute>} />
   </Routes>
 );
 
