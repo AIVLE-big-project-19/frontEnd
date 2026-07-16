@@ -78,7 +78,25 @@
 }
 
 .board-btn:active {
+  background: #066d67;
+  border-color: #066d67;
+  box-shadow: inset 0 2px 4px rgba(7, 26, 47, 0.16);
   transform: translateY(0);
+}
+
+.board-btn:focus-visible {
+  outline: 3px solid rgba(11, 147, 137, 0.3);
+  outline-offset: 3px;
+}
+
+.board-btn:disabled {
+  color: #e2eaec;
+  background: #879a9d;
+  border-color: #879a9d;
+  box-shadow: none;
+  cursor: not-allowed;
+  opacity: 0.7;
+  transform: none;
 }
 
 .board-btn.secondary {
@@ -94,6 +112,17 @@
   border-color: #94a3b8;
 }
 
+.board-btn.secondary:focus-visible {
+  outline-color: rgba(51, 65, 85, 0.25);
+}
+
+.board-btn.secondary:active {
+  color: var(--navy-900);
+  background: var(--slate-200);
+  border-color: #94a3b8;
+  box-shadow: inset 0 2px 3px rgba(7, 26, 47, 0.08);
+}
+
 .board-btn.danger {
   color: #b42318;
   background: #fff;
@@ -105,6 +134,17 @@
   color: #fff;
   background: #b42318;
   border-color: #b42318;
+}
+
+.board-btn.danger:focus-visible {
+  outline-color: rgba(180, 35, 24, 0.26);
+}
+
+.board-btn.danger:active {
+  color: #fff;
+  background: #8f1c14;
+  border-color: #8f1c14;
+  box-shadow: inset 0 2px 4px rgba(80, 14, 10, 0.2);
 }
 
 .board-empty,
@@ -165,6 +205,15 @@
   opacity: 1;
 }
 
+.board-card:focus-within {
+  border-color: var(--teal-600);
+  box-shadow: 0 0 0 3px var(--focus-ring), 0 8px 22px rgba(7, 26, 47, 0.08);
+}
+
+.board-card:focus-within::before {
+  opacity: 1;
+}
+
 .board-card-category {
   display: flex;
   align-items: center;
@@ -201,7 +250,14 @@
 }
 
 .board-card-title a:focus-visible {
+  color: var(--teal-700);
+  outline-color: rgba(11, 147, 137, 0.34);
   border-radius: 3px;
+}
+
+.board-card-title a:active {
+  color: var(--navy-800);
+  text-decoration-color: var(--solar-500);
 }
 
 .board-card-meta {
@@ -380,6 +436,34 @@ select.board-input {
   box-shadow: 0 0 0 3px var(--focus-ring);
 }
 
+.board-input:focus-visible,
+.board-textarea:focus-visible,
+.comment-form input:focus-visible,
+.comment-form textarea:focus-visible,
+.comment-edit-textarea:focus-visible {
+  outline: none;
+}
+
+.board-input:active:not(.readonly),
+.board-textarea:active,
+.comment-form input:active,
+.comment-form textarea:active,
+.comment-edit-textarea:active {
+  border-color: var(--teal-600);
+}
+
+.board-input:disabled,
+.board-textarea:disabled,
+.comment-form input:disabled,
+.comment-form textarea:disabled,
+.comment-edit-textarea:disabled {
+  color: var(--slate-500);
+  background: var(--slate-100);
+  border-color: var(--slate-200);
+  cursor: not-allowed;
+  opacity: 0.78;
+}
+
 .board-textarea {
   min-height: 300px;
   line-height: 1.7;
@@ -436,6 +520,12 @@ select.board-input {
   border-color: #bad7d4;
   border-left-color: var(--teal-600);
   box-shadow: 0 4px 12px rgba(7, 26, 47, 0.045);
+}
+
+.comment-item:focus-within {
+  border-color: var(--teal-600);
+  border-left-color: var(--teal-600);
+  box-shadow: 0 0 0 3px var(--focus-ring);
 }
 
 .comment-item-header {
