@@ -50,9 +50,6 @@
 .mypage-board-list strong { overflow: hidden; color: #1f2937; font-size: 14px; text-overflow: ellipsis; white-space: nowrap; }
 .mypage-board-list a > span:last-child { color: #9ca3af; font-size: 12px; }
 
-.auth-nav button { padding: 0; border: 0; color: inherit; background: none; font: inherit; cursor: pointer; }
-.auth-nav .auth-user { color: #0f766e; font-weight: 700; }
-
 @media (max-width: 720px) {
   .mypage { width: min(100% - 24px, 960px); margin-top: 24px; }
   .mypage-heading { padding: 28px 24px; }
