@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import instance from '../api/axiosInstance';
 import * as authApi from '../api/authApi';
 import {
@@ -11,8 +11,16 @@ const AuthContext = createContext(null);
 export const AuthProvider = ({ children }) => {
   const [loginId, setLoginId] = useState(null);
   const [isInitializing, setIsInitializing] = useState(true);
+  const hasRestored = useRef(false);
 
   useEffect(() => {
+    // StrictMode는 개발 모드에서 mount effect를 두 번 실행한다. refreshToken이 1회용이면
+    // 두 번째 호출이 이미 소모된 토큰으로 실패해 정상 로그인 상태를 덮어써버리므로, 최초 1회만 실행되게 막는다.
+    if (hasRestored.current) {
+      return;
+    }
+    hasRestored.current = true;
+
     const restore = async () => {
       const session = loadSession();
       if (!session) {

@@ -4,8 +4,10 @@ import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import LoginPage from './LoginPage';
 import * as authApi from '../api/authApi';
+import * as googleOAuth from '../auth/googleOAuth';
 
 vi.mock('../api/authApi');
+vi.mock('../auth/googleOAuth');
 
 const mockAuthLogin = vi.fn();
 vi.mock('../context/AuthContext', () => ({
@@ -86,4 +88,28 @@ test('세션 만료 메시지가 sessionStorage에 있으면 표시하고 이후
 test('location.state.loginId가 있으면 아이디 입력란에 자동으로 채워진다', () => {
   renderLogin([{ pathname: '/login', state: { loginId: 'tester01' } }]);
   expect(screen.getByLabelText('아이디')).toHaveValue('tester01');
+});
+
+test('Google로 계속하기 클릭 시 구글 인증 URL로 이동한다', async () => {
+  googleOAuth.buildGoogleAuthUrl.mockReturnValue('https://accounts.google.com/o/oauth2/v2/auth?mock=1');
+
+  const originalLocation = window.location;
+  delete window.location;
+  window.location = { ...originalLocation, href: '' };
+
+  renderLogin();
+  await userEvent.click(screen.getByRole('button', { name: 'Google로 계속하기' }));
+
+  expect(window.location.href).toBe('https://accounts.google.com/o/oauth2/v2/auth?mock=1');
+
+  window.location = originalLocation;
+});
+
+test('회원가입, 아이디 찾기, 비밀번호 찾기 링크가 한 줄에 나란히 표시된다', () => {
+  renderLogin();
+
+  expect(screen.getByRole('link', { name: '회원가입' })).toHaveAttribute('href', '/signup');
+  expect(screen.getByRole('link', { name: '아이디 찾기' })).toHaveAttribute('href', '/find-id');
+  expect(screen.getByRole('link', { name: '비밀번호 찾기' })).toHaveAttribute('href', '/find-password');
+  expect(screen.queryByText('계정이 없으신가요?')).not.toBeInTheDocument();
 });
