@@ -3,7 +3,7 @@ import instance from './axiosInstance';
 import {
   checkLoginId, sendEmailCode, verifyEmailCode, signup, login, logout,
   sendFindIdCode, verifyFindIdCode, sendFindPasswordCode, verifyFindPasswordCode,
-  getPasswordResetStatus, resetPassword,
+  getPasswordResetStatus, resetPassword, googleLogin,
 } from './authApi';
 
 const ok = (data) => ({ data: { success: true, message: '', data } });
@@ -96,4 +96,14 @@ test('resetPassword는 아이디와 새 비밀번호를 POST한다', async () =>
   expect(instance.post).toHaveBeenCalledWith('/auth/password/reset', {
     loginId: 'tester01', newPassword: 'NewPassword1!',
   });
+});
+
+test('googleLogin은 code와 redirectUri를 POST한다', async () => {
+  vi.spyOn(instance, 'post').mockResolvedValue(ok({ accessToken: 'at', refreshToken: 'rt' }));
+  const result = await googleLogin({ code: 'auth-code-1', redirectUri: 'http://localhost:5173/oauth/google/callback' });
+  expect(instance.post).toHaveBeenCalledWith('/auth/google/login', {
+    code: 'auth-code-1',
+    redirectUri: 'http://localhost:5173/oauth/google/callback',
+  });
+  expect(result.data.accessToken).toBe('at');
 });
