@@ -64,3 +64,9 @@ test('/reset-password 경로에서 비밀번호 재설정 페이지를 보여준
   renderAt({ pathname: '/reset-password', state: { loginId: 'tester01', verified: true } });
   await waitFor(() => expect(screen.getByLabelText('아이디')).toHaveValue('tester01'));
 });
+
+test('/oauth/google/callback 경로에서 콜백 페이지를 보여준다', async () => {
+  authApi.googleLogin.mockReturnValue(new Promise(() => {}));
+  renderAt('/oauth/google/callback?code=test-code');
+  await waitFor(() => expect(screen.getByText('로그인 처리 중...')).toBeInTheDocument());
+});
