@@ -1,9 +1,12 @@
 import { Link } from 'react-router-dom';
 import AuthNav from './AuthNav';
+import solarAivleLogo from '../assets/solar-aivle-logo.png';
 
 const Header = () => (
   <header>
-    <div className="logo">SolarAivle</div>
+    <Link className="logo-link" to="/" aria-label="SolarAivle 홈으로 이동">
+      <img className="logo-image" src={solarAivleLogo} alt="SolarAivle" />
+    </Link>
     <nav className="nav-menu">
       <Link to="/">홈</Link>
       <Link to="/boards">게시판</Link>
