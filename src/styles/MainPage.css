@@ -46,6 +46,46 @@ header {
   text-decoration: underline;
 }
 
+/* 로그인 영역: 마이페이지와 로그아웃을 하나의 내비게이션처럼 정렬 */
+.auth-nav {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  white-space: nowrap;
+}
+
+.auth-nav a,
+.auth-nav button {
+  margin-left: 0;
+  padding: 6px 0;
+  border: 0;
+  color: #fff;
+  background: none;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.2;
+  text-decoration: none;
+  opacity: 0.9;
+  cursor: pointer;
+}
+
+.auth-nav a:hover,
+.auth-nav button:hover {
+  opacity: 1;
+  text-decoration: underline;
+}
+
+.auth-nav .auth-user {
+  color: #fff;
+}
+
+@media (max-width: 720px) {
+  .auth-nav {
+    gap: 12px;
+  }
+}
+
 footer {
   height: 50px;
   background: #14b8a6;;
