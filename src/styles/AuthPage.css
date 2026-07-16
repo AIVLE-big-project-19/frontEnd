@@ -239,3 +239,20 @@
 .auth-links-row a:hover {
   text-decoration: underline;
 }
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 24px 0;
+  color: #98a2b3;
+  font-size: 13px;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: #e4e7ec;
+}

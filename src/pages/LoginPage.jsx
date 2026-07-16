@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import * as authApi from '../api/authApi';
 import { useAuth } from '../context/AuthContext';
 import { consumeAuthExpiredMessage } from '../auth/tokenStorage';
+import { buildGoogleAuthUrl } from '../auth/googleOAuth';
 import '../styles/AuthPage.css';
 
 const LoginPage = () => {
@@ -37,6 +38,10 @@ const LoginPage = () => {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleGoogleLogin = () => {
+    window.location.href = buildGoogleAuthUrl();
   };
 
   return (
@@ -86,6 +91,10 @@ const LoginPage = () => {
           <span>|</span>
           <Link to="/find-password">비밀번호 찾기</Link>
         </div>
+        <div className="auth-divider">또는</div>
+        <button type="button" className="auth-submit auth-submit-secondary" onClick={handleGoogleLogin}>
+          Google로 계속하기
+        </button>
       </form>
     </div>
   );
