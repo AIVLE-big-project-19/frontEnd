@@ -104,3 +104,12 @@ test('Google로 계속하기 클릭 시 구글 인증 URL로 이동한다', asyn
 
   window.location = originalLocation;
 });
+
+test('회원가입, 아이디 찾기, 비밀번호 찾기 링크가 한 줄에 나란히 표시된다', () => {
+  renderLogin();
+
+  expect(screen.getByRole('link', { name: '회원가입' })).toHaveAttribute('href', '/signup');
+  expect(screen.getByRole('link', { name: '아이디 찾기' })).toHaveAttribute('href', '/find-id');
+  expect(screen.getByRole('link', { name: '비밀번호 찾기' })).toHaveAttribute('href', '/find-password');
+  expect(screen.queryByText('계정이 없으신가요?')).not.toBeInTheDocument();
+});

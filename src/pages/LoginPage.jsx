@@ -83,10 +83,9 @@ const LoginPage = () => {
         <button className="auth-submit" type="submit" disabled={isSubmitting}>
           로그인
         </button>
-        <div className="auth-links">
-          계정이 없으신가요? <Link to="/signup">회원가입</Link>
-        </div>
         <div className="auth-links-row">
+          <Link to="/signup">회원가입</Link>
+          <span>|</span>
           <Link to="/find-id">아이디 찾기</Link>
           <span>|</span>
           <Link to="/find-password">비밀번호 찾기</Link>
