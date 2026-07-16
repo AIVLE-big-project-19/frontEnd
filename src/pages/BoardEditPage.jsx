@@ -107,7 +107,7 @@ function BoardEditPage() {
                         className="board-btn secondary"
                         onClick={() => navigate(`/boards/${boardId}`)}
                     >
-                        상세로
+                        돌아가기
                     </button>
                 </div>
 
