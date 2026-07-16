@@ -209,3 +209,12 @@
     height: 54px;
   }
 }
+
+.chatbot-excel-btn {
+  background: #6b7280 !important;
+  flex-shrink: 0;
+}
+
+.chatbot-excel-btn:hover:not(:disabled) {
+  background: #4b5563 !important;
+}

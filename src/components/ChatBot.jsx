@@ -1,17 +1,32 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { sendChatMessage } from '../api/chatApi';
+import { sendChatMessage, sendChatExcel } from '../api/chatApi';
 import '../styles/ChatBot.css';
 
 const ChatBot = () => {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
-    { role: 'bot', text: '안녕하세요! 무엇을 도와드릴까요?' },
+    { role: 'bot', text: '안녕하세요! 후보지 조회 추천을 해드릴게요!\n 채팅을 입력하거나 제공된 excel 파일을 업로드 해주시면 답변 드리겠습니다!' },
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef(null);
+  const fileInputRef = useRef(null);
+
+  const applyBotResponse = (data) => {
+    const reply = data?.data?.reply ?? '죄송해요, 답변을 가져오지 못했어요.';
+    const action = data?.data?.action;
+
+    setMessages((prev) => [...prev, { role: 'bot', text: reply }]);
+
+    if (action?.type === 'NAVIGATE' && action.path) {
+      setTimeout(() => {
+        navigate(action.path);
+        setIsOpen(false);
+      }, 600);
+    }
+  };
 
   useEffect(() => {
     if (isOpen) {
@@ -29,17 +44,7 @@ const ChatBot = () => {
 
     try {
       const data = await sendChatMessage(text);
-      const reply = data?.data?.reply ?? '죄송해요, 답변을 가져오지 못했어요.';
-      const action = data?.data?.action;
-
-      setMessages((prev) => [...prev, { role: 'bot', text: reply }]);
-
-      if (action?.type === 'NAVIGATE' && action.path) {
-        setTimeout(() => {
-          navigate(action.path);
-          setIsOpen(false);
-        }, 600);
-      }
+      applyBotResponse(data);
     } catch (error) {
       console.error('챗봇 응답 실패:', error);
       setMessages((prev) => [
@@ -54,6 +59,33 @@ const ChatBot = () => {
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') {
       handleSend();
+    }
+  };
+
+  const handleExcelButtonClick = () => {
+    if (isLoading) return;
+    fileInputRef.current?.click();
+  };
+
+  const handleExcelChange = async (e) => {
+    const file = e.target.files[0];
+    e.target.value = '';
+    if (!file || isLoading) return;
+
+    setMessages((prev) => [...prev, { role: 'user', text: `[엑셀 업로드] ${file.name}` }]);
+    setIsLoading(true);
+
+    try {
+      const data = await sendChatExcel(file);
+      applyBotResponse(data);
+    } catch (error) {
+      console.error('엑셀 분석 실패:', error);
+      setMessages((prev) => [
+        ...prev,
+        { role: 'bot', text: '엑셀 파일을 분석하지 못했어요. 형식을 확인하고 다시 시도해주세요.' },
+      ]);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -81,6 +113,22 @@ const ChatBot = () => {
           </div>
 
           <div className="chatbot-input-area">
+            <input
+              type="file"
+              accept=".xlsx,.xls"
+              ref={fileInputRef}
+              onChange={handleExcelChange}
+              style={{ display: 'none' }}
+            />
+            <button
+              type="button"
+              className="chatbot-excel-btn"
+              onClick={handleExcelButtonClick}
+              disabled={isLoading}
+              title="엑셀 파일 업로드"
+            >
+              엑셀
+            </button>
             <input
               type="text"
               value={input}
