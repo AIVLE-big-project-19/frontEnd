@@ -4,7 +4,7 @@ import { googleLogin } from '../api/authApi';
 import { getMyProfile } from '../api/myPageApi';
 import { useAuth } from '../context/AuthContext';
 import { setAccessToken } from '../auth/tokenStorage';
-import { buildGoogleRedirectUri } from '../auth/googleOAuth';
+import { buildGoogleRedirectUri, consumeGoogleOAuthState } from '../auth/googleOAuth';
 import '../styles/AuthPage.css';
 
 const GENERIC_ERROR_MESSAGE = '구글 로그인에 실패했습니다. 다시 시도해주세요.';
@@ -29,7 +29,10 @@ const GoogleCallbackPage = () => {
     };
 
     const code = searchParams.get('code');
-    if (!code) {
+    const returnedState = searchParams.get('state');
+    const expectedState = consumeGoogleOAuthState();
+
+    if (!code || !returnedState || returnedState !== expectedState) {
       fail(GENERIC_ERROR_MESSAGE);
       return;
     }
