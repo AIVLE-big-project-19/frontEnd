@@ -106,28 +106,30 @@ function BoardWritePage() {
                         />
                     </div>
 
-                    <div className="board-form-group">
-                        <label>작성자</label>
-                        <input
-                            className="board-input readonly"
-                            value={loginId}
-                            readOnly
-                        />
-                    </div>
+                    <div className="board-form-meta">
+                        <div className="board-form-group">
+                            <label>작성자</label>
+                            <input
+                                className="board-input readonly"
+                                value={loginId}
+                                readOnly
+                            />
+                        </div>
 
-                    <div className="board-form-group">
-                        <label>카테고리</label>
-                        <select
-                            className="board-input"
-                            value={category}
-                            onChange={(e) => setCategory(e.target.value)}
-                        >
-                            {BOARD_CATEGORIES.map((item) => (
-                                <option key={item} value={item}>
-                                    {item}
-                                </option>
-                            ))}
-                        </select>
+                        <div className="board-form-group">
+                            <label>카테고리</label>
+                            <select
+                                className="board-input"
+                                value={category}
+                                onChange={(e) => setCategory(e.target.value)}
+                            >
+                                {BOARD_CATEGORIES.map((item) => (
+                                    <option key={item} value={item}>
+                                        {item}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
                     </div>
 
                     <div className="board-form-group">

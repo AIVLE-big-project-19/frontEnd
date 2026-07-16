@@ -6,6 +6,14 @@
   padding: 0 32px;
 }
 
+.board-page,
+.board-detail-page,
+.board-write-page {
+  --board-category-width: 240px;
+  width: 100%;
+  max-width: 960px;
+}
+
 .board-header {
   display: flex;
   justify-content: space-between;
@@ -72,7 +80,10 @@
 
 /* Board Card */
 .board-card {
-  padding: 20px;
+  display: grid;
+  grid-template-columns: var(--board-category-width) minmax(0, 1fr);
+  align-items: stretch;
+  overflow: hidden;
   border-radius: 14px;
   background-color: white;
   border: 1px solid #e5e7eb;
@@ -85,9 +96,24 @@
   box-shadow: 0 8px 22px rgba(0, 0, 0, 0.08);
 }
 
+.board-card-category {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background-color: #f8faff;
+  border-right: 1px solid #e5e7eb;
+}
+
+.board-card-body {
+  min-width: 0;
+  padding: 20px 24px;
+}
+
 .board-card-title {
-  margin: 0 0 12px;
+  margin: 0 0 14px;
   font-size: 20px;
+  line-height: 1.4;
   color: #111827;
 }
 
@@ -103,19 +129,34 @@
 .board-card-meta {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  align-items: center;
+  gap: 8px 20px;
   color: #6b7280;
   font-size: 14px;
 }
 
+.board-card-meta > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.board-card-meta-label {
+  color: #9ca3af;
+  font-size: 13px;
+}
+
 .board-badge {
-  display: inline-block;
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
   padding: 4px 10px;
   border-radius: 999px;
   background-color: #eff6ff;
   color: #2563eb;
   font-size: 13px;
   font-weight: 600;
+  text-align: center;
 }
 
 /* Detail */
@@ -172,6 +213,12 @@
   margin-bottom: 18px;
 }
 
+.board-form-meta {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--board-category-width);
+  gap: 18px;
+}
+
 .board-form-group label {
   display: block;
   margin-bottom: 8px;
@@ -210,6 +257,47 @@
   min-height: 280px;
   resize: vertical;
   line-height: 1.6;
+}
+
+@media (max-width: 720px) {
+  .board-page,
+  .board-detail-page,
+  .board-write-page {
+    margin: 24px auto;
+    padding: 0 20px;
+  }
+
+  .board-form-card {
+    padding: 22px;
+  }
+
+  .board-form-meta {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .board-card-meta {
+    gap: 6px 16px;
+  }
+
+  .board-card {
+    grid-template-columns: 1fr;
+  }
+
+  .board-card-category {
+    justify-content: flex-start;
+    padding: 14px 18px;
+    border-right: 0;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .board-card-category .board-badge {
+    width: auto;
+  }
+
+  .board-card-body {
+    padding: 18px;
+  }
 }
 
 /* Comment */
