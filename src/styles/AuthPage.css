@@ -356,3 +356,10 @@
 .terms-card {
   padding: 40px 48px 64px;
 }
+
+.google-consent-notice {
+  margin-top: 10px;
+  font-size: 12px;
+  color: #98a2b3;
+  text-align: center;
+}
