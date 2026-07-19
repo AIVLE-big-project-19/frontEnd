@@ -256,3 +256,47 @@
   height: 1px;
   background: #e4e7ec;
 }
+
+.modal-box-wide {
+  max-width: 560px;
+  max-height: 80vh;
+  overflow-y: auto;
+  text-align: left;
+}
+
+.modal-box-wide h2 {
+  margin: 0 0 8px;
+  font-size: 20px;
+}
+
+.terms-version {
+  color: #98a2b3;
+  font-size: 12px;
+  margin: 0 0 16px;
+}
+
+.terms-content {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #344054;
+}
+
+.modal-box-wide .auth-submit-secondary {
+  margin-top: 20px;
+  width: auto;
+  padding: 10px 32px;
+}
+
+.link-button {
+  background: none;
+  border: none;
+  color: #14b8a6;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  padding: 0;
+}
+
+.link-button:hover {
+  text-decoration: underline;
+}
