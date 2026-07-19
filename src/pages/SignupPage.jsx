@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import * as authApi from '../api/authApi';
 import { isValidPassword, PASSWORD_RULE_MESSAGE } from '../utils/passwordRules';
+import TermsModal from '../components/TermsModal';
 import '../styles/AuthPage.css';
 
 const SignupPage = () => {
@@ -11,6 +12,10 @@ const SignupPage = () => {
   const [password, setPassword] = useState('');
   const [passwordConfirm, setPasswordConfirm] = useState('');
   const [name, setName] = useState('');
+  const [termsAgreed, setTermsAgreed] = useState(false);
+  const [privacyAgreed, setPrivacyAgreed] = useState(false);
+  const [marketingAgreed, setMarketingAgreed] = useState(false);
+  const [openTermsType, setOpenTermsType] = useState(null);
 
   const [loginIdChecked, setLoginIdChecked] = useState(false);
   const [loginIdMessage, setLoginIdMessage] = useState({ type: '', text: '' });
@@ -79,6 +84,15 @@ const SignupPage = () => {
     }
   };
 
+  const allAgreed = termsAgreed && privacyAgreed && marketingAgreed;
+
+  const handleAllAgreedChange = (e) => {
+    const checked = e.target.checked;
+    setTermsAgreed(checked);
+    setPrivacyAgreed(checked);
+    setMarketingAgreed(checked);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!isValidPassword(password)) {
@@ -92,10 +106,14 @@ const SignupPage = () => {
     setFormError('');
     setIsSubmitting(true);
     try {
-      await authApi.signup({ loginId, email, password, name });
+      await authApi.signup({
+        loginId, email, password, name, termsAgreed, privacyAgreed, marketingAgreed,
+      });
       navigate('/login', { state: { message: '회원가입이 완료되었습니다. 로그인해주세요.' } });
     } catch (err) {
-      setFormError(serverMessage(err, '회원가입에 실패했습니다. 잠시 후 다시 시도해주세요.'));
+      const fieldData = err.response?.data?.data;
+      const fieldMessage = fieldData && typeof fieldData === 'object' ? Object.values(fieldData)[0] : null;
+      setFormError(fieldMessage || serverMessage(err, '회원가입에 실패했습니다. 잠시 후 다시 시도해주세요.'));
     } finally {
       setIsSubmitting(false);
     }
@@ -104,7 +122,8 @@ const SignupPage = () => {
   const passwordMismatch = passwordConfirm.length > 0 && password !== passwordConfirm;
   const passwordMatches = passwordConfirm.length > 0 && password === passwordConfirm;
 
-  const canSubmit = emailVerified && loginIdChecked && !passwordMismatch && !isSubmitting;
+  const canSubmit = emailVerified && loginIdChecked && termsAgreed && privacyAgreed
+    && !passwordMismatch && !isSubmitting;
 
   return (
     <div className="auth-page">
@@ -214,6 +233,54 @@ const SignupPage = () => {
             placeholder="이름 입력"
           />
         </div>
+
+        <div className="signup-consent-box">
+          <label className="signup-consent-all">
+            <input type="checkbox" checked={allAgreed} onChange={handleAllAgreedChange} />
+            전체 동의합니다
+          </label>
+          <hr className="signup-consent-divider" />
+          <div className="signup-consent-item">
+            <label>
+              <input
+                type="checkbox"
+                checked={termsAgreed}
+                onChange={(e) => setTermsAgreed(e.target.checked)}
+              />
+              [필수] 이용약관 동의
+            </label>
+            <button type="button" className="link-button" onClick={() => setOpenTermsType('TERMS')}>
+              전문 보기
+            </button>
+          </div>
+          <div className="signup-consent-item">
+            <label>
+              <input
+                type="checkbox"
+                checked={privacyAgreed}
+                onChange={(e) => setPrivacyAgreed(e.target.checked)}
+              />
+              [필수] 개인정보 수집·이용 동의
+            </label>
+            <button type="button" className="link-button" onClick={() => setOpenTermsType('PRIVACY')}>
+              전문 보기
+            </button>
+          </div>
+          <div className="signup-consent-item">
+            <label>
+              <input
+                type="checkbox"
+                checked={marketingAgreed}
+                onChange={(e) => setMarketingAgreed(e.target.checked)}
+              />
+              [선택] 마케팅 정보 수신 동의
+            </label>
+          </div>
+        </div>
+
+        {openTermsType && (
+          <TermsModal key={openTermsType} type={openTermsType} onClose={() => setOpenTermsType(null)} />
+        )}
 
         {formError && <p className="auth-error">{formError}</p>}
         <button className="auth-submit" type="submit" disabled={!canSubmit}>
