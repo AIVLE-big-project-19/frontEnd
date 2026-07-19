@@ -2,7 +2,9 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Layout from '../components/Layout';
 import { useAuth } from '../context/AuthContext';
-import { changeMyPassword, getMyBoards, getMyProfile, updateMyProfile } from '../api/myPageApi';
+import {
+  changeMyPassword, getMyBoards, getMyConsents, getMyProfile, updateMarketingConsent, updateMyProfile,
+} from '../api/myPageApi';
 import '../styles/MyPage.css';
 
 const passwordPattern = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,16}$/;
@@ -19,6 +21,8 @@ const formatDate = (value) => value
   ? new Intl.DateTimeFormat('ko-KR', { dateStyle: 'medium' }).format(new Date(value))
   : '-';
 
+const CONSENT_LABELS = { TERMS: '이용약관', PRIVACY: '개인정보 수집·이용', MARKETING: '마케팅 정보 수신' };
+
 function MyPage() {
   const { logout } = useAuth();
   const [profile, setProfile] = useState(null);
@@ -28,6 +32,9 @@ function MyPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
+  const [consents, setConsents] = useState(null);
+  const [consentsError, setConsentsError] = useState('');
+  const [marketingSaving, setMarketingSaving] = useState(false);
 
   useEffect(() => {
     const loadMyPage = async () => {
@@ -40,6 +47,13 @@ function MyPage() {
         setMessage({ type: 'error', text: getErrorMessage(error, '마이페이지를 불러오지 못했습니다.') });
       } finally {
         setLoading(false);
+      }
+
+      try {
+        const consentData = await getMyConsents();
+        setConsents(consentData);
+      } catch {
+        setConsentsError('동의 현황을 불러오지 못했습니다.');
       }
     };
     loadMyPage();
@@ -89,6 +103,21 @@ function MyPage() {
     }
   };
 
+  const handleToggleMarketing = async (currentAgreed) => {
+    const next = !currentAgreed;
+    setMarketingSaving(true);
+    setConsents((prev) => prev.map((c) => (c.type === 'MARKETING' ? { ...c, agreed: next } : c)));
+    try {
+      const updated = await updateMarketingConsent(next);
+      setConsents((prev) => prev.map((c) => (c.type === 'MARKETING' ? updated : c)));
+    } catch (error) {
+      setConsents((prev) => prev.map((c) => (c.type === 'MARKETING' ? { ...c, agreed: currentAgreed } : c)));
+      setMessage({ type: 'error', text: getErrorMessage(error, '마케팅 수신 동의 변경에 실패했습니다.') });
+    } finally {
+      setMarketingSaving(false);
+    }
+  };
+
   return (
     <Layout>
       <div className="mypage">
@@ -128,6 +157,43 @@ function MyPage() {
                   <button className="mypage-primary" disabled={saving || !passwords.current || !passwords.next || !passwords.confirm}>비밀번호 변경</button>
                 </form>
               ) : <div className="mypage-state">소셜 계정은 연결된 서비스에서 비밀번호를 변경해주세요.</div>}
+            </section>
+
+            <section className="mypage-card">
+              <div className="mypage-card-title"><h2>약관 동의 현황</h2></div>
+              {consentsError && <div className="mypage-state">{consentsError}</div>}
+              {consents && (
+                <div className="mypage-consent-list">
+                  {consents.map((item) => (
+                    <div key={item.type} className="mypage-consent-row">
+                      <div>
+                        <span>{CONSENT_LABELS[item.type]}</span>
+                        {item.agreed === null ? (
+                          <span className="mypage-consent-meta">동의 기록 없음</span>
+                        ) : (
+                          <span className="mypage-consent-meta">v{item.version} · {formatDate(item.agreedAt)}</span>
+                        )}
+                      </div>
+                      {item.type === 'MARKETING' ? (
+                        <label className="mypage-toggle">
+                          <input
+                            type="checkbox"
+                            aria-label="마케팅 정보 수신 동의 토글"
+                            checked={!!item.agreed}
+                            disabled={marketingSaving}
+                            onChange={() => handleToggleMarketing(item.agreed)}
+                          />
+                          <span className="mypage-toggle-slider" />
+                        </label>
+                      ) : (
+                        <span className={`mypage-consent-badge ${item.agreed ? 'agreed' : 'not-agreed'}`}>
+                          {item.agreed ? '동의함' : '미동의'}
+                        </span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
             </section>
 
             <section className="mypage-card mypage-activity">

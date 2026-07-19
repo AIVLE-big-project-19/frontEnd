@@ -193,6 +193,30 @@ footer {
   font-size: 12px;
 }
 
+footer {
+  gap: 24px;
+}
+
+.footer-links {
+  display: flex;
+  gap: 16px;
+}
+
+.footer-links a {
+  color: #9fb1c4;
+  text-decoration: none;
+  font-size: 12px;
+}
+
+.footer-links a:hover {
+  text-decoration: underline;
+}
+
+.footer-link-primary {
+  font-weight: 700;
+  color: #dff6f2 !important;
+}
+
 .main-content {
   display: flex;
   flex: 1;
