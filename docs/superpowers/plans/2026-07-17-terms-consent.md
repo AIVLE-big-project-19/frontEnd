@@ -724,7 +724,7 @@ import TermsModal from '../components/TermsModal';
         </div>
 
         {openTermsType && (
-          <TermsModal type={openTermsType} onClose={() => setOpenTermsType(null)} />
+          <TermsModal key={openTermsType} type={openTermsType} onClose={() => setOpenTermsType(null)} />
         )}
 ```
 
@@ -1162,7 +1162,7 @@ import TermsModal from '../components/TermsModal';
         </p>
 
         {openTermsType && (
-          <TermsModal type={openTermsType} onClose={() => setOpenTermsType(null)} />
+          <TermsModal key={openTermsType} type={openTermsType} onClose={() => setOpenTermsType(null)} />
         )}
 ```
 
