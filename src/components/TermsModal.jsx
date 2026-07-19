@@ -10,7 +10,6 @@ const TermsModal = ({ type, onClose }) => {
 
   useEffect(() => {
     let ignore = false;
-    setState({ status: 'loading', data: null });
     getTerms(type)
       .then((terms) => {
         if (!ignore) setState({ status: 'success', data: terms });
