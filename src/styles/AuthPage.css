@@ -344,3 +344,15 @@
 .signup-consent-item .link-button {
   margin-left: auto;
 }
+
+.terms-page {
+  min-height: auto;
+  height: 100%;
+  width: 100%;
+  overflow-y: auto;
+  align-items: flex-start;
+}
+
+.terms-card {
+  padding: 40px 48px 64px;
+}

@@ -4,12 +4,14 @@ import { MemoryRouter } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { AppRoutes } from './App';
 import * as authApi from './api/authApi';
+import * as termsApi from './api/termsApi';
 
 vi.mock('./pages/MainPage', () => ({
   default: () => <div>메인페이지</div>,
 }));
 
 vi.mock('./api/authApi');
+vi.mock('./api/termsApi');
 
 const renderAt = (entry) =>
   render(
@@ -71,4 +73,12 @@ test('/oauth/google/callback 경로에서 콜백 페이지를 보여준다', asy
   renderAt('/oauth/google/callback?code=test-code&state=test-state');
   await waitFor(() => expect(screen.getByText('로그인 처리 중...')).toBeInTheDocument());
   sessionStorage.clear();
+});
+
+test('/terms/privacy 경로에서 약관 페이지를 보여준다', async () => {
+  termsApi.getTerms.mockResolvedValue({ type: 'PRIVACY', version: '1.0', content: '본문' });
+  renderAt('/terms/privacy');
+  await waitFor(() =>
+    expect(screen.getByRole('heading', { name: '개인정보처리방침' })).toBeInTheDocument()
+  );
 });
