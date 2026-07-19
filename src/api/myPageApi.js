@@ -19,3 +19,13 @@ export const getMyBoards = async () => {
   const { data } = await instance.get('/users/me/boards');
   return data.data;
 };
+
+export const getMyConsents = async () => {
+  const { data } = await instance.get('/users/me/consents');
+  return data.data.consents;
+};
+
+export const updateMarketingConsent = async (agreed) => {
+  const { data } = await instance.put('/users/me/consents/marketing', { agreed });
+  return data.data;
+};

@@ -15,8 +15,12 @@ export const verifyEmailCode = async (email, code) => {
   return data;
 };
 
-export const signup = async ({ loginId, email, password, name }) => {
-  const { data } = await instance.post('/auth/signup', { loginId, email, password, name });
+export const signup = async ({
+  loginId, email, password, name, termsAgreed, privacyAgreed, marketingAgreed,
+}) => {
+  const { data } = await instance.post('/auth/signup', {
+    loginId, email, password, name, termsAgreed, privacyAgreed, marketingAgreed,
+  });
   return data;
 };
 

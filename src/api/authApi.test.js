@@ -31,11 +31,27 @@ test('verifyEmailCode는 이메일과 코드를 POST한다', async () => {
   expect(instance.post).toHaveBeenCalledWith('/auth/email/verify-code', { email: 'a@b.com', code: '123456' });
 });
 
-test('signup은 가입 정보를 POST한다', async () => {
+test('signup은 가입 정보와 약관 동의 여부를 POST한다', async () => {
   vi.spyOn(instance, 'post').mockResolvedValue(ok(null));
-  const body = { loginId: 'tester01', email: 'a@b.com', password: 'password123', name: '홍길동' };
+  const body = {
+    loginId: 'tester01', email: 'a@b.com', password: 'password123', name: '홍길동',
+    termsAgreed: true, privacyAgreed: true, marketingAgreed: false,
+  };
   await signup(body);
   expect(instance.post).toHaveBeenCalledWith('/auth/signup', body);
+});
+
+test('signup은 termsAgreed/privacyAgreed/marketingAgreed가 false여도 명시적으로 전달한다', async () => {
+  vi.spyOn(instance, 'post').mockResolvedValue(ok(null));
+  await signup({
+    loginId: 'tester01', email: 'a@b.com', password: 'password123', name: '홍길동',
+    termsAgreed: true, privacyAgreed: true, marketingAgreed: false,
+  });
+
+  const sentBody = instance.post.mock.calls[0][1];
+  expect(sentBody.marketingAgreed).toBe(false);
+  expect(sentBody.termsAgreed).toBe(true);
+  expect(sentBody.privacyAgreed).toBe(true);
 });
 
 test('login은 토큰을 반환한다', async () => {
