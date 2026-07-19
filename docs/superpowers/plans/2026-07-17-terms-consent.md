@@ -752,6 +752,7 @@ git commit -m "feat: 회원가입 화면에 약관 동의 UI 추가"
 - Modify: `src/components/Footer.jsx`
 - Test: `src/components/Footer.test.jsx`
 - Modify: `src/styles/MainPage.css` (footer 링크 스타일 추가 — 기존 전역 `footer` 규칙이 이 파일에 있음)
+- Modify: `src/styles/AuthPage.css` (`.terms-page`/`.terms-card` 스크롤 스타일 추가)
 
 **Interfaces:**
 - Consumes: `getTerms(type)` (Task 1)
@@ -893,12 +894,34 @@ const TermsPage = () => {
 export default TermsPage;
 ```
 
-- [ ] **Step 4: TermsPage 테스트 통과 확인**
+- [ ] **Step 4: TermsPage 스크롤 스타일 추가**
+
+`Layout`의 `.main-content`는 `overflow: hidden` + 고정 높이(`calc(100vh - 114px)`, `src/styles/MainPage.css`)라서, Layout 안에 놓이는 페이지는 자체적으로 스크롤 컨테이너를 만들어야 한다(게시판 페이지들이 `board.css`에서 `height: 100%; overflow-y: auto`로 처리하는 것과 같은 패턴). 이게 없으면 긴 약관 본문이 잘리고 스크롤이 안 된다.
+
+`src/styles/AuthPage.css` 파일 끝에 추가:
+
+```css
+.terms-page {
+  min-height: auto;
+  height: 100%;
+  width: 100%;
+  overflow-y: auto;
+  align-items: flex-start;
+}
+
+.terms-card {
+  padding: 40px 48px 64px;
+}
+```
+
+(`.terms-page`는 `.auth-page`와 함께 쓰여 `min-height: 100vh`/수직 중앙정렬을 무효화하고 자체 스크롤을 만든다.)
+
+- [ ] **Step 5: TermsPage 테스트 통과 확인**
 
 Run: `npm test -- src/pages/TermsPage.test.jsx`
 Expected: PASS
 
-- [ ] **Step 5: 라우트 실패하는 테스트 작성**
+- [ ] **Step 6: 라우트 실패하는 테스트 작성**
 
 `src/App.test.jsx` 상단에 추가:
 
@@ -920,12 +943,12 @@ test('/terms/privacy 경로에서 약관 페이지를 보여준다', async () =>
 });
 ```
 
-- [ ] **Step 6: 테스트 실패 확인**
+- [ ] **Step 7: 테스트 실패 확인**
 
 Run: `npm test -- src/App.test.jsx`
 Expected: FAIL — 해당 heading을 찾지 못함(라우트 없음)
 
-- [ ] **Step 7: 라우트 추가**
+- [ ] **Step 8: 라우트 추가**
 
 `src/App.jsx` import에 추가:
 
@@ -939,12 +962,12 @@ import TermsPage from './pages/TermsPage';
     <Route path="/terms/:type" element={<TermsPage />} />
 ```
 
-- [ ] **Step 8: 라우트 테스트 통과 확인**
+- [ ] **Step 9: 라우트 테스트 통과 확인**
 
 Run: `npm test -- src/App.test.jsx`
 Expected: PASS
 
-- [ ] **Step 9: Footer 실패하는 테스트 작성**
+- [ ] **Step 10: Footer 실패하는 테스트 작성**
 
 `src/components/Footer.test.jsx` 새 파일:
 
@@ -972,12 +995,12 @@ test('이용약관 링크가 /terms/terms로 연결된다', () => {
 });
 ```
 
-- [ ] **Step 10: 테스트 실패 확인**
+- [ ] **Step 11: 테스트 실패 확인**
 
 Run: `npm test -- src/components/Footer.test.jsx`
 Expected: FAIL — 링크를 찾지 못함(현재 Footer는 "푸터 테스트" 텍스트만 있음)
 
-- [ ] **Step 11: Footer 구현 교체**
+- [ ] **Step 12: Footer 구현 교체**
 
 `src/components/Footer.jsx` 전체를 다음으로 교체:
 
@@ -997,7 +1020,7 @@ const Footer = () => (
 export default Footer;
 ```
 
-- [ ] **Step 12: footer 스타일 추가**
+- [ ] **Step 13: footer 스타일 추가**
 
 `src/styles/MainPage.css`의 기존 `footer { ... }` 규칙 바로 다음에 추가:
 
@@ -1027,12 +1050,12 @@ footer {
 }
 ```
 
-- [ ] **Step 13: Footer 테스트 통과 확인**
+- [ ] **Step 14: Footer 테스트 통과 확인**
 
 Run: `npm test -- src/components/Footer.test.jsx`
 Expected: PASS
 
-- [ ] **Step 14: 전체 테스트 + 빌드 확인**
+- [ ] **Step 15: 전체 테스트 + 빌드 확인**
 
 Run: `npm test`
 Expected: 전체 PASS
@@ -1040,10 +1063,10 @@ Expected: 전체 PASS
 Run: `npm run build`
 Expected: 에러 없이 빌드 성공
 
-- [ ] **Step 15: 커밋**
+- [ ] **Step 16: 커밋**
 
 ```bash
-git add src/pages/TermsPage.jsx src/pages/TermsPage.test.jsx src/App.jsx src/App.test.jsx src/components/Footer.jsx src/components/Footer.test.jsx src/styles/MainPage.css
+git add src/pages/TermsPage.jsx src/pages/TermsPage.test.jsx src/App.jsx src/App.test.jsx src/components/Footer.jsx src/components/Footer.test.jsx src/styles/MainPage.css src/styles/AuthPage.css
 git commit -m "feat: 약관 전문 페이지(/terms/:type)와 푸터 개인정보처리방침 링크 추가"
 ```
 
@@ -1442,3 +1465,4 @@ git commit -m "feat: 마이페이지에 약관 동의 현황 카드와 마케팅
 
 - 실제 약관 본문(마크다운)이 백엔드에 등록돼 있어야 `TermsModal`/`TermsPage`가 의미 있는 내용을 보여준다. 로컬에서 확인할 땐 `docs/API_REFERENCE.md` 기준으로 백엔드 `feat/login` 브랜치가 떠 있어야 함.
 - 마케팅 동의 토글의 실제 API 응답 형태(특히 `agreed`가 boolean으로 정확히 오는지)는 백엔드 연동 후 한 번 실기 확인 권장.
+- `/terms/privacy`를 브라우저에서 열어 긴 본문이 실제로 스크롤되는지 확인할 것 — `TermsPage` 테스트는 `Layout`을 mock하므로 `.main-content`(`overflow: hidden`)와의 상호작용은 테스트로 검증되지 않는다.
