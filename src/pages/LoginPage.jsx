@@ -16,6 +16,7 @@ const LoginPage = () => {
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState('');
+  const [isLocked, setIsLocked] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [openTermsType, setOpenTermsType] = useState(null);
   // sessionStorage에 남아있을 수 있는 "세션 만료" 1회성 메시지를 마운트 시 한 번만 읽고 지운다.
@@ -30,6 +31,7 @@ const LoginPage = () => {
       return;
     }
     setError('');
+    setIsLocked(false);
     setIsSubmitting(true);
     try {
       const result = await authApi.login({ loginId, password, rememberMe });
@@ -37,6 +39,7 @@ const LoginPage = () => {
       navigate('/');
     } catch (err) {
       setError(err.response?.data?.message || '로그인에 실패했습니다. 잠시 후 다시 시도해주세요.');
+      setIsLocked(err.response?.status === 423);
     } finally {
       setIsSubmitting(false);
     }
@@ -82,6 +85,11 @@ const LoginPage = () => {
           로그인 상태 유지
         </label>
         {error && <p className="auth-error">{error}</p>}
+        {isLocked && (
+          <div className="auth-links">
+            <Link to="/find-password">비밀번호 재설정</Link>
+          </div>
+        )}
         <button className="auth-submit" type="submit" disabled={isSubmitting}>
           로그인
         </button>
