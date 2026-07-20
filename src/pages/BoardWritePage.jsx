@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { createBoard } from "../api/boardApi";
 import { useAuth } from "../context/AuthContext";
-import { BOARD_CATEGORIES } from "../constants/boardCategory";
+import { BOARD_CATEGORIES, isAdminOnlyCategory } from "../constants/boardCategory";
 import Layout from "../components/Layout";
 import "../styles/board.css";
+import { getMyProfile } from "../api/myPageApi";
 
 function BoardWritePage() {
     const navigate = useNavigate();
@@ -12,11 +13,25 @@ function BoardWritePage() {
 
     const availableCategories = isAdmin
         ? BOARD_CATEGORIES
-        : BOARD_CATEGORIES.filter((item) => item !== "공지사항");
+        : BOARD_CATEGORIES.filter((item) => !isAdminOnlyCategory(item));
 
     const [title, setTitle] = useState("");
     const [content, setContent] = useState("");
     const [category, setCategory] = useState("자유게시판");
+    const [writerName, setWriterName] = useState(loginId ?? "");
+
+    useEffect(() => {
+        if (!isLoggedIn) return;
+        let active = true;
+        getMyProfile()
+            .then((profile) => {
+                if (active) setWriterName(profile.name || loginId || "");
+            })
+            .catch(() => {
+                if (active) setWriterName(loginId || "");
+            });
+        return () => { active = false; };
+    }, [isLoggedIn, loginId]);
 
     const submit = async () => {
         if (isInitializing) return;
@@ -42,21 +57,22 @@ function BoardWritePage() {
             return;
         }
 
-        if (category === "공지사항" && !isAdmin) {
-            alert("공지사항은 관리자만 작성할 수 있습니다.");
+        if (isAdminOnlyCategory(category) && !isAdmin) {
+            alert("공지사항과 FAQ는 관리자만 작성할 수 있습니다.");
             return;
         }
 
         try {
-            await createBoard({
+            const response = await createBoard({
                 title,
                 content,
                 writer: loginId,
                 category,
             });
+            const createdBoardId = response.data.data.boardId;
 
             alert("게시글이 등록되었습니다.");
-            navigate("/boards");
+            navigate(`/boards/${createdBoardId}`, { replace: true });
         } catch (error) {
             console.log(error);
             alert(error.response?.data?.message ?? "게시글 등록에 실패했습니다.");
@@ -120,7 +136,7 @@ function BoardWritePage() {
                             <label>작성자</label>
                             <input
                                 className="board-input readonly"
-                                value={loginId}
+                                value={writerName}
                                 readOnly
                             />
                         </div>
@@ -139,7 +155,7 @@ function BoardWritePage() {
                                 ))}
                             </select>
                             {!isAdmin && (
-                                <p className="board-form-help">공지사항은 관리자 계정에서만 작성할 수 있습니다.</p>
+                                <p className="board-form-help">공지사항과 FAQ는 관리자 계정에서만 작성할 수 있습니다.</p>
                             )}
                         </div>
                     </div>

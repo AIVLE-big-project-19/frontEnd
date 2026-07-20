@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { getBoard, updateBoard } from "../api/boardApi";
 import { useAuth } from "../context/AuthContext";
-import { BOARD_CATEGORIES } from "../constants/boardCategory";
+import { BOARD_CATEGORIES, INQUIRY_CATEGORY, isAdminOnlyCategory } from "../constants/boardCategory";
 import Layout from "../components/Layout";
 import "../styles/board.css";
 
@@ -13,11 +13,12 @@ function BoardEditPage() {
 
     const availableCategories = isAdmin
         ? BOARD_CATEGORIES
-        : BOARD_CATEGORIES.filter((item) => item !== "공지사항");
+        : BOARD_CATEGORIES.filter((item) => !isAdminOnlyCategory(item));
 
     const [title, setTitle] = useState("");
     const [content, setContent] = useState("");
     const [writer, setWriter] = useState("");
+    const [writerName, setWriterName] = useState("");
     const [category, setCategory] = useState(BOARD_CATEGORIES[0]);
     const [loading, setLoading] = useState(true);
 
@@ -37,8 +38,15 @@ function BoardEditPage() {
                 const response = await getBoard(boardId);
                 const board = response.data.data;
 
-                if (board.writer !== loginId) {
-                    alert("본인이 작성한 게시글만 수정할 수 있습니다.");
+                const isOwner = board.owner ?? board.writer === loginId;
+                const canEdit = isAdminOnlyCategory(board.category)
+                    ? isAdmin
+                    : isOwner && !(isAdmin && board.category === INQUIRY_CATEGORY);
+
+                if (!canEdit) {
+                    alert(board.category === INQUIRY_CATEGORY && isAdmin
+                        ? "관리자는 1:1 문의 게시글을 수정할 수 없습니다."
+                        : "게시글을 수정할 권한이 없습니다.");
                     navigate(`/boards/${boardId}`);
                     return;
                 }
@@ -46,6 +54,7 @@ function BoardEditPage() {
                 setTitle(board.title);
                 setContent(board.content);
                 setWriter(board.writer);
+                setWriterName(board.writerName ?? board.writer);
                 setCategory(board.category);
             } catch (error) {
                 console.log(error);
@@ -57,7 +66,7 @@ function BoardEditPage() {
         };
 
         loadBoard();
-    }, [boardId, isInitializing, isLoggedIn, loginId, navigate]);
+    }, [boardId, isAdmin, isInitializing, isLoggedIn, loginId, navigate]);
 
     const submit = async () => {
         if (!title.trim()) {
@@ -129,7 +138,7 @@ function BoardEditPage() {
                         <label>작성자</label>
                         <input
                             className="board-input readonly"
-                            value={writer}
+                            value={writerName}
                             readOnly
                         />
                     </div>

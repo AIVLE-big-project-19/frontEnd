@@ -20,7 +20,7 @@ function BoardCard({ board }) {
                 <div className="board-card-meta">
                     <span>
                         <span className="board-card-meta-label">작성자</span>
-                        {board.writer}
+                        {board.writerName ?? board.writer}
                     </span>
                     <span>
                         <span className="board-card-meta-label">조회수</span>

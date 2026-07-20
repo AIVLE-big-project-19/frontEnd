@@ -1,7 +1,7 @@
 import api from "./axiosInstance";
 
-export const getBoards = (page = 0, size = 10) => {
-    return api.get(`/boards?page=${page}&size=${size}`);
+export const getBoards = (page = 0, size = 10, category) => {
+    return api.get("/boards", { params: { page, size, category } });
 };
 
 export const getBoard = (boardId) => {
