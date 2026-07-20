@@ -1,4 +1,4 @@
-import api from "./axios";
+import api from "./axiosInstance";
 
 export const getBoards = (page = 0, size = 10) => {
     return api.get(`/boards?page=${page}&size=${size}`);

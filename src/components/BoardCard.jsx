@@ -1,8 +1,11 @@
 import { Link } from "react-router-dom";
+import { getBoardCategoryKey } from "../constants/boardCategory";
 
 function BoardCard({ board }) {
+    const categoryKey = getBoardCategoryKey(board.category);
+
     return (
-        <div className="board-card">
+        <div className={`board-card category-${categoryKey}`}>
             <div className="board-card-category">
                 <span className="board-badge">{board.category}</span>
             </div>

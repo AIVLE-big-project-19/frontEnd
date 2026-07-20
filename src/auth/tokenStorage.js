@@ -8,6 +8,25 @@ let accessToken = null;
 
 export const getAccessToken = () => accessToken;
 
+export const getAccessTokenRole = () => {
+  if (!accessToken) return null;
+
+  try {
+    const payload = accessToken.split('.')[1];
+    const normalized = payload.replace(/-/g, '+').replace(/_/g, '/');
+    const padded = normalized.padEnd(Math.ceil(normalized.length / 4) * 4, '=');
+    const decoded = decodeURIComponent(
+      atob(padded)
+        .split('')
+        .map((char) => `%${char.charCodeAt(0).toString(16).padStart(2, '0')}`)
+        .join(''),
+    );
+    return JSON.parse(decoded).role ?? null;
+  } catch {
+    return null;
+  }
+};
+
 export const setAccessToken = (token) => {
   accessToken = token;
 };

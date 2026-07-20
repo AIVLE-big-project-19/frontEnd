@@ -1,5 +1,6 @@
 import {
   getAccessToken, setAccessToken,
+  getAccessTokenRole,
   saveSession, loadSession, updateRefreshToken, clearSession,
 } from './tokenStorage';
 
@@ -11,6 +12,17 @@ test('accessToken은 메모리에 저장하고 읽는다', () => {
   expect(getAccessToken()).toBeNull();
   setAccessToken('at-1');
   expect(getAccessToken()).toBe('at-1');
+});
+
+test('accessToken의 role 클레임을 읽는다', () => {
+  const payload = btoa(JSON.stringify({ role: 'ADMIN' }))
+    .replace(/=/g, '')
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_');
+
+  setAccessToken(`header.${payload}.signature`);
+
+  expect(getAccessTokenRole()).toBe('ADMIN');
 });
 
 test('rememberMe=true면 localStorage에 저장한다', () => {

@@ -9,7 +9,11 @@ import "../styles/board.css";
 function BoardEditPage() {
     const { boardId } = useParams();
     const navigate = useNavigate();
-    const { isLoggedIn, loginId, isInitializing } = useAuth();
+    const { isLoggedIn, loginId, isAdmin, isInitializing } = useAuth();
+
+    const availableCategories = isAdmin
+        ? BOARD_CATEGORIES
+        : BOARD_CATEGORIES.filter((item) => item !== "공지사항");
 
     const [title, setTitle] = useState("");
     const [content, setContent] = useState("");
@@ -28,32 +32,32 @@ function BoardEditPage() {
             return;
         }
 
-        loadBoard();
-    }, [boardId, isInitializing, isLoggedIn]);
+        const loadBoard = async () => {
+            try {
+                const response = await getBoard(boardId);
+                const board = response.data.data;
 
-    const loadBoard = async () => {
-        try {
-            const response = await getBoard(boardId);
-            const board = response.data.data;
+                if (board.writer !== loginId) {
+                    alert("본인이 작성한 게시글만 수정할 수 있습니다.");
+                    navigate(`/boards/${boardId}`);
+                    return;
+                }
 
-            if (board.writer !== loginId) {
-                alert("본인이 작성한 게시글만 수정할 수 있습니다.");
-                navigate(`/boards/${boardId}`);
-                return;
+                setTitle(board.title);
+                setContent(board.content);
+                setWriter(board.writer);
+                setCategory(board.category);
+            } catch (error) {
+                console.log(error);
+                alert("게시글 정보를 불러오지 못했습니다.");
+                navigate("/boards");
+            } finally {
+                setLoading(false);
             }
+        };
 
-            setTitle(board.title);
-            setContent(board.content);
-            setWriter(board.writer);
-            setCategory(board.category);
-        } catch (error) {
-            console.log(error);
-            alert("게시글 정보를 불러오지 못했습니다.");
-            navigate("/boards");
-        } finally {
-            setLoading(false);
-        }
-    };
+        loadBoard();
+    }, [boardId, isInitializing, isLoggedIn, loginId, navigate]);
 
     const submit = async () => {
         if (!title.trim()) {
@@ -107,7 +111,7 @@ function BoardEditPage() {
                         className="board-btn secondary"
                         onClick={() => navigate(`/boards/${boardId}`)}
                     >
-                        상세로
+                        돌아가기
                     </button>
                 </div>
 
@@ -137,7 +141,7 @@ function BoardEditPage() {
                             value={category}
                             onChange={(e) => setCategory(e.target.value)}
                         >
-                            {BOARD_CATEGORIES.map((item) => (
+                            {availableCategories.map((item) => (
                                 <option key={item} value={item}>
                                     {item}
                                 </option>
