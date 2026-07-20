@@ -2,7 +2,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 const AuthNav = () => {
-  const { isLoggedIn, loginId, logout } = useAuth();
+  const { isLoggedIn, loginId, isAdmin, logout } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -14,6 +14,7 @@ const AuthNav = () => {
     return (
       <nav className="nav-menu auth-nav">
         <Link to="/mypage" className="auth-user">{loginId}님</Link>
+        {isAdmin && <Link to="/admin/users">회원 관리</Link>}
         <button type="button" onClick={handleLogout}>로그아웃</button>
       </nav>
     );

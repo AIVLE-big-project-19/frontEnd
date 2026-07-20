@@ -8,11 +8,15 @@ import "../styles/board.css";
 
 function BoardWritePage() {
     const navigate = useNavigate();
-    const { isLoggedIn, loginId, isInitializing } = useAuth();
+    const { isLoggedIn, loginId, isAdmin, isInitializing } = useAuth();
+
+    const availableCategories = isAdmin
+        ? BOARD_CATEGORIES
+        : BOARD_CATEGORIES.filter((item) => item !== "공지사항");
 
     const [title, setTitle] = useState("");
     const [content, setContent] = useState("");
-    const [category, setCategory] = useState(BOARD_CATEGORIES[0]);
+    const [category, setCategory] = useState("자유게시판");
 
     const submit = async () => {
         if (isInitializing) return;
@@ -38,6 +42,11 @@ function BoardWritePage() {
             return;
         }
 
+        if (category === "공지사항" && !isAdmin) {
+            alert("공지사항은 관리자만 작성할 수 있습니다.");
+            return;
+        }
+
         try {
             await createBoard({
                 title,
@@ -50,7 +59,7 @@ function BoardWritePage() {
             navigate("/boards");
         } catch (error) {
             console.log(error);
-            alert("게시글 등록에 실패했습니다.");
+            alert(error.response?.data?.message ?? "게시글 등록에 실패했습니다.");
         }
     };
 
@@ -123,12 +132,15 @@ function BoardWritePage() {
                                 value={category}
                                 onChange={(e) => setCategory(e.target.value)}
                             >
-                                {BOARD_CATEGORIES.map((item) => (
+                                {availableCategories.map((item) => (
                                     <option key={item} value={item}>
                                         {item}
                                     </option>
                                 ))}
                             </select>
+                            {!isAdmin && (
+                                <p className="board-form-help">공지사항은 관리자 계정에서만 작성할 수 있습니다.</p>
+                            )}
                         </div>
                     </div>
 

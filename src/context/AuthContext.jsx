@@ -3,13 +3,14 @@ import instance from '../api/axiosInstance';
 import * as authApi from '../api/authApi';
 import {
   setAccessToken, saveSession, loadSession, updateRefreshToken, clearSession,
-  setAuthExpiredMessage,
+  setAuthExpiredMessage, getAccessTokenRole,
 } from '../auth/tokenStorage';
 
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const [loginId, setLoginId] = useState(null);
+  const [role, setRole] = useState(null);
   const [isInitializing, setIsInitializing] = useState(true);
   const hasRestored = useRef(false);
 
@@ -32,6 +33,7 @@ export const AuthProvider = ({ children }) => {
           refreshToken: session.refreshToken,
         });
         setAccessToken(data.data.accessToken);
+        setRole(getAccessTokenRole());
         updateRefreshToken(data.data.refreshToken);
         setLoginId(session.loginId);
       } catch {
@@ -46,6 +48,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = useCallback((tokens, newLoginId, rememberMe) => {
     setAccessToken(tokens.accessToken);
+    setRole(getAccessTokenRole());
     saveSession({ refreshToken: tokens.refreshToken, loginId: newLoginId, rememberMe });
     setLoginId(newLoginId);
   }, []);
@@ -61,11 +64,12 @@ export const AuthProvider = ({ children }) => {
     }
     clearSession();
     setLoginId(null);
+    setRole(null);
   }, []);
 
   const value = useMemo(
-    () => ({ isLoggedIn: loginId !== null, loginId, isInitializing, login, logout }),
-    [loginId, isInitializing, login, logout],
+    () => ({ isLoggedIn: loginId !== null, loginId, role, isAdmin: role === 'ADMIN', isInitializing, login, logout }),
+    [loginId, role, isInitializing, login, logout],
   );
 
   return (
