@@ -2,9 +2,10 @@ import { useCallback, useEffect, useState } from "react";
 import { deleteComment, getComments, updateComment } from "../api/commentApi";
 import { useAuth } from "../context/AuthContext";
 import CommentForm from "./CommentForm";
+import { FREE_CATEGORY, INQUIRY_CATEGORY } from "../constants/boardCategory";
 
-function CommentList({ boardId }) {
-    const { loginId } = useAuth();
+function CommentList({ boardId, boardCategory }) {
+    const { loginId, isAdmin } = useAuth();
     const [comments, setComments] = useState([]);
     const [loading, setLoading] = useState(true);
     const [editingId, setEditingId] = useState(null);
@@ -81,15 +82,20 @@ function CommentList({ boardId }) {
             ) : (
                 <div className="comment-list">
                     {comments.map((comment) => {
-                        const isMine = Boolean(loginId) && comment.writer === loginId;
+                        const isMine = comment.owner ?? (Boolean(loginId) && comment.writer === loginId);
+                        const canManage = boardCategory === INQUIRY_CATEGORY ? isAdmin : isMine;
                         const isEditing = editingId === comment.commentId;
 
                         return (
                             <div key={comment.commentId} className="comment-item">
                                 <div className="comment-item-header">
-                                    <span className="comment-writer">{comment.writer}</span>
+                                    <span className="comment-writer">{comment.writerName ?? comment.writer}</span>
 
-                                    {isMine && (
+                                    {comment.secret && (
+                                        <span className="comment-secret-badge">비밀댓글</span>
+                                    )}
+
+                                    {canManage && comment.canView !== false && (
                                         <div className="comment-actions">
                                             {isEditing ? (
                                                 <>
@@ -121,7 +127,13 @@ function CommentList({ boardId }) {
                 </div>
             )}
 
-            <CommentForm boardId={boardId} onCommentCreated={loadComments} />
+            {(boardCategory !== INQUIRY_CATEGORY || isAdmin) && (
+                <CommentForm
+                    boardId={boardId}
+                    onCommentCreated={loadComments}
+                    allowSecret={boardCategory === FREE_CATEGORY}
+                />
+            )}
         </div>
     );
 }
