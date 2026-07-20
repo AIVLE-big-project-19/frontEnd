@@ -67,6 +67,60 @@ test('로그인 실패(401) 시 에러 메시지를 보여준다', async () => {
   );
 });
 
+test('계정 잠금(423) 시 서버 메시지와 비밀번호 재설정 링크를 함께 보여준다', async () => {
+  authApi.login.mockRejectedValue({
+    response: {
+      status: 423,
+      data: { success: false, message: '로그인 시도 횟수를 초과하여 계정이 일시적으로 잠겼습니다. 12분 후 다시 시도해주세요.', data: null },
+    },
+  });
+  renderLogin();
+
+  await userEvent.type(screen.getByLabelText('아이디'), 'tester01');
+  await userEvent.type(screen.getByLabelText('비밀번호'), 'wrongpass1');
+  await userEvent.click(screen.getByRole('button', { name: '로그인' }));
+
+  await waitFor(() =>
+    expect(
+      screen.getByText('로그인 시도 횟수를 초과하여 계정이 일시적으로 잠겼습니다. 12분 후 다시 시도해주세요.')
+    ).toBeInTheDocument()
+  );
+  expect(screen.getByRole('link', { name: '비밀번호 재설정' })).toHaveAttribute('href', '/find-password');
+});
+
+test('일반 로그인 실패(401)에는 비밀번호 재설정 링크가 보이지 않는다', async () => {
+  authApi.login.mockRejectedValue({
+    response: { status: 401, data: { success: false, message: '아이디 또는 비밀번호가 일치하지 않습니다.' } },
+  });
+  renderLogin();
+
+  await userEvent.type(screen.getByLabelText('아이디'), 'tester01');
+  await userEvent.type(screen.getByLabelText('비밀번호'), 'wrongpass1');
+  await userEvent.click(screen.getByRole('button', { name: '로그인' }));
+
+  await waitFor(() =>
+    expect(screen.getByText('아이디 또는 비밀번호가 일치하지 않습니다.')).toBeInTheDocument()
+  );
+  expect(screen.queryByRole('link', { name: '비밀번호 재설정' })).not.toBeInTheDocument();
+});
+
+test('잠금 후 다시 로그인 성공하면 재설정 링크가 사라진다', async () => {
+  authApi.login.mockRejectedValueOnce({
+    response: { status: 423, data: { success: false, message: '계정이 일시적으로 잠겼습니다.' } },
+  });
+  renderLogin();
+
+  await userEvent.type(screen.getByLabelText('아이디'), 'tester01');
+  await userEvent.type(screen.getByLabelText('비밀번호'), 'wrongpass1');
+  await userEvent.click(screen.getByRole('button', { name: '로그인' }));
+  await waitFor(() => expect(screen.getByRole('link', { name: '비밀번호 재설정' })).toBeInTheDocument());
+
+  authApi.login.mockResolvedValueOnce({ success: true, data: { accessToken: 'at', refreshToken: 'rt' } });
+  await userEvent.click(screen.getByRole('button', { name: '로그인' }));
+
+  await waitFor(() => expect(screen.getByText('메인페이지')).toBeInTheDocument());
+});
+
 test('빈 필드로 제출하면 API를 호출하지 않는다', async () => {
   renderLogin();
   await userEvent.click(screen.getByRole('button', { name: '로그인' }));
