@@ -32,7 +32,7 @@ export default defineConfig({
     proxy: {
       // 기존 설정
       '/api': {
-        target: 'http://localhost:8080',
+        target: process.env.VITE_API_PROXY_TARGET || 'http://localhost:8080',
         changeOrigin: true,
       },
       // 새로 추가할 VWorld API 설정
