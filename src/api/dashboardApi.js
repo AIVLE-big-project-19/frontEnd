@@ -9,3 +9,8 @@ export const fetchMyAnalysisHistory = async () => {
   const { data } = await instance.get('/dashboard/analyses/me');
   return data.data;
 };
+
+export const fetchDemoAnalyses = async () => {
+  const { data } = await instance.get('/dashboard/analyses/demo');
+  return data.data;
+};
