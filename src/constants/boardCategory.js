@@ -27,6 +27,14 @@ export const BOARD_CATEGORY_DETAILS = [
 
 export const BOARD_CATEGORIES = BOARD_CATEGORY_DETAILS.map(({ name }) => name);
 
+export const ADMIN_ONLY_CATEGORIES = ["공지사항", "FAQ"];
+export const NO_COMMENT_CATEGORIES = ["공지사항", "FAQ"];
+export const INQUIRY_CATEGORY = "1:1문의";
+export const FREE_CATEGORY = "자유게시판";
+
+export const isAdminOnlyCategory = (category) => ADMIN_ONLY_CATEGORIES.includes(category);
+export const allowsComments = (category) => !NO_COMMENT_CATEGORIES.includes(category);
+
 export const getBoardCategoryKey = (category) => {
     const aliases = {
         문의: "inquiry",
