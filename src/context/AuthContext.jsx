@@ -67,9 +67,18 @@ export const AuthProvider = ({ children }) => {
     setRole(null);
   }, []);
 
+  const clearLocalSession = useCallback(() => {
+    clearSession();
+    setLoginId(null);
+    setRole(null);
+  }, []);
+
   const value = useMemo(
-    () => ({ isLoggedIn: loginId !== null, loginId, role, isAdmin: role === 'ADMIN', isInitializing, login, logout }),
-    [loginId, role, isInitializing, login, logout],
+    () => ({
+      isLoggedIn: loginId !== null, loginId, role, isAdmin: role === 'ADMIN', isInitializing,
+      login, logout, clearLocalSession,
+    }),
+    [loginId, role, isInitializing, login, logout, clearLocalSession],
   );
 
   return (

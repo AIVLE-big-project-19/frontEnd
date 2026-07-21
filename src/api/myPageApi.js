@@ -29,3 +29,9 @@ export const updateMarketingConsent = async (agreed) => {
   const { data } = await instance.put('/users/me/consents/marketing', { agreed });
   return data.data;
 };
+
+export const withdraw = async (password) => {
+  const body = password !== undefined ? { password } : {};
+  const { data } = await instance.post('/users/me/withdrawal', body);
+  return data;
+};
