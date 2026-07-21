@@ -17,6 +17,7 @@ import BoardEditPage from './pages/BoardEditPage';
 import MyPage from './pages/MyPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminUsersPage from './pages/AdminUsersPage';
+import DashboardPage from './pages/DashboardPage';
 
 export const AppRoutes = () => (
   <Routes>
@@ -30,6 +31,7 @@ export const AppRoutes = () => (
     <Route path="/oauth/google/callback" element={<GoogleCallbackPage />} />
     <Route path="/terms/:type" element={<TermsPage />} />
     <Route path="/boards" element={<BoardListPage />} />
+    <Route path="/dashboard" element={<DashboardPage />} />
     <Route path="/boards/write" element={<BoardWritePage />} />
     <Route path="/boards/:boardId" element={<BoardDetailPage />} />
     <Route path="/test" element={<TestPage />} />
