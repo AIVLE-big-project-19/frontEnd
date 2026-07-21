@@ -29,7 +29,7 @@ const Header = () => {
     <nav className="nav-menu">
       <Link to="/" onClick={refreshIfCurrent('/')}>홈</Link>
       <Link to="/boards?category=공지사항" onClick={refreshIfCurrent('/boards?category=공지사항')}>게시판</Link>
-      <a href="#dashboard" onClick={refreshHashIfCurrent('#dashboard')}>통합 대시보드</a>
+      <Link to="/dashboard" onClick={refreshIfCurrent('/dashboard')}>통합 대시보드</Link>
       <a href="#simulation" onClick={refreshHashIfCurrent('#simulation')}>시뮬레이션</a>
       <a href="#vision-ai" onClick={refreshHashIfCurrent('#vision-ai')}>Vision AI 분석</a>
     </nav>
