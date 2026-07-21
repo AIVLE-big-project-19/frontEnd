@@ -4,6 +4,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { AuthProvider, useAuth } from './AuthContext';
 import instance from '../api/axiosInstance';
+import * as authApi from '../api/authApi';
 import { saveSession, loadSession, clearSession, getAccessToken } from '../auth/tokenStorage';
 
 vi.mock('../api/authApi', () => ({
@@ -11,7 +12,7 @@ vi.mock('../api/authApi', () => ({
 }));
 
 const Probe = () => {
-  const { isLoggedIn, loginId, isInitializing, login, logout } = useAuth();
+  const { isLoggedIn, loginId, isInitializing, login, logout, clearLocalSession } = useAuth();
   if (isInitializing) return <div>초기화중</div>;
   return (
     <div>
@@ -20,6 +21,7 @@ const Probe = () => {
         로그인실행
       </button>
       <button onClick={logout}>로그아웃실행</button>
+      <button onClick={clearLocalSession}>로컬정리실행</button>
     </div>
   );
 };
@@ -35,6 +37,7 @@ beforeEach(() => {
   clearSession();
   sessionStorage.removeItem('authExpiredMessage');
   vi.restoreAllMocks();
+  vi.clearAllMocks();
 });
 
 test('저장된 세션이 없으면 비로그인 상태로 시작한다', async () => {
@@ -122,4 +125,18 @@ test('logout 호출 시 비로그인 상태가 되고 세션이 삭제된다', a
   await waitFor(() => expect(screen.getByTestId('status')).toHaveTextContent('비로그인'));
   expect(loadSession()).toBeNull();
   expect(getAccessToken()).toBeNull();
+});
+
+test('clearLocalSession 호출 시 서버 로그아웃 API 없이 로컬 세션만 정리된다', async () => {
+  renderWithProvider();
+  await waitFor(() => screen.getByTestId('status'));
+  await userEvent.click(screen.getByText('로그인실행'));
+  await waitFor(() => expect(screen.getByTestId('status')).toHaveTextContent('로그인:tester01'));
+
+  await userEvent.click(screen.getByText('로컬정리실행'));
+
+  await waitFor(() => expect(screen.getByTestId('status')).toHaveTextContent('비로그인'));
+  expect(loadSession()).toBeNull();
+  expect(getAccessToken()).toBeNull();
+  expect(authApi.logout).not.toHaveBeenCalled();
 });

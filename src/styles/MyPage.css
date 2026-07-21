@@ -77,3 +77,18 @@
 .mypage-toggle input:checked + .mypage-toggle-slider { background: #0f766e; }
 .mypage-toggle input:checked + .mypage-toggle-slider::before { transform: translateX(16px); }
 .mypage-toggle input:disabled + .mypage-toggle-slider { opacity: .5; cursor: not-allowed; }
+
+.mypage-danger-button {
+  min-width: 120px;
+  padding: 11px 18px;
+  border: 0;
+  border-radius: 9px;
+  color: #fff;
+  background: #dc2626;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.mypage-danger-button:hover:not(:disabled) {
+  background: #b91c1c;
+}

@@ -11,8 +11,9 @@ vi.mock('../components/Layout', () => ({
 }));
 
 const mockLogout = vi.fn();
+const mockClearLocalSession = vi.fn();
 vi.mock('../context/AuthContext', () => ({
-  useAuth: () => ({ logout: mockLogout }),
+  useAuth: () => ({ logout: mockLogout, clearLocalSession: mockClearLocalSession }),
 }));
 
 const renderMyPage = () =>
@@ -101,4 +102,27 @@ test('마케팅 수신 동의 토글 실패 시 원래 상태로 되돌린다', 
     expect(screen.getByText('마케팅 수신 동의 변경에 실패했습니다.')).toBeInTheDocument()
   );
   expect(toggle).not.toBeChecked();
+});
+
+test('회원탈퇴 버튼 클릭 시 확인 모달이 뜬다', async () => {
+  getMyProfile.mockResolvedValue(baseProfile);
+  getMyConsents.mockResolvedValue(baseConsents);
+  renderMyPage();
+
+  await waitFor(() => expect(screen.getByRole('button', { name: '회원탈퇴' })).toBeInTheDocument());
+  await userEvent.click(screen.getByRole('button', { name: '회원탈퇴' }));
+
+  expect(screen.getByPlaceholderText('현재 비밀번호')).toBeInTheDocument();
+});
+
+test('구글 계정이면 회원탈퇴 모달에 비밀번호 입력창이 없다', async () => {
+  getMyProfile.mockResolvedValue({ ...baseProfile, provider: 'GOOGLE', loginId: null });
+  getMyConsents.mockResolvedValue(baseConsents);
+  renderMyPage();
+
+  await waitFor(() => expect(screen.getByRole('button', { name: '회원탈퇴' })).toBeInTheDocument());
+  await userEvent.click(screen.getByRole('button', { name: '회원탈퇴' }));
+
+  expect(screen.queryByPlaceholderText('현재 비밀번호')).not.toBeInTheDocument();
+  expect(screen.getByText('정말 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없습니다.')).toBeInTheDocument();
 });

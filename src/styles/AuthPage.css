@@ -363,3 +363,27 @@
   color: #98a2b3;
   text-align: center;
 }
+
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 4px;
+}
+
+.modal-actions .auth-submit {
+  width: auto;
+  padding: 10px 32px;
+}
+
+.modal-box input[type="password"] {
+  width: 100%;
+  padding: 12px 14px;
+  border: none;
+  border-bottom: 2px solid #e4e7ec;
+  border-radius: 4px 4px 0 0;
+  background: #f9fafb;
+  font-size: 14px;
+  box-sizing: border-box;
+  margin-bottom: 12px;
+}

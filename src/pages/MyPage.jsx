@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Layout from '../components/Layout';
+import WithdrawalModal from '../components/WithdrawalModal';
 import { useAuth } from '../context/AuthContext';
 import {
   changeMyPassword, getMyBoards, getMyConsents, getMyProfile, updateMarketingConsent, updateMyProfile,
@@ -35,6 +36,7 @@ function MyPage() {
   const [consents, setConsents] = useState(null);
   const [consentsError, setConsentsError] = useState('');
   const [marketingSaving, setMarketingSaving] = useState(false);
+  const [showWithdrawalModal, setShowWithdrawalModal] = useState(false);
 
   useEffect(() => {
     const loadMyPage = async () => {
@@ -135,7 +137,8 @@ function MyPage() {
         {loading ? (
           <div className="mypage-state">내 정보를 불러오는 중...</div>
         ) : profile && (
-          <div className="mypage-grid">
+          <>
+            <div className="mypage-grid">
             <section className="mypage-card">
               <div className="mypage-card-title"><h2>기본 정보</h2><span>가입일 {formatDate(profile.createdAt)}</span></div>
               <form onSubmit={saveProfile}>
@@ -210,7 +213,24 @@ function MyPage() {
                 </div>
               )}
             </section>
-          </div>
+
+            <section className="mypage-card">
+              <div className="mypage-card-title"><h2>회원탈퇴</h2></div>
+              <p className="mypage-hint">탈퇴 시 모든 개인정보가 즉시 삭제되며 되돌릴 수 없습니다.</p>
+              <button
+                type="button"
+                className="mypage-danger-button"
+                onClick={() => setShowWithdrawalModal(true)}
+              >
+                회원탈퇴
+              </button>
+            </section>
+            </div>
+
+            {showWithdrawalModal && (
+              <WithdrawalModal provider={profile.provider} onClose={() => setShowWithdrawalModal(false)} />
+            )}
+          </>
         )}
       </div>
     </Layout>

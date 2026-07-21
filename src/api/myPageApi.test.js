@@ -1,6 +1,6 @@
 import { vi } from 'vitest';
 import instance from './axiosInstance';
-import { getMyConsents, updateMarketingConsent } from './myPageApi';
+import { getMyConsents, updateMarketingConsent, withdraw } from './myPageApi';
 
 beforeEach(() => {
   vi.restoreAllMocks();
@@ -32,4 +32,20 @@ test('updateMarketingConsent는 agreed를 PUT하고 변경된 항목을 반환�
 
   expect(instance.put).toHaveBeenCalledWith('/users/me/consents/marketing', { agreed: true });
   expect(result).toEqual(updated);
+});
+
+test('withdraw는 password를 전달하면 body에 담아 POST한다', async () => {
+  vi.spyOn(instance, 'post').mockResolvedValue({ data: { success: true, message: '', data: null } });
+
+  await withdraw('currentPassword1!');
+
+  expect(instance.post).toHaveBeenCalledWith('/users/me/withdrawal', { password: 'currentPassword1!' });
+});
+
+test('withdraw는 인자 없이 호출하면(구글 계정) 빈 body로 POST한다', async () => {
+  vi.spyOn(instance, 'post').mockResolvedValue({ data: { success: true, message: '', data: null } });
+
+  await withdraw();
+
+  expect(instance.post).toHaveBeenCalledWith('/users/me/withdrawal', {});
 });
