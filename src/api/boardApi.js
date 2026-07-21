@@ -9,13 +9,24 @@ export const getBoard = (boardId) => {
 };
 
 export const createBoard = (data) => {
-    return api.post("/boards", data);
+    return api.post("/boards", toBoardFormData(data));
 };
 
 export const updateBoard = (boardId, data) => {
-    return api.put(`/boards/${boardId}`, data);
+    return api.put(`/boards/${boardId}`, toBoardFormData(data));
 };
 
 export const deleteBoard = (boardId) => {
     return api.delete(`/boards/${boardId}`);
+};
+
+export const getBoardAttachment = (boardId, attachmentId) =>
+    api.get(`/boards/${boardId}/attachments/${attachmentId}`, { responseType: "blob" });
+
+const toBoardFormData = ({ files = [], deletedAttachmentIds = [], ...board }) => {
+    const formData = new FormData();
+    formData.append("board", new Blob([JSON.stringify(board)], { type: "application/json" }));
+    files.forEach((file) => formData.append("files", file));
+    deletedAttachmentIds.forEach((id) => formData.append("deletedAttachmentIds", id));
+    return formData;
 };

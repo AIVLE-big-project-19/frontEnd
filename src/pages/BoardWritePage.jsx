@@ -19,6 +19,8 @@ function BoardWritePage() {
     const [content, setContent] = useState("");
     const [category, setCategory] = useState("자유게시판");
     const [writerName, setWriterName] = useState(loginId ?? "");
+    const [files, setFiles] = useState([]);
+    const [previews, setPreviews] = useState([]);
 
     useEffect(() => {
         if (!isLoggedIn) return;
@@ -32,6 +34,28 @@ function BoardWritePage() {
             });
         return () => { active = false; };
     }, [isLoggedIn, loginId]);
+
+    useEffect(() => {
+        const nextPreviews = files.filter((file) => file.type.startsWith("image/")).map((file) => ({ file, url: URL.createObjectURL(file) }));
+        setPreviews(nextPreviews);
+        return () => nextPreviews.forEach((preview) => URL.revokeObjectURL(preview.url));
+    }, [files]);
+
+    const selectFiles = (event) => {
+        const selected = Array.from(event.target.files ?? []);
+        const totalSize = selected.reduce((sum, file) => sum + file.size, 0);
+        if (selected.length > 10 || totalSize > 50 * 1024 * 1024 || selected.some((file) => file.size > 10 * 1024 * 1024)) {
+            alert("첨부 파일은 최대 10개, 파일당 10MB, 총 50MB까지 가능합니다.");
+            event.target.value = "";
+            return;
+        }
+        setFiles(selected);
+    };
+    const removeSelectedFile = (index) => {
+        if (window.confirm("선택한 첨부 파일을 제거하시겠습니까?")) {
+            setFiles((current) => current.filter((_, fileIndex) => fileIndex !== index));
+        }
+    };
 
     const submit = async () => {
         if (isInitializing) return;
@@ -68,6 +92,7 @@ function BoardWritePage() {
                 content,
                 writer: loginId,
                 category,
+                files,
             });
             const createdBoardId = response.data.data.boardId;
 
@@ -168,6 +193,18 @@ function BoardWritePage() {
                             value={content}
                             onChange={(e) => setContent(e.target.value)}
                         />
+                    </div>
+
+                    <div className="board-form-group">
+                        <label>첨부 파일</label>
+                        <input className="board-file-input" type="file" multiple onChange={selectFiles} />
+                        <p className="board-form-help">최대 10개, 파일당 10MB, 총 50MB까지 첨부할 수 있습니다.</p>
+                        {files.length > 0 && <ul className="board-selected-files">
+                            {files.map((file, index) => <li key={`${file.name}-${index}`}>
+                                {previews.find((preview) => preview.file === file) && <img src={previews.find((preview) => preview.file === file).url} alt="선택 이미지 미리보기" />}
+                                <span>{file.name}</span><button type="button" onClick={() => removeSelectedFile(index)}>삭제</button>
+                            </li>)}
+                        </ul>}
                     </div>
 
                     <div className="board-actions">

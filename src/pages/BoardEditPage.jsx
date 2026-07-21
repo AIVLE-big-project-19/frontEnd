@@ -21,6 +21,10 @@ function BoardEditPage() {
     const [writerName, setWriterName] = useState("");
     const [category, setCategory] = useState(BOARD_CATEGORIES[0]);
     const [loading, setLoading] = useState(true);
+    const [files, setFiles] = useState([]);
+    const [attachments, setAttachments] = useState([]);
+    const [deletedAttachmentIds, setDeletedAttachmentIds] = useState([]);
+    const [previews, setPreviews] = useState([]);
 
     useEffect(() => {
         if (isInitializing) {
@@ -56,6 +60,7 @@ function BoardEditPage() {
                 setWriter(board.writer);
                 setWriterName(board.writerName ?? board.writer);
                 setCategory(board.category);
+                setAttachments(board.attachments ?? []);
             } catch (error) {
                 console.log(error);
                 alert("게시글 정보를 불러오지 못했습니다.");
@@ -67,6 +72,24 @@ function BoardEditPage() {
 
         loadBoard();
     }, [boardId, isAdmin, isInitializing, isLoggedIn, loginId, navigate]);
+
+    useEffect(() => {
+        const nextPreviews = files.filter((file) => file.type.startsWith("image/")).map((file) => ({ file, url: URL.createObjectURL(file) }));
+        setPreviews(nextPreviews);
+        return () => nextPreviews.forEach((preview) => URL.revokeObjectURL(preview.url));
+    }, [files]);
+
+    const selectFiles = (event) => {
+        const selected = Array.from(event.target.files ?? []);
+        const totalSize = attachments.reduce((sum, attachment) => sum + attachment.fileSize, 0)
+            + selected.reduce((sum, file) => sum + file.size, 0);
+        if (attachments.length + selected.length > 10 || totalSize > 50 * 1024 * 1024 || selected.some((file) => file.size > 10 * 1024 * 1024)) {
+            alert("첨부 파일은 최대 10개, 파일당 10MB, 총 50MB까지 가능합니다.");
+            event.target.value = "";
+            return;
+        }
+        setFiles(selected);
+    };
 
     const submit = async () => {
         if (!title.trim()) {
@@ -90,6 +113,8 @@ function BoardEditPage() {
                 content,
                 writer,
                 category,
+                files,
+                deletedAttachmentIds,
             });
 
             alert("게시글이 수정되었습니다.");
@@ -97,6 +122,18 @@ function BoardEditPage() {
         } catch (error) {
             console.log(error);
             alert("게시글 수정에 실패했습니다.");
+        }
+    };
+
+    const removeAttachment = (attachmentId) => {
+        if (!window.confirm("이 첨부 파일을 삭제하시겠습니까? 저장하면 복구할 수 없습니다.")) return;
+        setAttachments((current) => current.filter((attachment) => attachment.attachmentId !== attachmentId));
+        setDeletedAttachmentIds((current) => [...current, attachmentId]);
+    };
+
+    const removeSelectedFile = (index) => {
+        if (window.confirm("선택한 첨부 파일을 제거하시겠습니까?")) {
+            setFiles((current) => current.filter((_, fileIndex) => fileIndex !== index));
         }
     };
 
@@ -165,6 +202,37 @@ function BoardEditPage() {
                             value={content}
                             onChange={(e) => setContent(e.target.value)}
                         />
+                    </div>
+
+                    <div className="board-form-group">
+                        <label>첨부 파일 추가</label>
+                        <input className="board-file-input" type="file" multiple onChange={selectFiles} />
+                        <p className="board-form-help">최대 10개, 파일당 10MB, 총 50MB까지 첨부할 수 있습니다.</p>
+                        {files.length > 0 && <ul className="board-selected-files">
+                            {files.map((file, index) => <li key={`${file.name}-${index}`}>
+                                {previews.find((preview) => preview.file === file) && <img src={previews.find((preview) => preview.file === file).url} alt="선택 이미지 미리보기" />}
+                                <span>{file.name}</span><button type="button" onClick={() => removeSelectedFile(index)}>삭제</button>
+                            </li>)}
+                        </ul>}
+                    </div>
+
+                    <div className="board-form-group">
+                        <label>기존 첨부 파일</label>
+                        {attachments.length === 0 ? (
+                            <p className="board-form-help">첨부된 파일이 없습니다.</p>
+                        ) : (
+                            <ul className="board-edit-attachments">
+                                {attachments.map((attachment) => (
+                                    <li key={attachment.attachmentId}>
+                                        <span>{attachment.originalFilename}</span>
+                                        <button type="button" className="board-attachment-delete"
+                                            onClick={() => removeAttachment(attachment.attachmentId)}>
+                                            삭제
+                                        </button>
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
                     </div>
 
                     <div className="board-actions">
