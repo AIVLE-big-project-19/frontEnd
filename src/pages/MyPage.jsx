@@ -41,7 +41,9 @@ function MyPage() {
   useEffect(() => {
     const loadMyPage = async () => {
       try {
-        const [profileData, boardData] = await Promise.all([getMyProfile(), getMyBoards()]);
+        const [profileData, boardData] = await Promise.all([
+          getMyProfile({ skipErrorModal: true }), getMyBoards(),
+        ]);
         setProfile(profileData);
         setName(profileData.name);
         setBoards(boardData);
