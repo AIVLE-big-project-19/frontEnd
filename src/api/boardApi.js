@@ -1,23 +1,23 @@
 import api from "./axiosInstance";
 
 export const getBoards = (page = 0, size = 10, category) => {
-    return api.get("/boards", { params: { page, size, category } });
+    return api.get("/boards", { params: { page, size, category }, skipErrorModal: true });
 };
 
 export const getBoard = (boardId) => {
-    return api.get(`/boards/${boardId}`);
+    return api.get(`/boards/${boardId}`, { skipErrorModal: true });
 };
 
 export const createBoard = (data) => {
-    return api.post("/boards", toBoardFormData(data));
+    return api.post("/boards", toBoardFormData(data), { skipErrorModal: true });
 };
 
 export const updateBoard = (boardId, data) => {
-    return api.put(`/boards/${boardId}`, toBoardFormData(data));
+    return api.put(`/boards/${boardId}`, toBoardFormData(data), { skipErrorModal: true });
 };
 
 export const deleteBoard = (boardId) => {
-    return api.delete(`/boards/${boardId}`);
+    return api.delete(`/boards/${boardId}`, { skipErrorModal: true });
 };
 
 export const getBoardAttachment = (boardId, attachmentId) =>
