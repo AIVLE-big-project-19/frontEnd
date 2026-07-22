@@ -18,6 +18,7 @@ import MyPage from './pages/MyPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminUsersPage from './pages/AdminUsersPage';
 import DashboardPage from './pages/DashboardPage';
+import ErrorToast from './components/ErrorToast';
 
 export const AppRoutes = () => (
   <Routes>
@@ -48,6 +49,7 @@ function App() {
         <div className="App">
           <AppRoutes />
         </div>
+        <ErrorToast />
       </BrowserRouter>
     </AuthProvider>
   );
