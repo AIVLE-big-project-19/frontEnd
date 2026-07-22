@@ -73,6 +73,24 @@ const MainPage = () => {
     }
   };
 
+  const handleDownloadSamplePdf = async (targetType) => {
+    try {
+      const response = await fetch(`/api/pdf/generate/sample?type=${targetType}`);
+
+      if (!response.ok) throw new Error("예제 PDF 생성 실패");
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `SolarAivle_Sample_${targetType}.pdf`;
+      a.click();
+    } catch (error) {
+      console.error("예제 PDF 다운로드 에러:", error);
+      alert("예제 보고서 생성 중 오류가 발생했습니다.");
+    }
+  };
+
   const handleMove = (x, y) => {
     if (map) {
       map.getView().setCenter([parseFloat(x), parseFloat(y)]);
@@ -138,9 +156,17 @@ const MainPage = () => {
 
             <div className="address-display">
               {currentAddress}
-              <button className="pdf-download-btn" onClick={handleDownloadPdf} style={{marginLeft: '10px'}}>
-                보고서 다운로드
-              </button>
+              <div className="pdf-actions">
+                <button className="pdf-sample-btn" onClick={() => handleDownloadSamplePdf('ROOF')}>
+                  예제(옥상형)
+                </button>
+                <button className="pdf-sample-btn" onClick={() => handleDownloadSamplePdf('LAND')}>
+                  예제(토지형)
+                </button>
+                  <button className="pdf-download-btn" onClick={handleDownloadPdf} disabled>
+                  보고서 다운로드
+                </button>
+              </div>
             </div>
 
 
