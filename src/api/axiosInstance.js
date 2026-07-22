@@ -3,6 +3,7 @@ import {
   getAccessToken, setAccessToken, loadSession, updateRefreshToken, clearSession,
   setAuthExpiredMessage,
 } from '../auth/tokenStorage';
+import { showErrorToast } from '../notifications/errorToastStore';
 
 const instance = axios.create({ baseURL: '/api' });
 
@@ -15,7 +16,7 @@ let refreshPromise = null;
 const refreshAccessToken = (session) => {
   if (!refreshPromise) {
     refreshPromise = instance
-      .post('/auth/token/refresh', { refreshToken: session.refreshToken })
+      .post('/auth/token/refresh', { refreshToken: session.refreshToken }, { skipErrorModal: true })
       .then(({ data }) => {
         setAccessToken(data.data.accessToken);
         updateRefreshToken(data.data.refreshToken);
@@ -36,6 +37,19 @@ export const attachAuthHeader = (config) => {
   return config;
 };
 
+const NETWORK_ERROR_MESSAGE = '네트워크 연결을 확인해주세요.';
+
+const rejectWithToast = (error) => {
+  if (!error.config?.skipErrorModal) {
+    if (error.response?.data?.success === false) {
+      showErrorToast(error.response.data.message);
+    } else if (!error.response) {
+      showErrorToast(NETWORK_ERROR_MESSAGE);
+    }
+  }
+  return Promise.reject(error);
+};
+
 export const handleResponseError = async (error) => {
   const { config, response } = error;
   const status = response?.status;
@@ -49,7 +63,7 @@ export const handleResponseError = async (error) => {
     session;
 
   if (!shouldRefresh) {
-    return Promise.reject(error);
+    return rejectWithToast(error);
   }
 
   config._retry = true;

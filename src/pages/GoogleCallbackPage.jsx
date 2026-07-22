@@ -53,7 +53,7 @@ const GoogleCallbackPage = () => {
 
       try {
         setAccessToken(tokens.accessToken);
-        const profile = await getMyProfile();
+        const profile = await getMyProfile({ skipErrorModal: true });
         // 구글 전용 계정은 loginId가 null이라(스펙상 구글 계정은 아이디/비밀번호가 없음),
         // 그 경우 화면 표시용 식별자로 name을 대신 쓴다.
         auth.login(tokens, profile.loginId || profile.name, true);

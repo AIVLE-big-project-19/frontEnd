@@ -1,7 +1,7 @@
 import instance from './axiosInstance';
 
 export const sendChatMessage = async (message) => {
-  const { data } = await instance.post('/chat', { message });
+  const { data } = await instance.post('/chat', { message }, { skipErrorModal: true });
   return data;
 };
 
@@ -11,6 +11,7 @@ export const sendChatExcel = async (file) => {
 
   const { data } = await instance.post('/chat/excel', formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
+    skipErrorModal: true,
   });
   return data;
 };

@@ -13,6 +13,6 @@ test('getTerms는 type으로 GET 요청해서 data를 반환한다', async () =>
 
   const result = await getTerms('TERMS');
 
-  expect(instance.get).toHaveBeenCalledWith('/terms/TERMS');
+  expect(instance.get).toHaveBeenCalledWith('/terms/TERMS', { skipErrorModal: true });
   expect(result).toEqual({ type: 'TERMS', version: '1.0', content: '# 약관' });
 });

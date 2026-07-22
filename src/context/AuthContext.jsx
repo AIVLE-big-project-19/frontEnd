@@ -31,7 +31,7 @@ export const AuthProvider = ({ children }) => {
       try {
         const { data } = await instance.post('/auth/token/refresh', {
           refreshToken: session.refreshToken,
-        });
+        }, { skipErrorModal: true });
         setAccessToken(data.data.accessToken);
         setRole(getAccessTokenRole());
         updateRefreshToken(data.data.refreshToken);

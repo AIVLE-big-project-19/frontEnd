@@ -1,10 +1,11 @@
 import { vi } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
-import { AppRoutes } from './App';
+import App, { AppRoutes } from './App';
 import * as authApi from './api/authApi';
 import * as termsApi from './api/termsApi';
+import { showErrorToast } from './notifications/errorToastStore';
 
 vi.mock('./pages/MainPage', () => ({
   default: () => <div>메인페이지</div>,
@@ -81,4 +82,15 @@ test('/terms/privacy 경로에서 약관 페이지를 보여준다', async () =>
   await waitFor(() =>
     expect(screen.getByRole('heading', { name: '개인정보처리방침' })).toBeInTheDocument()
   );
+});
+
+test('App에 ErrorToast가 마운트되어 에러 토스트를 표시할 수 있다', () => {
+  render(<App />);
+  expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+
+  act(() => {
+    showErrorToast('테스트 에러 메시지');
+  });
+
+  expect(screen.getByText('테스트 에러 메시지')).toBeInTheDocument();
 });
