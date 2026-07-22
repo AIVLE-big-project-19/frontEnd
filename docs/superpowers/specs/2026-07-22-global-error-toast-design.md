@@ -53,6 +53,18 @@
    - `error.response`가 아예 없음(네트워크 자체 문제) → "네트워크 연결을 확인해주세요." 토스트 표시
    - 위 두 경우 모두 표시 후 그대로 `Promise.reject(error)`(토스트를 보여줘도 호출부의 `.catch`는 정상적으로 계속 동작해야 함 — 로딩 스피너 끄기 등 자체 후처리가 있을 수 있으므로)
 
+### 놓쳤던 부분: `/auth/token/refresh` 자기 자신의 실패도 (a) 경로를 탄다
+
+`refreshAccessToken`(같은 파일 내부)과 `AuthContext.jsx`의 부팅 시 세션 복원 코드, 둘 다 `instance.post('/auth/token/refresh', ...)`를 **직접** 호출한다. 이 요청 자체가 실패하면(예: refreshToken이 이미 무효화됨) 그 에러도 같은 `instance`의 인터셉터를 타는데, `NO_REFRESH_URLS`는 "이 URL이 401을 받아도 재발급을 또 시도하지 않는다"는 뜻일 뿐이지 "토스트도 스킵한다"는 뜻이 아니다. 즉 이 요청의 실패는 곧바로 (a) 경로(`if (!shouldRefresh) { return Promise.reject(error); }`)로 빠지고, 아무 조치가 없으면 여기서도 토스트가 뜬다.
+
+문제는 이게 뜨는 타이밍이다: `refreshAccessToken`의 실패는 원래 요청의 `catch (refreshError)` 블록(=하드 리다이렉트 경로 (b))으로 전파되기 *전에* 먼저 (a) 경로를 거치면서 토스트를 띄워버린다. 그러면 "세션이 만료됐습니다" 안내가 뜨기도 전에(또는 동시에) 알 수 없는 토스트(refresh 엔드포인트의 실패 메시지)가 먼저 번쩍이는 이상한 UX가 된다.
+
+**해결**: `refreshAccessToken`(`axiosInstance.js`)과 `AuthContext.jsx`의 부팅 시 복원 코드, 이 두 곳의 `instance.post('/auth/token/refresh', ...)` 호출 모두 세 번째 인자로 `{ skipErrorModal: true }`를 명시적으로 넘긴다.
+
+### 확인이 필요한 가정: 실패는 항상 non-2xx 상태코드로 온다
+
+이 설계는 axios interceptor의 에러 핸들러(`handleResponseError`)가 실행되는 것을 전제로 하는데, axios는 기본적으로 **2xx 응답에서는 에러 인터셉터를 아예 타지 않는다**. 백엔드 요청 메시지에 "HTTP 상태코드는 상황별로 다릅니다(400/401/403/404/409/423/429/500/502 등)"라고 돼 있어 실패가 항상 non-2xx로 온다고 가정했다. 만약 백엔드가 어떤 실패 케이스를 `200 + { success: false }`로 내려주는 경우가 있다면, 그 경우는 이 인터셉터 기반 설계로 전혀 잡히지 않는다(토스트도 안 뜨고, 각 화면도 성공으로 착각하고 처리할 수 있음). 구현 전 백엔드에 "실패는 항상 non-2xx인지" 한 번 확인 필요 — 이 문서에서는 확인됐다고 가정하고 진행한다.
+
 ### 옵트아웃 플래그 적용 대상 (구현 계획에서 파일별로 정리)
 
 `src/api/*.js`(authApi, myPageApi, boardApi, chatApi, termsApi)의 함수들 중 호출부가 이미 에러를 인라인으로 처리하는 함수는 세 번째 인자로 `{ skipErrorModal: true }`를 axios 호출에 전달할 수 있게 시그니처를 확장한다(또는 호출부에서 직접 넘기는 방식 — 구현 계획에서 확정).
@@ -62,4 +74,5 @@
 - `errorToastStore`: `showErrorToast` 호출 시 구독자가 메시지를 받는지, 여러 번 호출 시 최신 메시지로 덮어써지는지
 - `ErrorToast`: 메시지 수신 시 렌더링, 4초 후 자동으로 사라짐(vitest 타이머 mock 사용), X 버튼 클릭 시 즉시 닫힘, 자동 닫힘 타이머와 수동 닫기가 서로 간섭하지 않는지(수동 닫기 후 타이머가 늦게 발동해 재표시되지 않는지)
 - `axiosInstance.handleResponseError`: `skipErrorModal: true`면 토스트 안 뜨고 reject만 되는지, 세션 만료 리다이렉트 경로에서 토스트가 안 뜨는지, 일반 실패 응답에서 `message`가 토스트로 전달되는지, 네트워크 에러(응답 없음)에서 기본 문구가 뜨는지
+- `/auth/token/refresh` 자체가 실패할 때(예: refreshToken 무효) 토스트가 안 뜨고 곧바로 하드 리다이렉트 경로만 타는지(회귀 테스트 — 위 "놓쳤던 부분" 항목)
 - 옵트아웃 플래그가 붙은 기존 화면들의 기존 테스트가 회귀 없이 통과하는지(각 페이지 테스트는 대부분 `../api/*` 자체를 mock하므로 axios interceptor 동작과 무관하게 영향받지 않을 가능성이 높지만, 구현 단계에서 실제로 깨지는 게 없는지 확인)
