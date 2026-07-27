@@ -13,6 +13,9 @@
 .candidate-sort-controls { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 6px; align-items: center; margin: 0 0 10px; padding: 8px; background: #f8fbfc; border: 1px solid var(--slate-200); border-radius: 8px; }
 .candidate-sort-controls label { color: var(--slate-500); font-size: 11px; font-weight: 800; }
 .candidate-sort-controls select, .candidate-sort-controls button { min-width: 0; height: 30px; padding: 0 8px; color: var(--navy-900); background: #fff; border: 1px solid var(--slate-300); border-radius: 6px; font-size: 11px; }
+.candidate-type-filter { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 6px; align-items: center; margin: 0 0 6px; padding: 8px; background: #f8fbfc; border: 1px solid var(--slate-200); border-radius: 8px; }
+.candidate-type-filter label { color: var(--slate-500); font-size: 11px; font-weight: 800; }
+.candidate-type-filter select { min-width: 0; height: 30px; padding: 0 8px; color: var(--navy-900); background: #fff; border: 1px solid var(--slate-300); border-radius: 6px; font-size: 11px; }
 .land-info-group { display: grid; gap: 8px; padding-top: 11px; border-top: 1px solid #dfe9ed; }
 .land-info-group h3 { margin: 0; color: var(--slate-700); font-size: 11px; font-weight: 800; }
 .installation-place-group { display: grid; gap: 8px; }
