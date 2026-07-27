@@ -23,6 +23,7 @@ const DashboardPage = () => {
   const [history, setHistory] = useState([]);
   const [demoSites, setDemoSites] = useState([]);
   const [compareSites, setCompareSites] = useState([]);
+  const [candidateTypeFilter, setCandidateTypeFilter] = useState('ALL');
   const [candidateSort, setCandidateSort] = useState('suitabilityScore');
   const [candidateSortDirection, setCandidateSortDirection] = useState('desc');
   const [loading, setLoading] = useState(false);
@@ -30,8 +31,12 @@ const DashboardPage = () => {
   const [status, setStatus] = useState({ type: 'info', text: '주소를 검색하거나 데모 후보지를 선택해 분석을 시작하세요.' });
 
   const sortedDemoSites = useMemo(
-    () => sortSiteAnalyses(demoSites, candidateSort, candidateSortDirection),
-    [demoSites, candidateSort, candidateSortDirection],
+    () => sortSiteAnalyses(
+      demoSites.filter((site) => candidateTypeFilter === 'ALL' || (site.siteType || 'LAND') === candidateTypeFilter),
+      candidateSort,
+      candidateSortDirection,
+    ),
+    [demoSites, candidateTypeFilter, candidateSort, candidateSortDirection],
   );
 
   useEffect(() => {
@@ -54,6 +59,7 @@ const DashboardPage = () => {
     setAddress(site.address);
     setAreaM2(site.areaM2);
     setCapacityKw(site.capacityKw);
+    setInstallationPlace(site.siteType || 'LAND');
     setCoordinates(site.longitude && site.latitude ? [site.longitude, site.latitude] : null);
     setActiveMobilePanel('result');
     setStatus({ type: 'success', text: '후보지를 선택했습니다. 지도와 분석 결과를 확인해 보세요.' });
@@ -95,7 +101,7 @@ const DashboardPage = () => {
     setLoading(true);
     setStatus({ type: 'loading', text: '부지 조건을 계산하고 있습니다. 잠시만 기다려 주세요.' });
     try {
-      const result = await createSiteAnalysis({ address, latitude: coordinates?.[1], longitude: coordinates?.[0], areaM2: Number(areaM2), capacityKw: Number(capacityKw) });
+      const result = await createSiteAnalysis({ address, siteType: installationPlace, latitude: coordinates?.[1], longitude: coordinates?.[0], areaM2: Number(areaM2), capacityKw: Number(capacityKw) });
       setAnalysis(result);
       setCoordinates(result.longitude && result.latitude ? [result.longitude, result.latitude] : coordinates);
       setActiveMobilePanel('result');
@@ -170,7 +176,7 @@ const DashboardPage = () => {
         <form onSubmit={handleSearch} className="dashboard-search-form"><input aria-label="주소 또는 장소명" value={keyword} onChange={(event) => setKeyword(event.target.value)} placeholder="주소 또는 장소명 입력" /><button type="submit">검색</button></form>
         {searchResults.length > 0 && <ul className="dashboard-results">{searchResults.map((item, index) => <li key={`${item.id || item.title}-${index}`}><button type="button" onClick={() => selectSearchResult(item)}><strong>{item.title}</strong><span>{item.address?.road || item.address?.parcel}</span></button></li>)}</ul>}
         <div className="site-inputs"><div className="installation-place-group"><label>선택 후보지<input value={address} onChange={(event) => setAddress(event.target.value)} placeholder="검색 결과에서 선택" /></label><fieldset className="installation-place-tabs"><legend>설치 장소</legend><div className="installation-place-options" role="group" aria-label="설치 장소 선택"><button type="button" className={installationPlace === 'LAND' ? 'selected' : ''} onClick={() => setInstallationPlace('LAND')} aria-pressed={installationPlace === 'LAND'}><span>토지</span><small>지상 설치</small></button><button type="button" className={installationPlace === 'ROOF' ? 'selected' : ''} onClick={() => setInstallationPlace('ROOF')} aria-pressed={installationPlace === 'ROOF'}><span>지붕/옥상</span><small>건물 상부 설치</small></button></div></fieldset></div><div className="land-info-group"><h3>토지 정보</h3><div className="input-row"><label>부지 면적 (㎡)<input type="number" min="1" value={areaM2} onChange={(event) => setAreaM2(event.target.value)} /></label><label>설치 용량 (kW)<input type="number" min="0.1" step="0.1" value={capacityKw} onChange={(event) => setCapacityKw(event.target.value)} /></label></div></div><button type="button" className="analyze-button" onClick={handleAnalyze} disabled={loading}>{loading ? '분석 중...' : '부지 분석 실행'}</button></div>
-         {demoSites.length > 0 && <div className="candidate-list"><div className="list-title"><h3>데모 후보지</h3><span>{compareSites.length}/3 비교 선택</span></div><div className="candidate-sort-controls"><label htmlFor="candidate-sort">정렬 기준</label><select id="candidate-sort" value={candidateSort} onChange={handleCandidateSortChange}>{SITE_SORT_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select><button type="button" onClick={() => setCandidateSortDirection((direction) => direction === 'asc' ? 'desc' : 'asc')} aria-label="정렬 방향 변경">{candidateSortDirection === 'asc' ? '내림차순' : '오름차순'}</button></div>{sortedDemoSites.map((item) => <div className="candidate-row" key={item.id}><button type="button" className={analysis?.id === item.id ? 'active' : ''} onClick={() => applySite(item)}><span className={`candidate-score ${item.suitabilityScore >= 80 ? 'high' : item.suitabilityScore >= 70 ? 'medium' : ''}`}>{item.suitabilityScore}</span><span className="candidate-address">{item.address}<small>{item.grade} · {formatNumber(item.capacityKw, ' kW')}</small></span></button><button type="button" className={`compare-toggle ${compareSites.some((site) => site.id === item.id) ? 'selected' : ''}`} onClick={() => toggleCompare(item)} aria-label={`${item.address} 비교 선택`}>비교</button></div>)}</div>}
+         {demoSites.length > 0 && <div className="candidate-list"><div className="list-title"><h3>데모 후보지</h3><span>{compareSites.length}/3 비교 선택</span></div><div className="candidate-type-filter"><label htmlFor="candidate-type-filter">부지 유형</label><select id="candidate-type-filter" value={candidateTypeFilter} onChange={(event) => setCandidateTypeFilter(event.target.value)}><option value="ALL">전체</option><option value="LAND">토지</option><option value="ROOF">지붕/옥상</option></select></div><div className="candidate-sort-controls"><label htmlFor="candidate-sort">정렬 기준</label><select id="candidate-sort" value={candidateSort} onChange={handleCandidateSortChange}>{SITE_SORT_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select><button type="button" onClick={() => setCandidateSortDirection((direction) => direction === 'asc' ? 'desc' : 'asc')} aria-label="정렬 방향 변경">{candidateSortDirection === 'asc' ? '내림차순' : '오름차순'}</button></div>{sortedDemoSites.map((item) => <div className="candidate-row" key={item.id}><button type="button" className={analysis?.id === item.id ? 'active' : ''} onClick={() => applySite(item)}><span className={`candidate-score ${item.suitabilityScore >= 80 ? 'high' : item.suitabilityScore >= 70 ? 'medium' : ''}`}>{item.suitabilityScore}</span><span className="candidate-address">{item.address}<small>{item.siteType === 'ROOF' ? '지붕/옥상' : '토지'} · {item.grade} · {formatNumber(item.capacityKw, ' kW')}</small></span></button><button type="button" className={`compare-toggle ${compareSites.some((site) => site.id === item.id) ? 'selected' : ''}`} onClick={() => toggleCompare(item)} aria-label={`${item.address} 비교 선택`}>비교</button></div>)}</div>}
         {history.length > 0 && <div className="candidate-list history-list"><div className="list-title"><h3>내 최근 분석</h3></div>{history.map((item) => <button type="button" key={item.id} onClick={() => applySite(item)}><span className="candidate-score">{item.suitabilityScore}</span><span className="candidate-address">{item.address}<small>{item.grade}</small></span></button>)}</div>}
       </aside>
       <div className={`dashboard-map ${activeMobilePanel === 'map' ? 'mobile-active' : ''}`}><div className="map-caption"><span>LIVE MAP</span><b>{address || '후보지를 선택하세요'}</b><small>{coordinates ? '선택 위치가 지도에 표시됩니다' : '검색 후 위치를 확인할 수 있습니다'}</small></div>{apiKey ? <MapView apiKey={apiKey} setMap={setMap} selectedCoordinates={coordinates} /> : <div className="map-loading">지도를 불러오는 중...</div>}</div>
