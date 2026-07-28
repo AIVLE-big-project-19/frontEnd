@@ -21,6 +21,12 @@
   margin-bottom: 12px;
 }
 
+.rec-file-input {
+  display: block;
+  font-size: 14px;
+  color: var(--slate-700);
+}
+
 .rec-limit-label {
   display: inline-flex;
   align-items: center;
