@@ -51,6 +51,9 @@ const RecommendationTestPage = () => {
       } else if (data.status === 'FAILED') {
         setStatus('failed');
         setErrorMessage(data.errorMessage);
+      } else {
+        setStatus('failed');
+        setErrorMessage(`예상치 못한 상태: ${data.status}`);
       }
     } catch (error) {
       stopPolling();
