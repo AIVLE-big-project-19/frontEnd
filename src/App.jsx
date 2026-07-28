@@ -19,6 +19,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import AdminUsersPage from './pages/AdminUsersPage';
 import DashboardPage from './pages/DashboardPage';
 import ErrorToast from './components/ErrorToast';
+import SolarTestComponent from './pages/SolarTestComponent';
 
 export const AppRoutes = () => (
   <Routes>
@@ -38,7 +39,10 @@ export const AppRoutes = () => (
     <Route path="/test" element={<TestPage />} />
     <Route path="/boards/:boardId/edit" element={<BoardEditPage />} />
     <Route path="/mypage" element={<ProtectedRoute><MyPage /></ProtectedRoute>} />
+    <Route path="/visionai" element={<SolarTestComponent />} />
     <Route path="/admin/users" element={<ProtectedRoute><AdminUsersPage /></ProtectedRoute>} />
+
+    
   </Routes>
 );
 
