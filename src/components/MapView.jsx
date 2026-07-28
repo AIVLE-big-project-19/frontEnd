@@ -5,7 +5,7 @@ import XYZ from 'ol/source/XYZ';
 import TileWMS from 'ol/source/TileWMS'; // [추가] WMS 소스 추가
 import { fromLonLat } from 'ol/proj';
 
-const MapView = ({ apiKey, mapRef, setMap }) => {
+const MapView = ({ apiKey, mapRef, setMap, height = '50vh' }) => {
   const mapElement = useRef(null);
 
   useEffect(() => {
@@ -39,7 +39,7 @@ const MapView = ({ apiKey, mapRef, setMap }) => {
     return () => initialMap.setTarget(null);
   }, [apiKey, setMap]);
 
-  return <div ref={mapElement} style={{ width: '100%', height: '50vh' }} />;
+  return <div ref={mapElement} style={{ width: '100%', height }} />;
 };
 
 export default MapView;

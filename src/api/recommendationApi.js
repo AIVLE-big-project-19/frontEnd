@@ -16,3 +16,10 @@ export const fetchRecommendation = async (id) => {
   });
   return data.data;
 };
+
+export const fetchMyRecommendations = async () => {
+  const { data } = await instance.get('/recommendations/me', {
+    skipErrorModal: true,
+  });
+  return data.data;
+};
