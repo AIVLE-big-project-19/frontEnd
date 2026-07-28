@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react';
 import Layout from '../components/Layout';
 import SatelliteThumbnail from '../components/SatelliteThumbnail';
 import { uploadRecommendation, fetchRecommendation, fetchMyRecommendations } from '../api/recommendationApi';
-import { fetchMapSearch } from '../api/mapApi';
 import { useAuth } from '../context/AuthContext';
 import '../styles/RecommendationTest.css';
 
@@ -157,10 +156,12 @@ const RecommendationTestPage = () => {
 
     try {
       const apiKey = await ensureVworldApiKey();
-      const searchData = await fetchMapSearch(address);
-      const items = searchData?.response?.status === 'OK' ? searchData.response.result.items : [];
-      const firstItem = items[0];
-      if (!firstItem?.point?.x || !firstItem?.point?.y) {
+      const geoResponse = await fetch(
+        `/vworld-api/req/address?service=address&request=getcoord&version=2.0&crs=epsg:4326&address=${encodeURIComponent(address)}&refine=true&simple=false&format=json&type=parcel&key=${apiKey}`
+      );
+      const geoData = await geoResponse.json();
+      const point = geoData?.response?.status === 'OK' ? geoData.response.result.point : null;
+      if (!point?.x || !point?.y) {
         setSatelliteByIndex((prev) => ({ ...prev, [index]: { status: 'error', expanded: true } }));
         return;
       }
@@ -170,7 +171,7 @@ const RecommendationTestPage = () => {
           status: 'loaded',
           expanded: true,
           apiKey,
-          point: { lon: Number(firstItem.point.x), lat: Number(firstItem.point.y) },
+          point: { lon: Number(point.x), lat: Number(point.y) },
         },
       }));
     } catch {
