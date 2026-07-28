@@ -13,6 +13,7 @@ import BoardListPage from './pages/BoardListPage';
 import BoardDetailPage from './pages/BoardDetailPage';
 import BoardWritePage from './pages/BoardWritePage';
 import TestPage from './pages/TestPage';
+import RecommendationTestPage from './pages/RecommendationTestPage';
 import BoardEditPage from './pages/BoardEditPage';
 import MyPage from './pages/MyPage';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -36,6 +37,7 @@ export const AppRoutes = () => (
     <Route path="/boards/write" element={<BoardWritePage />} />
     <Route path="/boards/:boardId" element={<BoardDetailPage />} />
     <Route path="/test" element={<TestPage />} />
+    <Route path="/test/recommendations" element={<RecommendationTestPage />} />
     <Route path="/boards/:boardId/edit" element={<BoardEditPage />} />
     <Route path="/mypage" element={<ProtectedRoute><MyPage /></ProtectedRoute>} />
     <Route path="/admin/users" element={<ProtectedRoute><AdminUsersPage /></ProtectedRoute>} />
