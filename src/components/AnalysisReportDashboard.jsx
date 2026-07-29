@@ -5,12 +5,19 @@ const formatNumber = (value, suffix = '') => {
   return `${Number(value).toLocaleString('ko-KR', { maximumFractionDigits: 1 })}${suffix}`;
 };
 
+const getScoreState = (value) => {
+  if (value == null) return { label: '미산정', className: 'unavailable' };
+  if (value >= 80) return { label: '양호', className: 'good' };
+  if (value >= 70) return { label: '검토', className: 'review' };
+  return { label: '주의', className: 'caution' };
+};
+
 const AnalysisReportDashboard = ({ report, onDownload }) => (
   <section className="decision-report" aria-labelledby="decision-report-title">
     <div className="decision-report-header">
       <div>
         <div className="report-context">
-          <span>{report.source === 'analysis' ? 'API 분석 완료' : '후보지 선택 대기'}</span>
+          <span>{report.source === 'analysis' ? '분석 완료' : '후보지 선택 대기'}</span>
           <span>{report.site.type === 'ROOF' ? '옥상형 태양광' : '토지형 태양광'}</span>
         </div>
         <h2 id="decision-report-title">{report.site.address}</h2>
@@ -19,9 +26,17 @@ const AnalysisReportDashboard = ({ report, onDownload }) => (
     </div>
 
     <div className="decision-summary">
-      <div className="decision-score">
-        <strong>{formatNumber(report.decision.score)}</strong>
+      <div
+        className="decision-score"
+        role="meter"
+        aria-valuemin="0"
+        aria-valuemax="100"
+        aria-valuenow={Number(report.decision.score) || 0}
+        aria-label={`종합점수 ${formatNumber(report.decision.score, '점')}`}
+      >
+        <div><strong>{formatNumber(report.decision.score)}</strong><em>점</em></div>
         <span>종합점수</span>
+        <i aria-hidden="true"><b style={{ width: `${Math.max(0, Math.min(100, Number(report.decision.score) || 0))}%` }} /></i>
       </div>
       <div className="decision-copy">
         <div><span className="decision-grade">{report.decision.grade}</span><h3>{report.decision.label}</h3></div>
@@ -35,21 +50,25 @@ const AnalysisReportDashboard = ({ report, onDownload }) => (
 
     <dl className="decision-kpis">
       <div>
+        <span className="kpi-mark area" aria-hidden="true">㎡</span>
         <dt>{report.site.type === 'ROOF' ? '가용 지붕 면적' : '가용 부지 면적'}</dt>
         <dd>{formatNumber(report.site.usableAreaM2, ' m²')}</dd>
         <small>활용률 {formatNumber(report.site.utilizationRate, '%')}</small>
       </div>
       <div>
+        <span className="kpi-mark capacity" aria-hidden="true">kW</span>
         <dt>추천 설치 용량</dt>
         <dd>{formatNumber(report.economics.capacityKw, ' kW')}</dd>
         <small>고정식 패널 기준</small>
       </div>
       <div>
+        <span className="kpi-mark generation" aria-hidden="true">↗</span>
         <dt>연간 예상 발전량</dt>
         <dd>{formatNumber(report.economics.annualGenerationKwh, ' kWh')}</dd>
         <small>현재 입력 조건 기준</small>
       </div>
       <div className="primary">
+        <span className="kpi-mark revenue" aria-hidden="true">₩</span>
         <dt>연간 예상 수익</dt>
         <dd>{formatNumber(report.economics.annualRevenue == null ? null : report.economics.annualRevenue / 10000, ' 만원')}</dd>
         <small>ROI {formatNumber(report.economics.roiPercent, '%')} · 회수 {formatNumber(report.economics.paybackYears, '년')}</small>
@@ -90,28 +109,53 @@ const AnalysisReportDashboard = ({ report, onDownload }) => (
       <article className="decision-panel">
         <div className="decision-panel-heading">
           <div><span>판단 근거</span><h3>사업 추진 조건</h3></div>
-          <b>3개 지표</b>
+          <b>{report.scores.length}개 지표</b>
         </div>
         <div className="decision-score-list">
-          {report.scores.map((item) => (
-            <div key={item.key}>
-              <div><span>{item.label}</span><strong>{formatNumber(item.value, '점')}</strong></div>
-              <div className="decision-score-track"><i style={{ width: `${item.value ?? 0}%` }} /></div>
-            </div>
-          ))}
+          {report.scores.map((item) => {
+            const state = getScoreState(item.value);
+            return (
+              <div className="decision-score-item" key={item.key}>
+                <div className="decision-score-item-heading">
+                  <div>
+                    <strong>{item.label}</strong>
+                    <span className={`score-state ${state.className}`}>{state.label}</span>
+                  </div>
+                  <b>{formatNumber(item.value, '점')}</b>
+                </div>
+                <div
+                  className="decision-score-track"
+                  role="progressbar"
+                  aria-label={`${item.label} 점수`}
+                  aria-valuemin="0"
+                  aria-valuemax="100"
+                  aria-valuenow={item.value ?? 0}
+                >
+                  <i style={{ width: `${item.value ?? 0}%` }} />
+                </div>
+              </div>
+            );
+          })}
         </div>
       </article>
 
       <article className="decision-panel">
         <div className="decision-panel-heading">
           <div><span>위험 확인</span><h3>추진 전 확인사항</h3></div>
+          <b>{report.risks.length}개 항목</b>
         </div>
         <div className="decision-risk-list">
-          {report.risks.length === 0 && <p>API에서 제공된 리스크 분석 결과가 없습니다.</p>}
+          {report.risks.length === 0 && <p className="decision-list-empty">확인이 필요한 위험 분석 결과가 없습니다.</p>}
           {report.risks.map((risk) => (
-            <div key={risk.key}>
-              <span className={`risk-state ${risk.level}`}>{risk.status}</span>
-              <div><strong>{risk.label}</strong><p>{risk.detail}</p></div>
+            <div className={`decision-risk-item ${risk.level}`} key={risk.key}>
+              <span className={`risk-signal ${risk.level}`} aria-hidden="true" />
+              <div className="decision-risk-copy">
+                <strong>{risk.label}</strong>
+                <p>{risk.detail || risk.status}</p>
+              </div>
+              <span className={`risk-state ${risk.level}`}>
+                {risk.level === 'good' ? '양호' : '확인 필요'}
+              </span>
             </div>
           ))}
         </div>
