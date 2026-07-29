@@ -8,6 +8,9 @@ test('향후 중첩 API 응답을 대시보드 표시 모델로 변환한다', (
       suitabilityScore: 91,
       annualGenerationKwh: 160000,
       estimatedAnnualRevenue: 30000000,
+      generationForecast: {
+        monthly: Array.from({ length: 12 }, (_, index) => ({ generationKwh: 10000 + index * 100 })),
+      },
       scores: { ml: 90, vision: 92, regulation: 94 },
       roofAnalysis: { usableAreaM2: 910, shadowRate: 11, moduleDirection: '남남서향' },
       risks: [{ key: 'grid', label: '계통', status: '확인', level: 'check', detail: '용량 협의 필요' }],
@@ -24,6 +27,8 @@ test('향후 중첩 API 응답을 대시보드 표시 모델로 변환한다', (
   expect(report.roof.moduleDirection).toBe('남남서향');
   expect(report.risks[0].detail).toBe('용량 협의 필요');
   expect(report.actions[0].title).toBe('현장 방문');
+  expect(report.visuals.monthlyGeneration).toHaveLength(12);
+  expect(report.visuals.monthlyGeneration[11].value).toBe(11100);
 });
 
 test('API 값이 없으면 샘플 경제성 지표를 안전하게 사용한다', () => {
@@ -32,4 +37,5 @@ test('API 값이 없으면 샘플 경제성 지표를 안전하게 사용한다'
   expect(report.source).toBe('sample');
   expect(report.economics.roiPercent).toBe(12.4);
   expect(report.economics.annualRevenue).toBe(24000000);
+  expect(report.visuals.monthlyGeneration.reduce((sum, item) => sum + item.value, 0)).toBeCloseTo(135000, -1);
 });

@@ -46,6 +46,34 @@ const defaultActions = [
   { key: 'electric', title: '인입선로·분전반 확인', detail: '전기실 접속점까지의 배선 경로와 용량을 확인하세요.' },
 ];
 
+const monthlyGenerationShape = [0.62, 0.7, 0.88, 1.02, 1.14, 1.2, 1.18, 1.08, 0.94, 0.82, 0.68, 0.6];
+
+const buildMonthlyGeneration = (source, annualGenerationKwh) => {
+  const apiMonthly = source.generationForecast?.monthly
+    || source.monthlyGenerationKwh
+    || source.monthlyGeneration;
+  const parsedApiMonthly = Array.isArray(apiMonthly)
+    ? apiMonthly.slice(0, 12).map((item) => numberOr(
+      typeof item === 'object' ? item.generationKwh ?? item.value : item,
+      0,
+    ))
+    : [];
+  const hasCompleteApiSeries = parsedApiMonthly.length === 12 && parsedApiMonthly.some((value) => value > 0);
+  const values = hasCompleteApiSeries
+    ? parsedApiMonthly
+    : monthlyGenerationShape.map((weight) => {
+      const totalWeight = monthlyGenerationShape.reduce((sum, item) => sum + item, 0);
+      return annualGenerationKwh * weight / totalWeight;
+    });
+  const maxValue = Math.max(...values, 1);
+
+  return values.map((value, index) => ({
+    month: index + 1,
+    value: Math.round(value),
+    heightPercent: Math.max(8, Math.round(value / maxValue * 100)),
+  }));
+};
+
 export const buildAnalysisReportViewModel = ({
   analysis,
   address,
@@ -59,6 +87,7 @@ export const buildAnalysisReportViewModel = ({
   const score = numberOr(source.suitabilityScore, SAMPLE_REPORT.score);
   const paybackYears = numberOr(source.paybackPeriodYears, SAMPLE_REPORT.paybackYears);
   const annualRevenue = numberOr(source.estimatedAnnualRevenue, SAMPLE_REPORT.annualRevenue);
+  const annualGenerationKwh = numberOr(source.annualGenerationKwh, SAMPLE_REPORT.annualGenerationKwh);
   const installationCost = numberOr(source.estimatedInstallationCost, 0);
   const roiFromCost = installationCost > 0 ? annualRevenue / installationCost * 100 : null;
   const risks = Array.isArray(source.risks) && source.risks.length
@@ -90,10 +119,15 @@ export const buildAnalysisReportViewModel = ({
     },
     economics: {
       capacityKw: numberOr(capacityKw || source.capacityKw, SAMPLE_REPORT.capacityKw),
-      annualGenerationKwh: numberOr(source.annualGenerationKwh, SAMPLE_REPORT.annualGenerationKwh),
+      annualGenerationKwh,
       annualRevenue,
       roiPercent: numberOr(source.roiPercent ?? roiFromCost, SAMPLE_REPORT.roiPercent),
       paybackYears,
+    },
+    visuals: {
+      monthlyGeneration: buildMonthlyGeneration(source, annualGenerationKwh),
+      paybackScaleYears: Math.max(10, Math.ceil(paybackYears / 5) * 5),
+      paybackMarkerPercent: Math.min(100, paybackYears / Math.max(10, Math.ceil(paybackYears / 5) * 5) * 100),
     },
     scores: [
       { key: 'ml', label: '입지·일사 조건', value: numberOr(scoreSource.ml ?? source.mlScore, SAMPLE_REPORT.scores.ml) },

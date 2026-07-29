@@ -53,6 +53,36 @@ const AnalysisReportDashboard = ({ report, onDownload }) => (
       </div>
     </dl>
 
+    <section className="decision-visuals" aria-label="발전량과 투자 회수 시각화">
+      <article className="generation-chart-card">
+        <div className="chart-heading">
+          <div><span>발전량 전망</span><h3>월별 예상 발전량</h3></div>
+          <strong>{formatNumber(report.economics.annualGenerationKwh, ' kWh / 년')}</strong>
+        </div>
+        <div className="generation-chart" role="img" aria-label="1월부터 12월까지 월별 예상 발전량 막대 그래프">
+          {report.visuals.monthlyGeneration.map((item) => (
+            <div className="generation-bar-column" key={item.month} aria-label={`${item.month}월 ${formatNumber(item.value, ' kWh')}`}>
+              <span>{formatNumber(item.value / 1000, 'k')}</span>
+              <i style={{ '--generation-height': `${item.heightPercent}%` }} />
+              <b>{item.month}월</b>
+            </div>
+          ))}
+        </div>
+      </article>
+
+      <article className="payback-chart-card">
+        <div className="chart-heading">
+          <div><span>투자 판단</span><h3>예상 회수 시점</h3></div>
+        </div>
+        <div className="roi-value"><strong>{formatNumber(report.economics.roiPercent, '%')}</strong><span>연간 투자수익률</span></div>
+        <div className="payback-visual">
+          <div className="payback-track"><i style={{ width: `${report.visuals.paybackMarkerPercent}%` }} /><b style={{ left: `${report.visuals.paybackMarkerPercent}%` }} /></div>
+          <div className="payback-labels"><span>투자 시작</span><strong>{formatNumber(report.economics.paybackYears, '년')}</strong><span>{report.visuals.paybackScaleYears}년</span></div>
+        </div>
+        <p>예상 운영기간 내 투자금 회수가 가능하며, 이후 수익 구간으로 전환됩니다.</p>
+      </article>
+    </section>
+
     <div className="decision-detail-grid">
       <article className="decision-panel">
         <div className="decision-panel-heading">
