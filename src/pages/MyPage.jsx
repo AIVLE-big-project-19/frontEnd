@@ -164,6 +164,21 @@ function MyPage() {
               ) : <div className="mypage-state">소셜 계정은 연결된 서비스에서 비밀번호를 변경해주세요.</div>}
             </section>
 
+            <section className="mypage-card mypage-activity">
+              <div className="mypage-card-title"><h2>내가 쓴 글</h2><span>총 {boards.length}개</span></div>
+              {boards.length === 0 ? <div className="mypage-state">작성한 게시글이 없습니다.</div> : (
+                <div className="mypage-board-list">
+                  {boards.map((board) => (
+                    <Link key={board.boardId} to={`/boards/${board.boardId}`}>
+                      <span className="mypage-board-category">{board.category}</span>
+                      <strong>{board.title}</strong>
+                      <span>{formatDate(board.createdAt)} · 조회 {board.viewCount}</span>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </section>
+
             <section className="mypage-card">
               <div className="mypage-card-title"><h2>약관 동의 현황</h2></div>
               {consentsError && <div className="mypage-state">{consentsError}</div>}
@@ -196,21 +211,6 @@ function MyPage() {
                         </span>
                       )}
                     </div>
-                  ))}
-                </div>
-              )}
-            </section>
-
-            <section className="mypage-card mypage-activity">
-              <div className="mypage-card-title"><h2>내가 쓴 글</h2><span>총 {boards.length}개</span></div>
-              {boards.length === 0 ? <div className="mypage-state">작성한 게시글이 없습니다.</div> : (
-                <div className="mypage-board-list">
-                  {boards.map((board) => (
-                    <Link key={board.boardId} to={`/boards/${board.boardId}`}>
-                      <span className="mypage-board-category">{board.category}</span>
-                      <strong>{board.title}</strong>
-                      <span>{formatDate(board.createdAt)} · 조회 {board.viewCount}</span>
-                    </Link>
                   ))}
                 </div>
               )}
