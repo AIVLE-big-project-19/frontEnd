@@ -1462,6 +1462,151 @@
   font-weight: 700;
 }
 
+/* Dashboard surface polish */
+.search-panel,
+.dashboard-map,
+.decision-summary,
+.generation-chart-card,
+.payback-chart-card,
+.decision-panel,
+.next-action-panel,
+.technical-details,
+.dashboard-report-pane > .comparison-panel {
+  border-color: #e1e6eb;
+  border-radius: 10px;
+  box-shadow: none;
+}
+
+.dashboard-search-form {
+  padding: 0;
+  background: transparent;
+}
+
+.dashboard-search-form input {
+  background: #f8fafb;
+}
+
+.site-inputs {
+  gap: 14px;
+  margin-top: 18px;
+  padding: 17px 0 0;
+  background: transparent;
+  border: 0;
+  border-top: 1px solid #e7ebef;
+  border-radius: 0;
+}
+
+.installation-place-tabs {
+  padding: 0;
+  border: 0;
+}
+
+.installation-place-tabs legend {
+  padding: 0;
+}
+
+.installation-place-options button {
+  background: #f7f9fa;
+  border-color: transparent;
+}
+
+.candidate-list {
+  margin-top: 20px;
+  padding-top: 17px;
+  border-top: 1px solid #e7ebef;
+}
+
+.candidate-type-filter,
+.candidate-sort-controls {
+  padding: 0;
+  background: transparent;
+  border: 0;
+}
+
+.candidate-sort-controls {
+  grid-template-columns: auto minmax(0, 1fr) auto;
+}
+
+.candidate-sort-controls button {
+  grid-column: auto;
+}
+
+.candidate-row > button:first-child,
+.candidate-list > button {
+  background: #fbfcfd;
+}
+
+.candidate-row > button:first-child:hover,
+.candidate-row > button:first-child.active,
+.candidate-list > button:hover,
+.candidate-list > button.active {
+  box-shadow: none;
+  transform: none;
+}
+
+.analyze-button {
+  background: var(--teal-700);
+  box-shadow: none;
+}
+
+.analyze-button:hover {
+  background: #056b66;
+  box-shadow: none;
+}
+
+.decision-report-header {
+  padding: 5px 2px 7px;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+}
+
+.decision-summary {
+  background: #fbfdfd;
+}
+
+.decision-primary-action {
+  min-width: 132px;
+  padding: 4px 0 4px 13px;
+  background: transparent;
+  border: 0;
+  border-left: 2px solid #dfbd58;
+  border-radius: 0;
+}
+
+.decision-kpis {
+  gap: 0;
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid #e1e6eb;
+  border-radius: 10px;
+}
+
+.decision-kpis > div {
+  border: 0;
+  border-right: 1px solid #e7ebef;
+  border-radius: 0;
+}
+
+.decision-kpis > div:last-child {
+  border-right: 0;
+}
+
+.decision-kpis > div.primary {
+  background: #f7fbfa;
+  border-color: #e7ebef;
+}
+
+.next-action-panel li {
+  background: #f8fafb;
+  border: 1px solid #edf0f2;
+}
+
+.dashboard-report-pane > .comparison-panel {
+  margin-top: 14px;
+  padding: 18px 20px;
+}
+
 @media (max-width: 1120px) {
   .dashboard-page {
     padding-right: 18px;
@@ -1474,6 +1619,18 @@
 
   .decision-kpis {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .decision-kpis > div {
+    border-right: 0;
+  }
+
+  .decision-kpis > div:nth-child(odd) {
+    border-right: 1px solid #e7ebef;
+  }
+
+  .decision-kpis > div:nth-child(-n+2) {
+    border-bottom: 1px solid #e7ebef;
   }
 
   .next-action-panel ol {
@@ -1561,6 +1718,15 @@
   .decision-kpis,
   .technical-details dl {
     grid-template-columns: 1fr;
+  }
+
+  .decision-kpis > div,
+  .decision-kpis > div:nth-child(odd) {
+    border-right: 0;
+  }
+
+  .decision-kpis > div:not(:last-child) {
+    border-bottom: 1px solid #e7ebef;
   }
 
   .technical-details dl > div {
