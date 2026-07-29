@@ -1,11 +1,12 @@
 import { render, screen } from '@testing-library/react';
-import { vi } from 'vitest';
+import { expect, test, vi } from 'vitest';
 import AnalysisReportDashboard from './AnalysisReportDashboard';
 import { buildAnalysisReportViewModel } from '../utils/analysisReportModel';
 
 test('의사결정에 필요한 핵심 지표와 다음 행동을 보여준다', () => {
   const report = buildAnalysisReportViewModel({
     analysis: {
+      siteType: 'ROOF',
       suitabilityScore: 98,
       annualGenerationKwh: 135000,
       estimatedAnnualRevenue: 24000000,
