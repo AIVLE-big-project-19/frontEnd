@@ -735,11 +735,12 @@
 
 /* Decision-first refinement */
 .dashboard-page {
-  padding: 20px;
+  padding: 18px 24px 32px;
   background: #f4f6f8;
 }
 
 .dashboard-hero {
+  max-width: 1380px;
   min-height: 76px;
   margin-bottom: 10px;
   padding: 15px 20px;
@@ -806,6 +807,7 @@
 }
 
 .dashboard-status {
+  max-width: 1380px;
   min-height: 34px;
   margin-bottom: 10px;
   background: #fff;
@@ -814,8 +816,9 @@
 }
 
 .dashboard-grid {
-  grid-template-columns: 300px minmax(0, 1fr);
-  gap: 14px;
+  grid-template-columns: 288px minmax(0, 1fr);
+  max-width: 1380px;
+  gap: 16px;
 }
 
 .dashboard-sidebar {
@@ -854,7 +857,7 @@
 
 .decision-report {
   display: grid;
-  gap: 12px;
+  gap: 14px;
   color: var(--slate-700);
 }
 
@@ -1008,13 +1011,14 @@
 .decision-kpis {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 8px;
+  gap: 10px;
   margin: 0;
 }
 
 .decision-kpis > div {
   min-width: 0;
-  padding: 16px;
+  min-height: 112px;
+  padding: 17px 18px;
   background: #fff;
   border: 1px solid #dfe5eb;
   border-radius: 8px;
@@ -1057,14 +1061,14 @@
 
 .decision-visuals {
   display: grid;
-  grid-template-columns: minmax(0, 1.75fr) minmax(250px, .75fr);
-  gap: 12px;
+  grid-template-columns: minmax(0, 1.65fr) minmax(240px, .75fr);
+  gap: 14px;
 }
 
 .generation-chart-card,
 .payback-chart-card {
   min-width: 0;
-  padding: 18px;
+  padding: 20px;
   background: #fff;
   border: 1px solid #dfe5eb;
   border-radius: 10px;
@@ -1101,7 +1105,7 @@
   position: relative;
   display: grid;
   grid-template-columns: repeat(12, minmax(20px, 1fr));
-  height: 150px;
+  height: 168px;
   gap: clamp(4px, .7vw, 10px);
   margin-top: 18px;
   padding-top: 10px;
@@ -1235,15 +1239,15 @@
 
 .decision-detail-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
+  grid-template-columns: minmax(0, .92fr) minmax(0, 1.08fr);
+  gap: 14px;
 }
 
 .decision-panel,
 .next-action-panel,
 .technical-details {
   min-width: 0;
-  padding: 18px;
+  padding: 20px;
   background: #fff;
   border: 1px solid #dfe5eb;
   border-radius: 10px;
@@ -1451,8 +1455,13 @@
 }
 
 @media (max-width: 1120px) {
+  .dashboard-page {
+    padding-right: 18px;
+    padding-left: 18px;
+  }
+
   .dashboard-grid {
-    grid-template-columns: 280px minmax(0, 1fr);
+    grid-template-columns: 264px minmax(0, 1fr);
   }
 
   .decision-kpis {
@@ -1514,6 +1523,17 @@
   .decision-report-header button {
     width: 100%;
   }
+
+  .decision-kpis > div {
+    min-height: 104px;
+  }
+
+  .generation-chart-card,
+  .payback-chart-card,
+  .decision-panel,
+  .next-action-panel {
+    padding: 16px;
+  }
 }
 
 @media (max-width: 520px) {
@@ -1541,6 +1561,7 @@
   }
 
   .generation-chart {
+    height: 150px;
     gap: 3px;
   }
 
