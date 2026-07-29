@@ -109,8 +109,8 @@ test('회원탈퇴 버튼 클릭 시 확인 모달이 뜬다', async () => {
   getMyConsents.mockResolvedValue(baseConsents);
   renderMyPage();
 
-  await waitFor(() => expect(screen.getByRole('button', { name: '회원탈퇴' })).toBeInTheDocument());
-  await userEvent.click(screen.getByRole('button', { name: '회원탈퇴' }));
+  await waitFor(() => expect(screen.getByRole('button', { name: '회원 탈퇴' })).toBeInTheDocument());
+  await userEvent.click(screen.getByRole('button', { name: '회원 탈퇴' }));
 
   expect(screen.getByPlaceholderText('현재 비밀번호')).toBeInTheDocument();
 });
@@ -120,9 +120,34 @@ test('구글 계정이면 회원탈퇴 모달에 비밀번호 입력창이 없�
   getMyConsents.mockResolvedValue(baseConsents);
   renderMyPage();
 
-  await waitFor(() => expect(screen.getByRole('button', { name: '회원탈퇴' })).toBeInTheDocument());
-  await userEvent.click(screen.getByRole('button', { name: '회원탈퇴' }));
+  await waitFor(() => expect(screen.getByRole('button', { name: '회원 탈퇴' })).toBeInTheDocument());
+  await userEvent.click(screen.getByRole('button', { name: '회원 탈퇴' }));
 
   expect(screen.queryByPlaceholderText('현재 비밀번호')).not.toBeInTheDocument();
   expect(screen.getByText('정말 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없습니다.')).toBeInTheDocument();
+});
+
+test('내가 쓴 글을 페이지당 5개씩 표시한다', async () => {
+  getMyProfile.mockResolvedValue(baseProfile);
+  getMyConsents.mockResolvedValue(baseConsents);
+  getMyBoards.mockResolvedValue(
+    Array.from({ length: 6 }, (_, index) => ({
+      boardId: index + 1,
+      category: '자유',
+      title: `게시글 ${index + 1}`,
+      createdAt: '2026-07-29T00:00:00',
+      viewCount: index,
+    })),
+  );
+  renderMyPage();
+
+  await waitFor(() => expect(screen.getByText('게시글 1')).toBeInTheDocument());
+  expect(screen.getByText('게시글 5')).toBeInTheDocument();
+  expect(screen.queryByText('게시글 6')).not.toBeInTheDocument();
+
+  await userEvent.click(screen.getByRole('button', { name: '2페이지' }));
+
+  expect(screen.getByText('게시글 6')).toBeInTheDocument();
+  expect(screen.queryByText('게시글 1')).not.toBeInTheDocument();
+  expect(screen.getByRole('button', { name: '2페이지' })).toHaveAttribute('aria-current', 'page');
 });
