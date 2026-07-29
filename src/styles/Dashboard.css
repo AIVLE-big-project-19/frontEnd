@@ -827,7 +827,8 @@
   grid-template-columns: 288px minmax(0, 1fr);
   max-width: 1380px;
   align-items: stretch;
-  gap: 16px;
+  column-gap: 16px;
+  row-gap: 14px;
 }
 
 .dashboard-sidebar {
@@ -849,6 +850,31 @@
   box-shadow: none;
 }
 
+.search-panel,
+.search-panel *,
+.candidate-panel,
+.candidate-panel * {
+  box-sizing: border-box;
+}
+
+.installation-place-group,
+.land-info-group,
+.input-row,
+.input-row label {
+  min-width: 0;
+}
+
+.dashboard-search-form input {
+  width: auto;
+  flex: 1 1 auto;
+}
+
+.site-inputs input,
+.candidate-type-filter select,
+.candidate-sort-controls select {
+  max-width: 100%;
+}
+
 .dashboard-map {
   height: 176px;
   min-height: 176px;
@@ -864,6 +890,23 @@
   padding: 8px 10px;
   border-radius: 7px;
   box-shadow: 0 3px 10px rgba(7, 26, 47, .1);
+}
+
+@media (min-width: 761px) {
+  .dashboard-sidebar {
+    grid-row: 1 / 7;
+    grid-column: 1;
+  }
+
+  .dashboard-report-pane,
+  .dashboard-grid .decision-report {
+    display: contents;
+  }
+
+  .dashboard-grid .decision-report > *,
+  .dashboard-report-pane > .comparison-panel {
+    grid-column: 2;
+  }
 }
 
 .decision-report {
