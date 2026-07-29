@@ -17,7 +17,7 @@ function BoardWritePage() {
 
     const [title, setTitle] = useState("");
     const [content, setContent] = useState("");
-    const [category, setCategory] = useState("자유게시판");
+    const [category, setCategory] = useState(availableCategories[0] ?? "");
     const [writerName, setWriterName] = useState(loginId ?? "");
     const [files, setFiles] = useState([]);
     const [previews, setPreviews] = useState([]);

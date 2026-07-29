@@ -36,6 +36,7 @@ export const AppRoutes = () => (
     <Route path="/oauth/google/callback" element={<GoogleCallbackPage />} />
     <Route path="/terms/:type" element={<TermsPage />} />
     <Route path="/boards" element={<BoardListPage />} />
+    <Route path="/community/:communityCategory" element={<BoardListPage />} />
     <Route path="/dashboard" element={<DashboardPage />} />
     <Route path="/boards/write" element={<BoardWritePage />} />
     <Route path="/boards/:boardId" element={<BoardDetailPage />} />
