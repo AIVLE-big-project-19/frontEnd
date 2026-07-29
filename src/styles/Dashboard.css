@@ -834,7 +834,7 @@
 .dashboard-sidebar {
   position: relative;
   display: grid;
-  grid-template-rows: auto auto minmax(120px, 1fr);
+  grid-template-rows: auto auto minmax(190px, 1fr);
   min-width: 0;
   min-height: 0;
   align-self: stretch;
@@ -877,8 +877,8 @@
 
 .dashboard-map {
   height: 100%;
-  min-height: 120px;
-  max-height: 150px;
+  min-height: 190px;
+  max-height: 220px;
   align-self: end;
   border-radius: 10px;
   box-shadow: none;
