@@ -23,6 +23,7 @@ const AnalysisPage = () => {
   const [idleLandError, setIdleLandError] = useState('');
   const [downloadingId, setDownloadingId] = useState(null);
   const [selectedCoordinates, setSelectedCoordinates] = useState(null);
+  const [selectedAddress, setSelectedAddress] = useState(null);
   const [selectedParcelGeometry, setSelectedParcelGeometry] = useState(null);
   const [parcelFeatures, setParcelFeatures] = useState([]);
   const navigate = useNavigate();
@@ -182,6 +183,7 @@ const AnalysisPage = () => {
   const handleIdleLandItemClick = (item) => {
     if (item.longitude == null || item.latitude == null) return;
     setSelectedCoordinates(transform([item.longitude, item.latitude], 'EPSG:4326', 'EPSG:3857'));
+    setSelectedAddress(item.address || null);
     // 클릭한 주소와 매칭되는 필지가 있으면 그 폴리곤만 그리고, 없으면 이전에 그려진 선을 지운다.
     setSelectedParcelGeometry(findParcelGeometry(item.longitude, item.latitude));
   };
@@ -266,7 +268,7 @@ const AnalysisPage = () => {
           </div>
 
           <div className="map-container">
-            <MapView apiKey={apiKey} setMap={setMap} selectedCoordinates={selectedCoordinates} parcelGeometry={selectedParcelGeometry} />
+            <MapView apiKey={apiKey} setMap={setMap} selectedCoordinates={selectedCoordinates} selectedAddress={selectedAddress} parcelGeometry={selectedParcelGeometry} />
 
             <div className="address-display">
               {currentAddress}
