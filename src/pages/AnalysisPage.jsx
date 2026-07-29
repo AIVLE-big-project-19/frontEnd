@@ -4,13 +4,13 @@ import Layout from '../components/Layout';
 import MapView from '../components/MapView';
 import SearchBar from '../components/SearchBar';
 import ChatBot from '../components/ChatBot';
-import '../styles/AnalasisPage.css';
+import '../styles/AnalysisPage.css';
 import { transform } from 'ol/proj';
 import { searchIdleLands, downloadIdleLandReport } from '../api/idleLandApi';
 
 const GRADE_CLASS = { A: 'grade-a', B: 'grade-b', C: 'grade-c' };
 
-const AnalasisPage = () => {
+const AnalysisPage = () => {
   const [map, setMap] = useState(null);
   const [results, setResults] = useState([]);
   const [isSearched, setIsSearched] = useState(false);
@@ -236,4 +236,4 @@ const AnalasisPage = () => {
   );
 };
 
-export default AnalasisPage;
+export default AnalysisPage;
