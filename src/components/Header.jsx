@@ -37,11 +37,18 @@ const Header = () => {
           <span>유휴부지 분석</span>
           {isHome && <><small className="nav-card-description">SolarAivle 서비스 소개</small><span className="nav-hover-panel"><strong>유휴부지 분석</strong><small>태양광 후보지 분석 서비스</small></span></>}
         </Link>
-        <Link to="/boards?category=공지사항" onClick={refreshIfCurrent('/boards?category=공지사항')}>
-          {isHome && <span className="nav-card-icon nav-board-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="5" y="3.5" width="14" height="17" rx="2" /><path d="M8.5 9h7M8.5 13h7M8.5 17h7" /></svg></span>}
-          <span>게시판</span>
-          {isHome && <><small className="nav-card-description">공지사항과 커뮤니티</small><span className="nav-hover-panel"><strong>게시판</strong><small>서비스 관련<br />공지사항과 커뮤니티</small></span></>}
-        </Link>
+        <div className="nav-community-item">
+          <Link className="nav-community-link" to="/community/notice" onClick={refreshIfCurrent('/community/notice')}>
+            {isHome && <span className="nav-card-icon nav-board-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="5" y="3.5" width="14" height="17" rx="2" /><path d="M8.5 9h7M8.5 13h7M8.5 17h7" /></svg></span>}
+            <span>커뮤니티</span>
+            {isHome && <><small className="nav-card-description">공지사항과 커뮤니티</small><span className="nav-hover-panel"><strong>커뮤니티</strong><small>서비스 관련<br />공지사항과 커뮤니티</small></span></>}
+          </Link>
+          {!isHome && <div className="community-submenu" aria-label="커뮤니티 메뉴">
+            <Link to="/community/notice" onClick={refreshIfCurrent('/community/notice')}>공지사항</Link>
+            <Link to="/community/faq" onClick={refreshIfCurrent('/community/faq')}>FAQ</Link>
+            <Link to="/community/inquiry" onClick={refreshIfCurrent('/community/inquiry')}>1:1문의</Link>
+          </div>}
+        </div>
         <Link to="/dashboard">
           {isHome && <span className="nav-card-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="6" height="6" rx="1" /><rect x="14" y="4" width="6" height="6" rx="1" /><rect x="4" y="14" width="6" height="6" rx="1" /><rect x="14" y="14" width="6" height="6" rx="1" /></svg></span>}
           <span>통합 대시보드</span>

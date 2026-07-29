@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { getBoards } from "../api/boardApi";
 import BoardCard from "../components/BoardCard";
 import Layout from "../components/Layout";
@@ -9,6 +9,7 @@ import "../styles/board.css";
 function BoardListPage() {
     const navigate = useNavigate();
     const [searchParams, setSearchParams] = useSearchParams();
+    const { communityCategory } = useParams();
 
     const [boards, setBoards] = useState([]);
     const [pageInfo, setPageInfo] = useState({
@@ -19,10 +20,12 @@ function BoardListPage() {
         last: true,
     });
     const [loading, setLoading] = useState(true);
+    const routeCategory = BOARD_CATEGORY_DETAILS.find(({ key }) => key === communityCategory)?.name;
     const requestedCategory = searchParams.get("category");
-    const selectedCategory = BOARD_CATEGORY_DETAILS.some(({ name }) => name === requestedCategory)
-        ? requestedCategory
-        : BOARD_CATEGORY_DETAILS[0].name;
+    const selectedCategory = routeCategory
+        ?? (BOARD_CATEGORY_DETAILS.some(({ name }) => name === requestedCategory)
+            ? requestedCategory
+            : BOARD_CATEGORY_DETAILS[0].name);
     const requestedPage = Number.parseInt(searchParams.get("page") ?? "1", 10);
     const currentPage = Number.isInteger(requestedPage) && requestedPage > 0
         ? requestedPage - 1
@@ -60,6 +63,11 @@ function BoardListPage() {
     }, [currentPage, refreshKey, selectedCategory, setSearchParams]);
 
     const selectCategory = (category) => {
+        const nextCategory = BOARD_CATEGORY_DETAILS.find(({ name }) => name === category);
+        if (communityCategory && nextCategory) {
+            navigate(`/community/${nextCategory.key}`);
+            return;
+        }
         if (category === selectedCategory) {
             if (currentPage !== 0) {
                 setLoading(true);
@@ -93,7 +101,7 @@ function BoardListPage() {
         <Layout>
             <div className="board-page">
                 <div className="board-header">
-                    <h1 className="board-title">게시판</h1>
+                    <h1 className="board-title">{selectedCategory}</h1>
 
                     <div className="board-actions">
                         <button
@@ -111,26 +119,6 @@ function BoardListPage() {
                         </button>
                     </div>
                 </div>
-
-                <nav className="board-category-banners" aria-label="게시판 종류">
-                    {BOARD_CATEGORY_DETAILS.map((item) => {
-                        const isActive = selectedCategory === item.name;
-
-                        return (
-                            <button
-                                type="button"
-                                key={item.name}
-                                className={`board-category-banner category-${item.key}${isActive ? " active" : ""}`}
-                                aria-pressed={isActive}
-                                onClick={() => selectCategory(item.name)}
-                            >
-                                <span className="board-category-banner-label">{item.label}</span>
-                                <strong>{item.name}</strong>
-                                <span className="board-category-banner-description">{item.description}</span>
-                            </button>
-                        );
-                    })}
-                </nav>
 
                 {loading ? (
                     <div className="board-loading">게시글을 불러오는 중...</div>
