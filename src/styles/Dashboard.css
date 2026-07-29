@@ -2060,3 +2060,804 @@
     font-size: 7px;
   }
 }
+
+/* 2026 dashboard usability refinement */
+.dashboard-page {
+  padding: 24px clamp(18px, 2.4vw, 38px) 44px;
+  color: var(--slate-700);
+  background:
+    radial-gradient(circle at 92% 4%, rgba(11, 147, 137, .09), transparent 24rem),
+    #f3f6f8;
+}
+
+.dashboard-hero,
+.dashboard-status,
+.dashboard-mobile-nav,
+.dashboard-grid {
+  max-width: 1500px;
+}
+
+.dashboard-hero {
+  min-height: 84px;
+  margin-bottom: 12px;
+  padding: 14px 22px;
+  overflow: hidden;
+  background:
+    linear-gradient(90deg, rgba(234, 248, 245, .96), rgba(255, 255, 255, .98) 46%),
+    #fff;
+  border: 1px solid #d8e5e3;
+  border-left: 5px solid var(--teal-600);
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(18, 53, 87, .06);
+}
+
+.dashboard-hero .eyebrow {
+  margin-bottom: 6px;
+  font-size: 10px;
+  letter-spacing: .14em;
+}
+
+.dashboard-hero h1 {
+  font-size: clamp(26px, 2.5vw, 34px);
+  font-weight: 900;
+  letter-spacing: -.045em;
+}
+
+.dashboard-hero > div > span {
+  margin-top: 7px;
+  color: #526477;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.demo-count {
+  min-height: 52px;
+  gap: 10px;
+  padding: 9px 16px;
+  background: #fff;
+  border-color: #d9e3e7;
+  border-radius: 12px;
+  box-shadow: 0 5px 16px rgba(18, 53, 87, .06);
+  font-size: 12px;
+}
+
+.demo-count b {
+  font-size: 22px;
+  font-weight: 900;
+}
+
+.dashboard-status {
+  min-height: 44px;
+  margin-bottom: 14px;
+  padding: 9px 15px;
+  background: rgba(255, 255, 255, .94);
+  border-radius: 11px;
+  box-shadow: 0 4px 14px rgba(18, 53, 87, .04);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.dashboard-grid {
+  grid-template-columns: 330px minmax(0, 1fr);
+  column-gap: 20px;
+  row-gap: 14px;
+}
+
+.dashboard-sidebar {
+  gap: 14px;
+}
+
+.search-panel,
+.candidate-panel,
+.dashboard-map,
+.decision-report-header,
+.decision-summary,
+.decision-kpis,
+.generation-chart-card,
+.payback-chart-card,
+.decision-panel,
+.next-action-panel,
+.technical-details {
+  border-color: #dce4e9;
+  border-radius: 14px;
+  box-shadow: 0 7px 22px rgba(18, 53, 87, .055);
+}
+
+.search-panel {
+  padding: 20px;
+}
+
+.search-panel .panel-heading {
+  margin-bottom: 16px;
+  padding-bottom: 15px;
+}
+
+.search-panel .panel-step {
+  width: 34px;
+  height: 34px;
+  background: var(--teal-700);
+  border-radius: 10px;
+  font-size: 11px;
+}
+
+.search-panel .panel-heading h2 {
+  font-size: 18px;
+  font-weight: 850;
+}
+
+.search-panel .panel-heading p {
+  margin-top: 5px;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.dashboard-region-form {
+  gap: 14px;
+  margin-top: 0;
+}
+
+.dashboard-region-form label {
+  gap: 7px;
+  font-size: 12px;
+}
+
+.dashboard-region-form select {
+  height: 46px;
+  padding: 0 13px;
+  background: #fbfcfd;
+  border-color: #cfd9e1;
+  border-radius: 9px;
+  font-size: 13px;
+}
+
+.analyze-button {
+  height: 46px;
+  border-radius: 9px;
+  font-size: 13px;
+  transition: background .15s, box-shadow .15s, transform .15s;
+}
+
+.analyze-button:hover:not(:disabled) {
+  box-shadow: 0 7px 16px rgba(8, 127, 120, .18);
+  transform: translateY(-1px);
+}
+
+.candidate-panel {
+  padding: 19px 20px;
+  background: #fff;
+}
+
+.candidate-panel > .list-title {
+  margin-bottom: 14px;
+}
+
+.list-title h3 {
+  color: var(--navy-900);
+  font-size: 15px;
+  font-weight: 850;
+}
+
+.list-title span {
+  padding: 4px 7px;
+  background: #eaf6f4;
+  border-radius: 999px;
+  font-size: 11px;
+}
+
+.dashboard-asset-type {
+  margin-bottom: 12px;
+}
+
+.dashboard-asset-type .installation-place-options {
+  gap: 7px;
+  padding: 4px;
+  background: #f2f5f7;
+  border-radius: 10px;
+}
+
+.dashboard-asset-type .installation-place-options button {
+  min-height: 38px;
+  background: transparent;
+  border: 0;
+  border-radius: 7px;
+  font-size: 12px;
+}
+
+.dashboard-asset-type .installation-place-options button.selected {
+  color: var(--teal-700);
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(18, 53, 87, .1);
+}
+
+.candidate-scroll-area {
+  height: 268px;
+  padding: 2px 5px 2px 2px;
+}
+
+.candidate-row {
+  margin-bottom: 8px;
+}
+
+.candidate-row > button:first-child {
+  min-height: 58px;
+  gap: 11px;
+  padding: 9px 10px;
+  background: #fff;
+  border-color: #e0e7ec;
+  border-radius: 10px;
+}
+
+.candidate-row > button:first-child:hover,
+.candidate-row > button:first-child.active {
+  background: #f2faf8;
+  border-color: #8fc9c2;
+  box-shadow: 0 4px 12px rgba(18, 53, 87, .06);
+}
+
+.candidate-row > button:first-child.active {
+  box-shadow: inset 4px 0 var(--teal-600), 0 4px 12px rgba(18, 53, 87, .06);
+}
+
+.candidate-score {
+  width: 39px;
+  height: 39px;
+  border-radius: 9px;
+  font-size: 13px;
+}
+
+.candidate-address {
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.candidate-address small {
+  margin-top: 4px;
+  font-size: 11px;
+}
+
+.candidate-pagination {
+  margin-top: 12px;
+}
+
+.candidate-pagination button {
+  height: 34px;
+  background: #fff;
+  border-color: #d6e0e6;
+  border-radius: 7px;
+}
+
+.candidate-analyze-button {
+  margin-top: 14px;
+}
+
+.candidate-empty {
+  min-height: 112px;
+  margin: 10px 0 0;
+  padding: 34px 16px;
+  background: #f8fafb;
+  border: 1px dashed #cdd8e0;
+  border-radius: 10px;
+  font-size: 12px;
+}
+
+.dashboard-map {
+  height: 250px;
+  min-height: 250px;
+  max-height: 250px;
+  overflow: hidden;
+}
+
+.map-caption {
+  padding: 10px 12px;
+  border-radius: 9px;
+}
+
+.map-caption span {
+  font-size: 10px;
+}
+
+.map-caption b {
+  font-size: 12px;
+}
+
+.decision-report {
+  gap: 14px;
+}
+
+.decision-report-header {
+  padding: 20px 22px;
+}
+
+.report-context {
+  margin-bottom: 9px;
+}
+
+.report-context span {
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 10px;
+}
+
+.decision-report-header h2 {
+  font-size: clamp(18px, 1.7vw, 23px);
+  line-height: 1.35;
+}
+
+.decision-report-header button {
+  min-height: 42px;
+  padding: 0 16px;
+  color: #fff;
+  background: var(--navy-900);
+  border-color: var(--navy-900);
+  border-radius: 9px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.decision-report-header button:hover:not(:disabled) {
+  color: #fff;
+  background: var(--teal-700);
+  border-color: var(--teal-700);
+}
+
+.decision-report-header button:disabled {
+  color: var(--slate-500);
+  background: #eef2f5;
+  border-color: #d8e0e6;
+  cursor: not-allowed;
+}
+
+.decision-summary {
+  gap: 20px;
+  padding: 20px 22px;
+  background: linear-gradient(90deg, #fbfefd, #fff);
+  border-left-width: 5px;
+}
+
+.decision-score {
+  width: 78px;
+  height: 78px;
+  border: 1px solid #cce8e3;
+}
+
+.decision-score strong {
+  font-size: 30px;
+}
+
+.decision-score span {
+  font-size: 10px;
+}
+
+.decision-copy h3 {
+  font-size: clamp(21px, 2vw, 27px);
+}
+
+.decision-copy p {
+  margin-top: 7px;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.decision-primary-action {
+  min-width: 156px;
+  padding-left: 16px;
+}
+
+.decision-primary-action span {
+  font-size: 10px;
+}
+
+.decision-primary-action strong {
+  font-size: 13px;
+}
+
+.decision-kpis > div {
+  min-height: 108px;
+  padding: 17px 18px;
+}
+
+.decision-kpis dt {
+  font-size: 11px;
+}
+
+.decision-kpis dd {
+  margin: 8px 0 5px;
+  font-size: clamp(18px, 1.75vw, 24px);
+}
+
+.decision-kpis small {
+  font-size: 10px;
+}
+
+.generation-chart-card,
+.payback-chart-card,
+.decision-panel,
+.next-action-panel {
+  padding: 20px 22px;
+}
+
+.chart-heading span,
+.decision-panel-heading span {
+  font-size: 10px;
+}
+
+.chart-heading h3,
+.decision-panel-heading h3 {
+  font-size: 16px;
+}
+
+.chart-heading > strong {
+  font-size: 13px;
+}
+
+.generation-chart {
+  height: 170px;
+  margin-top: 17px;
+}
+
+.generation-bar-column b {
+  font-size: 9px;
+}
+
+.roi-value span,
+.payback-chart-card > p {
+  font-size: 10px;
+}
+
+.decision-score-list span,
+.decision-score-list strong,
+.decision-risk-list strong,
+.next-action-panel strong {
+  font-size: 12px;
+}
+
+.decision-risk-list {
+  gap: 9px;
+}
+
+.decision-risk-list > div {
+  grid-template-columns: 70px minmax(0, 1fr);
+  gap: 12px;
+  padding-bottom: 9px;
+}
+
+.risk-state {
+  padding: 5px 7px;
+  border-radius: 6px;
+  font-size: 10px;
+}
+
+.decision-risk-list p,
+.next-action-panel p {
+  margin-top: 4px;
+  font-size: 10px;
+  line-height: 1.55;
+}
+
+.next-action-panel li {
+  min-height: 72px;
+  gap: 11px;
+  padding: 12px;
+  border-radius: 9px;
+}
+
+.next-action-panel li > span {
+  width: 24px;
+  height: 24px;
+  flex-basis: 24px;
+  border-radius: 6px;
+  font-size: 10px;
+}
+
+.technical-details summary {
+  padding: 15px 18px;
+  font-size: 12px;
+}
+
+.technical-details dl > div {
+  padding: 14px 18px;
+}
+
+.technical-details dt {
+  font-size: 10px;
+}
+
+.technical-details dd {
+  font-size: 12px;
+}
+
+@media (max-width: 1120px) {
+  .dashboard-grid {
+    grid-template-columns: 300px minmax(0, 1fr);
+    column-gap: 14px;
+  }
+
+  .candidate-scroll-area {
+    height: 236px;
+  }
+}
+
+@media (max-width: 760px) {
+  .dashboard-page {
+    padding: 12px 12px 28px;
+  }
+
+  .dashboard-hero {
+    min-height: 0;
+    padding: 13px 16px;
+  }
+
+  .dashboard-hero h1 {
+    font-size: 25px;
+  }
+
+  .hero-actions {
+    width: auto;
+  }
+
+  .demo-count {
+    min-height: 42px;
+  }
+
+  .dashboard-mobile-nav {
+    margin-bottom: 12px;
+    border-radius: 11px;
+  }
+
+  .dashboard-mobile-nav button {
+    min-height: 48px;
+    font-size: 12px;
+  }
+
+  .search-panel,
+  .candidate-panel {
+    padding: 18px;
+  }
+
+  .candidate-panel {
+    max-height: 480px;
+  }
+
+  .candidate-scroll-area {
+    height: 270px;
+  }
+
+  .dashboard-map {
+    height: 330px;
+    min-height: 330px;
+    max-height: none;
+  }
+
+  .decision-report-header,
+  .decision-summary {
+    padding: 18px;
+  }
+
+  .decision-summary {
+    gap: 14px;
+  }
+
+  .generation-chart-card,
+  .payback-chart-card,
+  .decision-panel,
+  .next-action-panel {
+    padding: 18px;
+  }
+}
+
+@media (max-width: 520px) {
+  .dashboard-hero {
+    gap: 14px;
+  }
+
+  .dashboard-hero > div > span {
+    font-size: 13px;
+  }
+
+  .decision-score {
+    width: 72px;
+    height: 72px;
+  }
+
+  .decision-copy h3 {
+    font-size: 21px;
+  }
+
+  .decision-kpis > div {
+    min-height: 96px;
+  }
+}
+
+/* Compact card density */
+.dashboard-status {
+  min-height: 38px;
+  margin-bottom: 11px;
+  padding: 7px 13px;
+}
+
+.dashboard-grid,
+.dashboard-sidebar,
+.decision-report {
+  gap: 11px;
+}
+
+.search-panel {
+  padding: 16px;
+}
+
+.search-panel .panel-heading {
+  margin-bottom: 12px;
+  padding-bottom: 11px;
+}
+
+.search-panel .panel-step {
+  width: 30px;
+  height: 30px;
+}
+
+.dashboard-region-form {
+  gap: 10px;
+}
+
+.dashboard-region-form select,
+.analyze-button {
+  height: 42px;
+}
+
+.candidate-panel {
+  padding: 15px 16px;
+}
+
+.candidate-panel > .list-title {
+  margin-bottom: 10px;
+}
+
+.dashboard-asset-type {
+  margin-bottom: 9px;
+}
+
+.dashboard-asset-type .installation-place-options button {
+  min-height: 34px;
+}
+
+.candidate-scroll-area {
+  height: 224px;
+}
+
+.candidate-row {
+  margin-bottom: 6px;
+}
+
+.candidate-row > button:first-child {
+  min-height: 50px;
+  padding: 7px 9px;
+}
+
+.candidate-score {
+  width: 35px;
+  height: 35px;
+}
+
+.candidate-pagination {
+  margin-top: 8px;
+}
+
+.candidate-analyze-button {
+  margin-top: 10px;
+}
+
+.dashboard-map {
+  height: 210px;
+  min-height: 210px;
+  max-height: 210px;
+}
+
+.decision-report-header {
+  padding: 15px 18px;
+}
+
+.report-context {
+  margin-bottom: 6px;
+}
+
+.decision-report-header button {
+  min-height: 38px;
+}
+
+.decision-summary {
+  gap: 15px;
+  padding: 15px 18px;
+}
+
+.decision-score {
+  width: 70px;
+  height: 70px;
+}
+
+.decision-score strong {
+  font-size: 27px;
+}
+
+.decision-copy p {
+  margin-top: 5px;
+}
+
+.decision-primary-action {
+  min-width: 146px;
+}
+
+.decision-kpis > div {
+  min-height: 90px;
+  padding: 13px 15px;
+}
+
+.decision-kpis dd {
+  margin: 6px 0 3px;
+}
+
+.generation-chart-card,
+.payback-chart-card,
+.decision-panel,
+.next-action-panel {
+  padding: 16px 18px;
+}
+
+.generation-chart {
+  height: 150px;
+  margin-top: 13px;
+}
+
+.roi-value {
+  margin-top: 12px;
+}
+
+.payback-visual {
+  margin-top: 14px;
+}
+
+.decision-panel-heading {
+  margin-bottom: 9px;
+}
+
+.next-action-panel li {
+  min-height: 62px;
+  padding: 9px 10px;
+}
+
+.technical-details summary {
+  padding: 12px 16px;
+}
+
+.technical-details dl > div {
+  padding: 11px 16px;
+}
+
+@media (max-width: 760px) {
+  .search-panel,
+  .candidate-panel {
+    padding: 15px;
+  }
+
+  .candidate-panel {
+    max-height: 430px;
+  }
+
+  .candidate-scroll-area {
+    height: 235px;
+  }
+
+  .dashboard-map {
+    height: 280px;
+    min-height: 280px;
+    max-height: none;
+  }
+
+  .decision-report-header,
+  .decision-summary,
+  .generation-chart-card,
+  .payback-chart-card,
+  .decision-panel,
+  .next-action-panel {
+    padding: 15px;
+  }
+}

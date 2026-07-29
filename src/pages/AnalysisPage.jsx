@@ -7,6 +7,7 @@ import ChatBot from '../components/ChatBot';
 import '../styles/AnalysisPage.css';
 import { transform } from 'ol/proj';
 import { searchIdleLands, downloadIdleLandReport } from '../api/idleLandApi';
+import { saveDashboardSelections } from '../utils/dashboardSelection';
 
 const GRADE_CLASS = { A: 'grade-a', B: 'grade-b', C: 'grade-c' };
 
@@ -22,6 +23,7 @@ const AnalysisPage = () => {
   const [idleLandSearched, setIdleLandSearched] = useState(false);
   const [idleLandError, setIdleLandError] = useState('');
   const [downloadingId, setDownloadingId] = useState(null);
+  const [selectedIdleLandIds, setSelectedIdleLandIds] = useState([]);
   const [selectedCoordinates, setSelectedCoordinates] = useState(null);
   const [selectedAddress, setSelectedAddress] = useState(null);
   const [selectedParcelGeometry, setSelectedParcelGeometry] = useState(null);
@@ -172,6 +174,7 @@ const AnalysisPage = () => {
     try {
       const data = await searchIdleLands(keyword);
       setIdleLandResults(data || []);
+      setSelectedIdleLandIds([]);
     } catch (error) {
       setIdleLandResults([]);
       setIdleLandError(error.response?.data?.message || '유휴부지 검색 중 오류가 발생했습니다.');
@@ -186,6 +189,20 @@ const AnalysisPage = () => {
     setSelectedAddress(item.address || null);
     // 클릭한 주소와 매칭되는 필지가 있으면 그 폴리곤만 그리고, 없으면 이전에 그려진 선을 지운다.
     setSelectedParcelGeometry(findParcelGeometry(item.longitude, item.latitude));
+  };
+
+  const handleIdleLandSelection = (itemId) => {
+    setSelectedIdleLandIds((current) => (
+      current.includes(itemId)
+        ? current.filter((id) => id !== itemId)
+        : [...current, itemId]
+    ));
+  };
+
+  const handleDashboardAnalysis = () => {
+    const selectedCandidates = idleLandResults.filter((item) => selectedIdleLandIds.includes(item.id));
+    const candidates = saveDashboardSelections(selectedCandidates);
+    navigate('/dashboard', { state: { selectedCandidates: candidates } });
   };
 
   const handleIdleLandReportDownload = async (item) => {
@@ -226,7 +243,19 @@ const AnalysisPage = () => {
                 ) : (
                   <ul className="idle-land-list">
                     {idleLandResults.map((item) => (
-                      <li key={item.id} className="idle-land-item">
+                      <li
+                        key={item.id}
+                        className={`idle-land-item ${selectedIdleLandIds.includes(item.id) ? 'selected' : ''}`}
+                      >
+                        <label className="idle-land-select">
+                          <input
+                            type="checkbox"
+                            checked={selectedIdleLandIds.includes(item.id)}
+                            onChange={() => handleIdleLandSelection(item.id)}
+                            aria-label={`${item.address} 대시보드 분석 선택`}
+                          />
+                          <span aria-hidden="true" />
+                        </label>
                         <div
                           className="idle-land-item-info"
                           role="button"
@@ -257,6 +286,19 @@ const AnalysisPage = () => {
                       </li>
                     ))}
                   </ul>
+                )}
+                {idleLandResults.length > 0 && !idleLandLoading && !idleLandError && (
+                  <div className="idle-land-dashboard-actions">
+                    <span>{selectedIdleLandIds.length}개 후보지 선택</span>
+                    <button
+                      type="button"
+                      className="idle-land-dashboard-btn"
+                      disabled={selectedIdleLandIds.length === 0}
+                      onClick={handleDashboardAnalysis}
+                    >
+                      대시보드 분석
+                    </button>
+                  </div>
                 )}
               </div>
             )}

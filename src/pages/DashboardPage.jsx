@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { fromLonLat } from 'ol/proj';
 import Layout from '../components/Layout';
 import MapView from '../components/MapView';
@@ -10,6 +11,7 @@ import {
 } from '../api/dashboardApi';
 import { KOREA_REGIONS, SIDO_LIST } from '../data/koreaRegions';
 import { buildAnalysisReportViewModel } from '../utils/analysisReportModel';
+import { loadDashboardSelections, normalizeDashboardSelections } from '../utils/dashboardSelection';
 import '../styles/Dashboard.css';
 
 const PAGE_SIZE = 20;
@@ -19,12 +21,25 @@ const formatScore = (value) => (
 );
 
 const DashboardPage = () => {
+  const location = useLocation();
+  const transferredCandidates = useMemo(() => {
+    const routed = normalizeDashboardSelections(location.state?.selectedCandidates);
+    return routed.length > 0 ? routed : loadDashboardSelections();
+  }, [location.state]);
+  const hasTransferredCandidates = transferredCandidates.length > 0;
   const [apiKey, setApiKey] = useState(null);
   const [, setMap] = useState(null);
   const [selectedSido, setSelectedSido] = useState('');
   const [selectedSigungu, setSelectedSigungu] = useState('');
   const [selectedAssetType, setSelectedAssetType] = useState('ALL');
-  const [candidatePage, setCandidatePage] = useState(null);
+  const [candidatePage, setCandidatePage] = useState(() => (
+    hasTransferredCandidates
+      ? {
+        content: transferredCandidates,
+        totalElements: transferredCandidates.length,
+      }
+      : null
+  ));
   const [currentPage, setCurrentPage] = useState(0);
   const [selectedCandidate, setSelectedCandidate] = useState(null);
   const [coordinates, setCoordinates] = useState(null);
@@ -33,8 +48,10 @@ const DashboardPage = () => {
   const [analysisLoading, setAnalysisLoading] = useState(false);
   const [activeMobilePanel, setActiveMobilePanel] = useState('site');
   const [status, setStatus] = useState({
-    type: 'info',
-    text: '시/도와 시/군/구를 선택해 분석 후보지를 조회하세요.',
+    type: hasTransferredCandidates ? 'success' : 'info',
+    text: hasTransferredCandidates
+      ? `유휴부지 분석에서 선택한 후보지 ${transferredCandidates.length}건을 불러왔습니다.`
+      : '시/도와 시/군/구를 선택해 분석 후보지를 조회하세요.',
   });
 
   const filteredCandidates = useMemo(
@@ -140,31 +157,11 @@ const DashboardPage = () => {
     }
   };
 
-  const selectCandidate = (candidate) => {
-    setSelectedCandidate(candidate);
-    setAnalysis(null);
-    setCoordinates(
-      candidate.longitude != null && candidate.latitude != null
-        ? fromLonLat([candidate.longitude, candidate.latitude])
-        : null,
-    );
-    setStatus({
-      type: 'success',
-      text: '후보지를 선택했습니다. 지도 위치를 확인한 뒤 AI 분석 실행을 눌러주세요.',
-    });
-    setActiveMobilePanel('map');
-  };
-
-  const handleAnalyze = async () => {
-    if (!selectedCandidate) {
-      setStatus({ type: 'error', text: '분석 후보지를 먼저 선택해 주세요.' });
-      return;
-    }
-
+  const analyzeCandidate = async (candidate) => {
     setAnalysisLoading(true);
     setStatus({ type: 'loading', text: '선택 후보지의 ML·SHAP 상세 결과를 불러오고 있습니다.' });
     try {
-      const detail = await fetchDashboardCandidateAnalysis(selectedCandidate.id);
+      const detail = await fetchDashboardCandidateAnalysis(candidate.id);
       setAnalysis(detail);
       setStatus({ type: 'success', text: '실제 API 분석 결과를 대시보드에 표시했습니다.' });
       setActiveMobilePanel('result');
@@ -176,6 +173,34 @@ const DashboardPage = () => {
     } finally {
       setAnalysisLoading(false);
     }
+  };
+
+  const selectCandidate = (candidate) => {
+    setSelectedCandidate(candidate);
+    setAnalysis(null);
+    setCoordinates(
+      candidate.longitude != null && candidate.latitude != null
+        ? fromLonLat([candidate.longitude, candidate.latitude])
+        : null,
+    );
+    if (hasTransferredCandidates) {
+      analyzeCandidate(candidate);
+    } else {
+      setStatus({
+        type: 'success',
+        text: '후보지를 선택했습니다. 지도 위치를 확인한 뒤 AI 분석 실행을 눌러주세요.',
+      });
+      setActiveMobilePanel('map');
+    }
+  };
+
+  const handleAnalyze = async () => {
+    if (!selectedCandidate) {
+      setStatus({ type: 'error', text: '분석 후보지를 먼저 선택해 주세요.' });
+      return;
+    }
+
+    await analyzeCandidate(selectedCandidate);
   };
 
   const downloadReport = async (targetType) => {
@@ -200,12 +225,16 @@ const DashboardPage = () => {
           <div>
             <p className="eyebrow">SOLAR SPATIAL INTELLIGENCE</p>
             <h1>통합 대시보드</h1>
-            <span>지역별 태양광 후보지를 조회하고 AI 분석 결과를 확인하세요.</span>
+            <span>
+              {hasTransferredCandidates
+                ? '선택한 후보지를 비교하고 상세 사업성을 확인하세요.'
+                : '지역별 태양광 후보지를 조회하고 AI 분석 결과를 확인하세요.'}
+            </span>
           </div>
           <div className="hero-actions">
             <div className="demo-count">
               <b>{candidatePage ? filteredCandidates.length : '-'}</b>
-              <span>지역 후보지</span>
+              <span>{hasTransferredCandidates ? '선택 후보지' : '지역 후보지'}</span>
             </div>
           </div>
         </div>
@@ -227,10 +256,17 @@ const DashboardPage = () => {
             <aside className={`dashboard-panel search-panel ${activeMobilePanel === 'site' ? 'mobile-active' : ''}`}>
               <div className="panel-heading">
                 <span className="panel-step">01</span>
-                <div><h2>지역 선택</h2><p>분석할 행정구역을 선택하세요.</p></div>
+                <div>
+                  <h2>{hasTransferredCandidates ? '선택 후보지' : '지역 선택'}</h2>
+                  <p>
+                    {hasTransferredCandidates
+                      ? '유휴부지 분석에서 선택한 후보지를 확인하세요.'
+                      : '분석할 행정구역을 선택하세요.'}
+                  </p>
+                </div>
               </div>
 
-              <form onSubmit={handleRegionSearch} className="dashboard-region-form">
+              {!hasTransferredCandidates && <form onSubmit={handleRegionSearch} className="dashboard-region-form">
                 <label htmlFor="dashboard-sido">
                   시/도
                   <select id="dashboard-sido" value={selectedSido} onChange={handleSidoChange}>
@@ -258,13 +294,19 @@ const DashboardPage = () => {
                 <button type="submit" className="analyze-button" disabled={candidateLoading || !selectedSido || !selectedSigungu}>
                   {candidateLoading ? '조회 중...' : '분석 후보지 조회'}
                 </button>
-              </form>
+              </form>}
             </aside>
 
             <section className={`dashboard-panel candidate-panel ${activeMobilePanel === 'site' ? 'mobile-active' : ''}`} aria-labelledby="candidate-panel-title">
               <div className="list-title">
-                <h3 id="candidate-panel-title">분석 후보지</h3>
-                <span>{candidatePage ? `${currentPage + 1}/${Math.max(totalPages, 1)} 페이지` : '지역을 선택하세요'}</span>
+                <h3 id="candidate-panel-title">{hasTransferredCandidates ? '대시보드 분석 목록' : '분석 후보지'}</h3>
+                <span>
+                  {hasTransferredCandidates
+                    ? `${filteredCandidates.length}건`
+                    : candidatePage
+                    ? `${currentPage + 1}/${Math.max(totalPages, 1)} 페이지`
+                    : '지역을 선택하세요'}
+                </span>
               </div>
 
               <fieldset className="installation-place-tabs dashboard-asset-type" aria-label="후보지 유형">
@@ -284,6 +326,7 @@ const DashboardPage = () => {
                           type="button"
                           className={selectedCandidate?.id === item.id ? 'active' : ''}
                           onClick={() => selectCandidate(item)}
+                          aria-pressed={selectedCandidate?.id === item.id}
                         >
                           <span className={`candidate-score ${item.suitabilityScore >= 80 ? 'high' : item.suitabilityScore >= 70 ? 'medium' : ''}`}>
                             {formatScore(item.suitabilityScore)}
@@ -317,7 +360,7 @@ const DashboardPage = () => {
                 onClick={handleAnalyze}
                 disabled={!selectedCandidate || analysisLoading}
               >
-                {analysisLoading ? 'AI 분석 중...' : 'AI 분석 실행'}
+                {analysisLoading ? 'AI 분석 중...' : hasTransferredCandidates ? '상세 분석 다시 불러오기' : 'AI 분석 실행'}
               </button>
             </section>
 

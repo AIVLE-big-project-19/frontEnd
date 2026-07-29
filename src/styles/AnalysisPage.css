@@ -2,7 +2,7 @@
   position: relative;
   z-index: 200;
   display: flex;
-  flex: 0 0 360px;
+  flex: 0 0 400px;
   flex-direction: column;
   gap: 14px;
   min-width: 0;
@@ -236,8 +236,59 @@
   border-radius: 6px;
 }
 
+.idle-land-item.selected {
+  background: #f0faf8;
+  border-color: #82cdc5;
+  box-shadow: inset 3px 0 var(--teal-600);
+}
+
+.idle-land-select {
+  display: grid;
+  flex: 0 0 22px;
+  place-items: center;
+  cursor: pointer;
+}
+
+.idle-land-select input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+}
+
+.idle-land-select span {
+  display: grid;
+  width: 20px;
+  height: 20px;
+  place-items: center;
+  background: #fff;
+  border: 1px solid var(--slate-300);
+  border-radius: 5px;
+  transition: background-color 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.idle-land-select input:checked + span {
+  background: var(--teal-600);
+  border-color: var(--teal-600);
+}
+
+.idle-land-select input:checked + span::after {
+  width: 8px;
+  height: 4px;
+  content: "";
+  border-bottom: 2px solid #fff;
+  border-left: 2px solid #fff;
+  transform: translateY(-1px) rotate(-45deg);
+}
+
+.idle-land-select input:focus-visible + span {
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
 .idle-land-item-info {
   display: flex;
+  flex: 1 1 auto;
   align-items: center;
   gap: 10px;
   min-width: 0;
@@ -302,6 +353,42 @@
   color: var(--slate-500);
   background: #f1f5f9;
   border-color: var(--slate-300);
+  cursor: not-allowed;
+}
+
+.idle-land-dashboard-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--slate-200);
+}
+
+.idle-land-dashboard-actions span {
+  color: var(--slate-600);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.idle-land-dashboard-btn {
+  min-width: 130px;
+  height: 40px;
+  padding: 0 16px;
+  color: #fff;
+  background: linear-gradient(110deg, var(--teal-700), var(--teal-600));
+  border: 0;
+  border-radius: 7px;
+  box-shadow: 0 6px 13px rgba(8, 127, 120, 0.18);
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.idle-land-dashboard-btn:disabled {
+  background: var(--slate-300);
+  box-shadow: none;
   cursor: not-allowed;
 }
 
@@ -565,7 +652,7 @@
 
 @media (max-width: 1100px) {
   .search-bar-container {
-    flex-basis: 330px;
+    flex-basis: 370px;
   }
 }
 

@@ -15,7 +15,7 @@ const AnalysisReportDashboard = ({ report, onDownload }) => (
         </div>
         <h2 id="decision-report-title">{report.site.address}</h2>
       </div>
-      <button type="button" disabled={report.source !== 'analysis'} onClick={() => onDownload(report.site.type)}>PDF 내려받기</button>
+      <button type="button" disabled={report.source !== 'analysis'} onClick={() => onDownload(report.site.type)}>분석 보고서 조회</button>
     </div>
 
     <div className="decision-summary">
