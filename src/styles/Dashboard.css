@@ -739,6 +739,14 @@
   background: #f4f6f8;
 }
 
+.dashboard-hero,
+.dashboard-status,
+.dashboard-mobile-nav,
+.dashboard-grid {
+  box-sizing: border-box;
+  width: 100%;
+}
+
 .dashboard-hero {
   max-width: 1380px;
   min-height: 76px;
