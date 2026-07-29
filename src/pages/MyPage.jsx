@@ -9,6 +9,7 @@ import {
 import '../styles/MyPage.css';
 
 const passwordPattern = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,16}$/;
+const BOARDS_PER_PAGE = 5;
 
 const getErrorMessage = (error, fallback) => {
   const response = error.response?.data;
@@ -28,6 +29,7 @@ function MyPage() {
   const { logout } = useAuth();
   const [profile, setProfile] = useState(null);
   const [boards, setBoards] = useState([]);
+  const [boardPage, setBoardPage] = useState(1);
   const [name, setName] = useState('');
   const [passwords, setPasswords] = useState({ current: '', next: '', confirm: '' });
   const [loading, setLoading] = useState(true);
@@ -37,6 +39,11 @@ function MyPage() {
   const [consentsError, setConsentsError] = useState('');
   const [marketingSaving, setMarketingSaving] = useState(false);
   const [showWithdrawalModal, setShowWithdrawalModal] = useState(false);
+  const boardPageCount = Math.ceil(boards.length / BOARDS_PER_PAGE);
+  const visibleBoards = boards.slice(
+    (boardPage - 1) * BOARDS_PER_PAGE,
+    boardPage * BOARDS_PER_PAGE,
+  );
 
   useEffect(() => {
     const loadMyPage = async () => {
@@ -164,6 +171,51 @@ function MyPage() {
               ) : <div className="mypage-state">소셜 계정은 연결된 서비스에서 비밀번호를 변경해주세요.</div>}
             </section>
 
+            <section className="mypage-card mypage-activity">
+              <div className="mypage-card-title"><h2>내가 쓴 글</h2><span>총 {boards.length}개</span></div>
+              {boards.length === 0 ? <div className="mypage-state">작성한 게시글이 없습니다.</div> : (
+                <div className="mypage-board-list">
+                  {visibleBoards.map((board) => (
+                    <Link key={board.boardId} to={`/boards/${board.boardId}`}>
+                      <span className="mypage-board-category">{board.category}</span>
+                      <strong>{board.title}</strong>
+                      <span>{formatDate(board.createdAt)} · 조회 {board.viewCount}</span>
+                    </Link>
+                  ))}
+                  {boardPageCount > 1 && (
+                    <nav className="mypage-pagination" aria-label="내가 쓴 글 페이지">
+                      <button
+                        type="button"
+                        disabled={boardPage === 1}
+                        onClick={() => setBoardPage((page) => page - 1)}
+                      >
+                        이전
+                      </button>
+                      {Array.from({ length: boardPageCount }, (_, index) => index + 1).map((page) => (
+                        <button
+                          type="button"
+                          key={page}
+                          className={page === boardPage ? 'active' : ''}
+                          aria-current={page === boardPage ? 'page' : undefined}
+                          aria-label={`${page}페이지`}
+                          onClick={() => setBoardPage(page)}
+                        >
+                          {page}
+                        </button>
+                      ))}
+                      <button
+                        type="button"
+                        disabled={boardPage === boardPageCount}
+                        onClick={() => setBoardPage((page) => page + 1)}
+                      >
+                        다음
+                      </button>
+                    </nav>
+                  )}
+                </div>
+              )}
+            </section>
+
             <section className="mypage-card">
               <div className="mypage-card-title"><h2>약관 동의 현황</h2></div>
               {consentsError && <div className="mypage-state">{consentsError}</div>}
@@ -201,30 +253,21 @@ function MyPage() {
               )}
             </section>
 
-            <section className="mypage-card mypage-activity">
-              <div className="mypage-card-title"><h2>내가 쓴 글</h2><span>총 {boards.length}개</span></div>
-              {boards.length === 0 ? <div className="mypage-state">작성한 게시글이 없습니다.</div> : (
-                <div className="mypage-board-list">
-                  {boards.map((board) => (
-                    <Link key={board.boardId} to={`/boards/${board.boardId}`}>
-                      <span className="mypage-board-category">{board.category}</span>
-                      <strong>{board.title}</strong>
-                      <span>{formatDate(board.createdAt)} · 조회 {board.viewCount}</span>
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </section>
-
-            <section className="mypage-card">
-              <div className="mypage-card-title"><h2>회원탈퇴</h2></div>
-              <p className="mypage-hint">탈퇴 시 모든 개인정보가 즉시 삭제되며 되돌릴 수 없습니다.</p>
+            <section className="mypage-card mypage-withdrawal">
+              <div className="mypage-card-title">
+                <h2>회원 탈퇴</h2>
+                <span className="mypage-withdrawal-label">계정 관리</span>
+              </div>
+              <div className="mypage-withdrawal-content">
+                <strong>서비스 이용을 종료하시겠어요?</strong>
+                <p>탈퇴하면 계정과 개인정보가 삭제되며, 삭제된 정보는 복구할 수 없습니다.</p>
+              </div>
               <button
                 type="button"
                 className="mypage-danger-button"
                 onClick={() => setShowWithdrawalModal(true)}
               >
-                회원탈퇴
+                회원 탈퇴
               </button>
             </section>
             </div>
