@@ -225,30 +225,33 @@ const DashboardPage = () => {
         <div className="dashboard-grid">
           <div className="dashboard-sidebar">
             <aside className={`dashboard-panel search-panel ${activeMobilePanel === 'site' ? 'mobile-active' : ''}`}>
-            <div className="panel-heading">
-              <span className="panel-step">01</span>
-              <div><h2>후보지 조건</h2><p>주소와 설치 조건을 입력하세요.</p></div>
-            </div>
+              <div className="panel-heading">
+                <span className="panel-step">01</span>
+                <div><h2>분석 대상 설정</h2><p>위치와 설치 조건을 입력하세요.</p></div>
+              </div>
 
-            <form onSubmit={handleSearch} className="dashboard-search-form">
-              <input aria-label="주소 또는 장소명" value={keyword} onChange={(event) => setKeyword(event.target.value)} placeholder="주소 또는 장소명 입력" />
-              <button type="submit">검색</button>
-            </form>
+              <div className="sidebar-section-title"><span>위치 검색</span><small>주소 또는 장소명</small></div>
 
-            {searchResults.length > 0 && (
-              <ul className="dashboard-results">
-                {searchResults.map((item, index) => (
-                  <li key={`${item.id || item.title}-${index}`}>
-                    <button type="button" onClick={() => selectSearchResult(item)}>
-                      <strong>{item.title}</strong>
-                      <span>{item.address?.road || item.address?.parcel}</span>
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            )}
+              <form onSubmit={handleSearch} className="dashboard-search-form">
+                <input aria-label="주소 또는 장소명" value={keyword} onChange={(event) => setKeyword(event.target.value)} placeholder="주소 또는 장소명 입력" />
+                <button type="submit">검색</button>
+              </form>
 
-            <div className="site-inputs">
+              {searchResults.length > 0 && (
+                <ul className="dashboard-results">
+                  {searchResults.map((item, index) => (
+                    <li key={`${item.id || item.title}-${index}`}>
+                      <button type="button" onClick={() => selectSearchResult(item)}>
+                        <strong>{item.title}</strong>
+                        <span>{item.address?.road || item.address?.parcel}</span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+
+              <div className="site-inputs">
+                <div className="sidebar-section-title"><span>분석 조건</span><small>면적과 설치 유형</small></div>
               <div className="installation-place-group">
                 <label>선택 후보지<input value={address} onChange={(event) => setAddress(event.target.value)} placeholder="검색 결과에서 선택" /></label>
                 <fieldset className="installation-place-tabs">
@@ -267,10 +270,10 @@ const DashboardPage = () => {
                 </div>
               </div>
               <button type="button" className="analyze-button" onClick={handleAnalyze} disabled={loading}>{loading ? '분석 중...' : 'AI 분석 실행'}</button>
-            </div>
+              </div>
 
-            {demoSites.length > 0 && (
-              <div className="candidate-list">
+              {demoSites.length > 0 && (
+                <div className="candidate-list">
                 <div className="list-title"><h3>분석 후보지</h3><span>{compareSites.length}/3 비교 선택</span></div>
                 <div className="candidate-type-filter">
                   <label htmlFor="candidate-type-filter">부지 유형</label>
@@ -296,11 +299,11 @@ const DashboardPage = () => {
                     <button type="button" className={`compare-toggle ${compareSites.some((site) => site.id === item.id) ? 'selected' : ''}`} onClick={() => toggleCompare(item)} aria-label={`${item.address} 비교 선택`}>비교</button>
                   </div>
                 ))}
-              </div>
-            )}
+                </div>
+              )}
 
-            {history.length > 0 && (
-              <div className="candidate-list history-list">
+              {history.length > 0 && (
+                <div className="candidate-list history-list">
                 <div className="list-title"><h3>내 최근 분석</h3></div>
                 {history.map((item) => (
                   <button type="button" key={item.id} onClick={() => applySite(item)}>
@@ -308,13 +311,13 @@ const DashboardPage = () => {
                     <span className="candidate-address">{item.address}<small>{item.grade}</small></span>
                   </button>
                 ))}
-              </div>
-            )}
+                </div>
+              )}
             </aside>
 
             <div className={`dashboard-map ${activeMobilePanel === 'map' ? 'mobile-active' : ''}`}>
               <div className="map-caption">
-                <span>선택 위치</span>
+                <span>위치 미리보기</span>
                 <b>{address || '충청남도 홍성군 홍북읍 충남대로 21'}</b>
               </div>
               {apiKey
