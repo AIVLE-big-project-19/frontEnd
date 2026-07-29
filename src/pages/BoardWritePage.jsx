@@ -43,13 +43,15 @@ function BoardWritePage() {
 
     const selectFiles = (event) => {
         const selected = Array.from(event.target.files ?? []);
-        const totalSize = selected.reduce((sum, file) => sum + file.size, 0);
-        if (selected.length > 10 || totalSize > 50 * 1024 * 1024 || selected.some((file) => file.size > 10 * 1024 * 1024)) {
+        const nextFiles = [...files, ...selected];
+        const totalSize = nextFiles.reduce((sum, file) => sum + file.size, 0);
+        if (nextFiles.length > 10 || totalSize > 50 * 1024 * 1024 || selected.some((file) => file.size > 10 * 1024 * 1024)) {
             alert("첨부 파일은 최대 10개, 파일당 10MB, 총 50MB까지 가능합니다.");
             event.target.value = "";
             return;
         }
-        setFiles(selected);
+        setFiles(nextFiles);
+        event.target.value = "";
     };
     const removeSelectedFile = (index) => {
         if (window.confirm("선택한 첨부 파일을 제거하시겠습니까?")) {

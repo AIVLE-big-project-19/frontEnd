@@ -1,6 +1,7 @@
 .board-page,
 .board-detail-page,
 .board-write-page {
+  box-sizing: border-box;
   --board-category-width: 156px;
   width: 100%;
   max-width: 1080px;
@@ -10,6 +11,12 @@
   overflow-y: auto;
   color: var(--slate-700);
   scrollbar-gutter: stable;
+}
+
+.board-write-page *,
+.board-write-page *::before,
+.board-write-page *::after {
+  box-sizing: border-box;
 }
 
 .board-header {
@@ -537,6 +544,7 @@
 
 /* Write Form */
 .board-form-card {
+  min-width: 0;
   width: 100%;
   padding: 30px;
   background: #fff;
@@ -552,6 +560,7 @@
 }
 
 .board-form-group {
+  min-width: 0;
   margin-bottom: 20px;
 }
 
