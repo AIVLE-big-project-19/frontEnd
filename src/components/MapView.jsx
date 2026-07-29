@@ -39,6 +39,7 @@ const MapView = ({ apiKey, setMap, selectedCoordinates, parcelGeometry }) => {
   useEffect(() => {
     const initialMap = new Map({
       target: mapElement.current,
+      controls: [],
       layers: [
         new TileLayer({ source: new XYZ({ url: `https://api.vworld.kr/req/wmts/1.0.0/${apiKey}/Satellite/{z}/{y}/{x}.jpeg` }) }),
         new VectorLayer({ source: parcelSource.current, style: parcelStyle }),
