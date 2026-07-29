@@ -16,6 +16,11 @@
 .candidate-type-filter { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 6px; align-items: center; margin: 0 0 6px; padding: 8px; background: #f8fbfc; border: 1px solid var(--slate-200); border-radius: 8px; }
 .candidate-type-filter label { color: var(--slate-500); font-size: 11px; font-weight: 800; }
 .candidate-type-filter select { min-width: 0; height: 30px; padding: 0 8px; color: var(--navy-900); background: #fff; border: 1px solid var(--slate-300); border-radius: 6px; font-size: 11px; }
+.analysis-report-actions { display: flex; flex: 0 0 auto; gap: 8px; }
+.analysis-report-actions button { min-height: 42px; flex: 1; padding: 0 13px; color: #fff; background: linear-gradient(110deg, #05635e, var(--teal-700)); border: 1px solid #05635e; border-radius: 7px; box-shadow: 0 6px 12px rgba(8,127,120,.2); font-size: 12px; font-weight: 850; cursor: pointer; }
+.analysis-report-actions button:hover { background: linear-gradient(110deg, #034945, #05635e); border-color: #034945; box-shadow: 0 8px 16px rgba(8,127,120,.28); }
+.analysis-report-actions button:disabled { color: var(--slate-500); background: var(--slate-100); border-color: var(--slate-300); cursor: not-allowed; }
+.report-actions-bottom { margin-top: 8px; }
 .land-info-group { display: grid; gap: 8px; padding-top: 11px; border-top: 1px solid #dfe9ed; }
 .land-info-group h3 { margin: 0; color: var(--slate-700); font-size: 11px; font-weight: 800; }
 .installation-place-group { display: grid; gap: 8px; }
