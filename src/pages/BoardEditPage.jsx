@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { getBoard, updateBoard } from "../api/boardApi";
 import { useAuth } from "../context/AuthContext";
-import { BOARD_CATEGORIES, INQUIRY_CATEGORY, isAdminOnlyCategory } from "../constants/boardCategory";
+import { INQUIRY_CATEGORY, isAdminOnlyCategory } from "../constants/boardCategory";
 import Layout from "../components/Layout";
 import "../styles/board.css";
 
@@ -11,15 +11,11 @@ function BoardEditPage() {
     const navigate = useNavigate();
     const { isLoggedIn, loginId, isAdmin, isInitializing } = useAuth();
 
-    const availableCategories = isAdmin
-        ? BOARD_CATEGORIES
-        : BOARD_CATEGORIES.filter((item) => !isAdminOnlyCategory(item));
-
     const [title, setTitle] = useState("");
     const [content, setContent] = useState("");
     const [writer, setWriter] = useState("");
     const [writerName, setWriterName] = useState("");
-    const [category, setCategory] = useState(BOARD_CATEGORIES[0]);
+    const [category, setCategory] = useState("");
     const [loading, setLoading] = useState(true);
     const [files, setFiles] = useState([]);
     const [attachments, setAttachments] = useState([]);
@@ -105,7 +101,7 @@ function BoardEditPage() {
         }
 
         if (!category.trim()) {
-            alert("카테고리를 선택해주세요.");
+            alert("게시글 카테고리를 확인할 수 없습니다.");
             return;
         }
 
@@ -180,21 +176,6 @@ function BoardEditPage() {
                             value={writerName}
                             readOnly
                         />
-                    </div>
-
-                    <div className="board-form-group">
-                        <label>카테고리</label>
-                        <select
-                            className="board-input"
-                            value={category}
-                            onChange={(e) => setCategory(e.target.value)}
-                        >
-                            {availableCategories.map((item) => (
-                                <option key={item} value={item}>
-                                    {item}
-                                </option>
-                            ))}
-                        </select>
                     </div>
 
                     <div className="board-form-group">
