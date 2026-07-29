@@ -15,6 +15,7 @@ const AuthNav = () => {
       <nav className="nav-menu auth-nav">
         <Link to="/mypage" className="auth-user">{loginId}님</Link>
         {isAdmin && <Link to="/admin/users">회원 관리</Link>}
+        {isAdmin && <Link to="/admin/idle-lands">유휴부지 관리</Link>}
         <button type="button" onClick={handleLogout}>로그아웃</button>
       </nav>
     );
