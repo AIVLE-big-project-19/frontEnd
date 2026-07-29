@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import MainPage from './pages/MainPage';
+import AnalasisPage from './pages/AnalasisPage';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import FindIdPage from './pages/FindIdPage';
@@ -18,12 +19,15 @@ import BoardEditPage from './pages/BoardEditPage';
 import MyPage from './pages/MyPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminUsersPage from './pages/AdminUsersPage';
+import AdminIdleLandsPage from './pages/AdminIdleLandsPage';
 import DashboardPage from './pages/DashboardPage';
 import ErrorToast from './components/ErrorToast';
+import SolarTestComponent from './pages/SolarTestComponent';
 
 export const AppRoutes = () => (
   <Routes>
     <Route path="/" element={<MainPage />} />
+    <Route path="/analasis" element={<AnalasisPage />} />
     <Route path="/login" element={<LoginPage />} />
     <Route path="/signup" element={<SignupPage />} />
     <Route path="/find-id" element={<FindIdPage />} />
@@ -40,7 +44,11 @@ export const AppRoutes = () => (
     <Route path="/test/recommendations" element={<RecommendationTestPage />} />
     <Route path="/boards/:boardId/edit" element={<BoardEditPage />} />
     <Route path="/mypage" element={<ProtectedRoute><MyPage /></ProtectedRoute>} />
+    <Route path="/vision-ai" element={<SolarTestComponent />} />
     <Route path="/admin/users" element={<ProtectedRoute><AdminUsersPage /></ProtectedRoute>} />
+    <Route path="/admin/idle-lands" element={<ProtectedRoute><AdminIdleLandsPage /></ProtectedRoute>} />
+
+    
   </Routes>
 );
 
