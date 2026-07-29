@@ -23,7 +23,6 @@ const Header = () => {
   };
 
   return (
-<<<<<<< HEAD
     <header>
       <div className="header-topbar">
         <Link className="logo-link" to="/" aria-label="SolarAivle 홈으로 이동" onClick={refreshIfCurrent('/')}>
@@ -48,27 +47,13 @@ const Header = () => {
           <span>통합 대시보드</span>
           {isHome && <><small className="nav-card-description">후보지 분석과 비교</small><span className="nav-hover-panel"><strong>통합 대시보드</strong><small>후보지의 적합도와 수익성을<br />분석 및 비교</small></span></>}
         </Link>
-        <a href="#vision-ai" onClick={refreshHashIfCurrent('#vision-ai')}>
+        <a href="/vision-ai" onClick={refreshHashIfCurrent('/vision-ai')}>
           {isHome && <span className="nav-card-icon nav-vision-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m12 3 1.4 5.6L19 10l-5.6 1.4L12 17l-1.4-5.6L5 10l5.6-1.4L12 3Z" /><path d="m19 15 .7 2.3L22 18l-2.3.7L19 21l-.7-2.3L16 18l2.3-.7L19 15Z" /></svg></span>}
           <span>Vision AI 분석</span>
           {isHome && <><small className="nav-card-description">이미지 기반 태양광 분석</small><span className="nav-hover-panel"><strong>Vision AI 분석</strong><small>위성·이미지 데이터를<br />활용한 후보지 분석</small></span></>}
         </a>
       </nav>
     </header>
-=======
-  <header>
-    <Link className="logo-link" to="/" aria-label="SolarAivle 홈으로 이동" onClick={refreshIfCurrent('/')}>
-      <img className="logo-image" src={solarAivleLogo} alt="SolarAivle" />
-    </Link>
-    <nav className="nav-menu">
-      <Link to="/" onClick={refreshIfCurrent('/')}>홈</Link>
-      <Link to="/boards?category=공지사항" onClick={refreshIfCurrent('/boards?category=공지사항')}>게시판</Link>
-      <Link to="/dashboard" onClick={refreshIfCurrent('/dashboard')}>통합 대시보드</Link>
-      <a href="/vision-ai" onClick={refreshHashIfCurrent('/vision-ai')}>Vision AI 분석</a>
-    </nav>
-    <AuthNav />
-  </header>
->>>>>>> 18664f9 (feature: Vision ai / ML 연동, 유휴부지 Import)
   );
 };
 

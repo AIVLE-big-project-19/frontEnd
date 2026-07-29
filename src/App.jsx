@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import MainPage from './pages/MainPage';
 import AnalasisPage from './pages/AnalasisPage';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
@@ -24,6 +25,7 @@ import SolarTestComponent from './pages/SolarTestComponent';
 
 export const AppRoutes = () => (
   <Routes>
+    <Route path="/" element={<MainPage />} />
     <Route path="/analasis" element={<AnalasisPage />} />
     <Route path="/login" element={<LoginPage />} />
     <Route path="/signup" element={<SignupPage />} />
