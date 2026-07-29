@@ -49,6 +49,11 @@
 .mypage-board-category { width: fit-content; padding: 4px 8px; border-radius: 999px; color: #0f766e; background: #f0fdfa; font-size: 12px; }
 .mypage-board-list strong { overflow: hidden; color: #1f2937; font-size: 14px; text-overflow: ellipsis; white-space: nowrap; }
 .mypage-board-list a > span:last-child { color: #9ca3af; font-size: 12px; }
+.mypage-pagination { display: flex; justify-content: center; align-items: center; gap: 6px; padding-top: 20px; border-top: 1px solid #f0f1f3; }
+.mypage-pagination button { min-width: 34px; height: 34px; padding: 0 10px; border: 1px solid #d1d5db; border-radius: 8px; color: #4b5563; background: #fff; font: inherit; font-size: 13px; cursor: pointer; }
+.mypage-pagination button:hover:not(:disabled):not(.active) { border-color: #14b8a6; color: #0f766e; background: #f0fdfa; }
+.mypage-pagination button.active { border-color: #0f766e; color: #fff; background: #0f766e; font-weight: 700; }
+.mypage-pagination button:disabled { opacity: .4; cursor: not-allowed; }
 
 @media (max-width: 720px) {
   .mypage { width: min(100% - 24px, 960px); margin-top: 24px; }

@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { fetchMapSearch } from '../api/mapApi';
 import { SIDO_LIST, KOREA_REGIONS } from '../data/koreaRegions';
 
-const SearchBar = ({ onSearchResult }) => {
+const SearchBar = ({ onSearchResult, onIdleLandSearch }) => {
   const [keyword, setKeyword] = useState('');
-  const [showDetail, setShowDetail] = useState(false);
+
   const [sido, setSido] = useState('');
   const [sigungu, setSigungu] = useState('');
   const [detailKeyword, setDetailKeyword] = useState('');
@@ -13,6 +13,9 @@ const SearchBar = ({ onSearchResult }) => {
     if (!searchKeyword.trim()) {
       onSearchResult([]);
       return;
+    }
+    if (onIdleLandSearch) {
+      onIdleLandSearch(searchKeyword);
     }
     const data = await fetchMapSearch(searchKeyword);
     if (data.response.status === 'OK') onSearchResult(data.response.result.items);
@@ -45,20 +48,10 @@ const SearchBar = ({ onSearchResult }) => {
 
   return (
     <div className="search-bar-root">
-      <div className="search-input-row">
-        <input value={keyword} onKeyDown={handleKeyDown} onChange={(e) => setKeyword(e.target.value)} />
-        <button className="search-button" onClick={handleSearch}>검색</button>
-      </div>
 
-      <button
-        type="button"
-        className="detail-search-toggle"
-        onClick={() => setShowDetail((prev) => !prev)}
-      >
-        상세검색 {showDetail ? '▲' : '▼'}
-      </button>
 
-      {showDetail && (
+
+
         <div className="detail-search-panel">
           <div className="detail-search-selects">
             <select value={sido} onChange={handleSidoChange}>
@@ -88,7 +81,7 @@ const SearchBar = ({ onSearchResult }) => {
             지역으로 검색
           </button>
         </div>
-      )}
+      
     </div>
   );
 };
