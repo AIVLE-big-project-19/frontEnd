@@ -23,3 +23,9 @@ export const fetchMyRecommendations = async () => {
   });
   return data.data;
 };
+
+export const deleteRecommendation = async (id) => {
+  await instance.delete(`/recommendations/${id}`, {
+    skipErrorModal: true,
+  });
+};
