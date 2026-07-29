@@ -4,6 +4,7 @@ import MapView from '../components/MapView';
 import AnalysisReportDashboard from '../components/AnalysisReportDashboard';
 import { fetchMapSearch } from '../api/mapApi';
 import { createSiteAnalysis, fetchDemoAnalyses, fetchMyAnalysisHistory } from '../api/dashboardApi';
+import { buildAnalysisReportViewModel } from '../utils/analysisReportModel';
 import { SITE_SORT_OPTIONS, sortSiteAnalyses } from '../utils/siteAnalysisSort';
 import '../styles/Dashboard.css';
 
@@ -41,6 +42,10 @@ const DashboardPage = () => {
       candidateSortDirection,
     ),
     [demoSites, candidateTypeFilter, candidateSort, candidateSortDirection],
+  );
+  const reportViewModel = useMemo(
+    () => buildAnalysisReportViewModel({ analysis, address, areaM2, capacityKw }),
+    [analysis, address, areaM2, capacityKw],
   );
 
   useEffect(() => {
@@ -320,10 +325,7 @@ const DashboardPage = () => {
 
             <div className={`dashboard-report-pane ${activeMobilePanel === 'result' ? 'mobile-active' : ''}`}>
               <AnalysisReportDashboard
-                analysis={analysis}
-                address={address}
-                areaM2={areaM2}
-                capacityKw={capacityKw}
+                report={reportViewModel}
                 onDownload={downloadReport}
               />
 
