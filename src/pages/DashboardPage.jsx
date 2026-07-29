@@ -295,15 +295,17 @@ const DashboardPage = () => {
                     {candidateSortDirection === 'asc' ? '내림차순' : '오름차순'}
                   </button>
                 </div>
-                {sortedDemoSites.map((item) => (
-                  <div className="candidate-row" key={item.id}>
-                    <button type="button" className={analysis?.id === item.id ? 'active' : ''} onClick={() => applySite(item)}>
-                      <span className={`candidate-score ${item.suitabilityScore >= 80 ? 'high' : item.suitabilityScore >= 70 ? 'medium' : ''}`}>{item.suitabilityScore}</span>
-                      <span className="candidate-address">{item.address}<small>{item.siteType === 'ROOF' ? '지붕/옥상' : '토지'} · {item.grade} · {formatNumber(item.capacityKw, ' kW')}</small></span>
-                    </button>
-                    <button type="button" className={`compare-toggle ${compareSites.some((site) => site.id === item.id) ? 'selected' : ''}`} onClick={() => toggleCompare(item)} aria-label={`${item.address} 비교 선택`}>비교</button>
-                  </div>
-                ))}
+                <div className="candidate-scroll-area" tabIndex="0" aria-label="분석 후보지 목록">
+                  {sortedDemoSites.map((item) => (
+                    <div className="candidate-row" key={item.id}>
+                      <button type="button" className={analysis?.id === item.id ? 'active' : ''} onClick={() => applySite(item)}>
+                        <span className={`candidate-score ${item.suitabilityScore >= 80 ? 'high' : item.suitabilityScore >= 70 ? 'medium' : ''}`}>{item.suitabilityScore}</span>
+                        <span className="candidate-address">{item.address}<small>{item.siteType === 'ROOF' ? '지붕/옥상' : '토지'} · {item.grade} · {formatNumber(item.capacityKw, ' kW')}</small></span>
+                      </button>
+                      <button type="button" className={`compare-toggle ${compareSites.some((site) => site.id === item.id) ? 'selected' : ''}`} onClick={() => toggleCompare(item)} aria-label={`${item.address} 비교 선택`}>비교</button>
+                    </div>
+                  ))}
+                </div>
                 </div>
               )}
 

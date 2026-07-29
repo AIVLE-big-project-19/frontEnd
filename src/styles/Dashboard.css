@@ -834,7 +834,7 @@
 .dashboard-sidebar {
   position: relative;
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr) 176px;
+  grid-template-rows: auto auto minmax(120px, 1fr);
   min-width: 0;
   min-height: 0;
   align-self: stretch;
@@ -844,7 +844,7 @@
 .search-panel {
   position: static;
   max-height: none;
-  padding: 18px;
+  padding: 14px 16px;
   overflow: visible;
   border-radius: 10px;
   box-shadow: none;
@@ -876,8 +876,10 @@
 }
 
 .dashboard-map {
-  height: 176px;
-  min-height: 176px;
+  height: 100%;
+  min-height: 120px;
+  max-height: 150px;
+  align-self: end;
   border-radius: 10px;
   box-shadow: none;
 }
@@ -1536,10 +1538,8 @@
 
 .candidate-panel {
   min-height: 0;
-  padding: 18px;
-  overflow-y: auto;
-  scrollbar-color: #cbd5dd transparent;
-  scrollbar-width: thin;
+  padding: 16px 18px;
+  overflow: hidden;
 }
 
 .candidate-panel > .list-title {
@@ -1550,6 +1550,25 @@
   margin-top: 0;
   padding-top: 0;
   border-top: 0;
+}
+
+.candidate-scroll-area {
+  height: 200px;
+  padding-right: 4px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-color: #b9c6cf transparent;
+  scrollbar-width: thin;
+  outline: none;
+}
+
+.candidate-scroll-area:focus-visible {
+  border-radius: 7px;
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+.candidate-scroll-area .candidate-row:last-child {
+  margin-bottom: 0;
 }
 
 .candidate-panel .history-list {
@@ -1568,8 +1587,8 @@
 
 .search-panel .panel-heading {
   align-items: center;
-  margin-bottom: 18px;
-  padding-bottom: 16px;
+  margin-bottom: 12px;
+  padding-bottom: 12px;
   border-bottom: 1px solid #e7ebef;
 }
 
@@ -1595,7 +1614,7 @@
   align-items: baseline;
   justify-content: space-between;
   gap: 10px;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .sidebar-section-title span {
@@ -1610,13 +1629,13 @@
 }
 
 .dashboard-search-form input {
-  height: 38px;
+  height: 36px;
   background: #f8fafb;
 }
 
 .dashboard-search-form button {
   min-width: 54px;
-  height: 38px;
+  height: 36px;
   background: var(--navy-800);
 }
 
@@ -1625,9 +1644,9 @@
 }
 
 .site-inputs {
-  gap: 14px;
-  margin-top: 18px;
-  padding: 17px 0 0;
+  gap: 10px;
+  margin-top: 12px;
+  padding: 12px 0 0;
   background: transparent;
   border: 0;
   border-top: 1px solid #e7ebef;
@@ -1644,7 +1663,7 @@
 }
 
 .installation-place-options button {
-  min-height: 52px;
+  min-height: 46px;
   background: #f7f9fa;
   border-color: transparent;
 }
@@ -1654,16 +1673,16 @@
 }
 
 .site-inputs input {
-  height: 38px;
+  height: 36px;
 }
 
 .search-panel .input-row {
-  grid-template-columns: 1fr;
-  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
 }
 
 .analyze-button {
-  height: 44px;
+  height: 40px;
 }
 
 .candidate-list {
@@ -1705,7 +1724,7 @@
 
 .candidate-row > button:first-child,
 .candidate-list > button {
-  min-height: 48px;
+  min-height: 44px;
   padding: 7px 8px;
   background: #fbfcfd;
 }
@@ -1872,7 +1891,7 @@
 
   .candidate-panel {
     max-height: 360px;
-    overflow-y: auto;
+    overflow: hidden;
   }
 
   .dashboard-hero {
@@ -1883,6 +1902,7 @@
   .dashboard-map {
     height: 240px;
     min-height: 240px;
+    max-height: none;
   }
 
   .decision-report-header {
