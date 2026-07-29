@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import AuthNav from './AuthNav';
 import solarAivleLogo from '../assets/solar-aivle-logo.png';
@@ -5,6 +6,8 @@ import solarAivleLogo from '../assets/solar-aivle-logo.png';
 const Header = () => {
   const location = useLocation();
   const isHome = location.pathname === '/';
+  const [communityMenuOpen, setCommunityMenuOpen] = useState(false);
+  const [communityMenuLocked, setCommunityMenuLocked] = useState(false);
 
   const refreshIfCurrent = (target) => (event) => {
     const [pathname, search = ''] = target.split('?');
@@ -22,6 +25,20 @@ const Header = () => {
     }
   };
 
+  const openCommunityMenu = () => {
+    if (!communityMenuLocked) setCommunityMenuOpen(true);
+  };
+
+  const closeCommunityMenu = () => {
+    setCommunityMenuOpen(false);
+    setCommunityMenuLocked(false);
+  };
+
+  const lockCommunityMenuClosed = () => {
+    setCommunityMenuOpen(false);
+    setCommunityMenuLocked(true);
+  };
+
   return (
     <header>
       <div className="header-topbar">
@@ -37,7 +54,12 @@ const Header = () => {
           <span>유휴부지 분석</span>
           {isHome && <><small className="nav-card-description">SolarAivle 서비스 소개</small><span className="nav-hover-panel"><strong>유휴부지 분석</strong><small>태양광 후보지 분석 서비스</small></span></>}
         </Link>
-        <div className="nav-community-item">
+        <div
+          className={`nav-community-item${communityMenuOpen ? ' menu-open' : ''}`}
+          onMouseEnter={openCommunityMenu}
+          onMouseLeave={closeCommunityMenu}
+          onClick={lockCommunityMenuClosed}
+        >
           <Link className="nav-community-link" to="/community/notice" onClick={refreshIfCurrent('/community/notice')}>
             {isHome && <span className="nav-card-icon nav-board-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="5" y="3.5" width="14" height="17" rx="2" /><path d="M8.5 9h7M8.5 13h7M8.5 17h7" /></svg></span>}
             <span>커뮤니티</span>
