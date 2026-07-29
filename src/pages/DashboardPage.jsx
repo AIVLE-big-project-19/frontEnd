@@ -223,7 +223,8 @@ const DashboardPage = () => {
         </nav>
 
         <div className="dashboard-grid">
-          <aside className={`dashboard-panel search-panel ${activeMobilePanel === 'site' ? 'mobile-active' : ''}`}>
+          <div className="dashboard-sidebar">
+            <aside className={`dashboard-panel search-panel ${activeMobilePanel === 'site' ? 'mobile-active' : ''}`}>
             <div className="panel-heading">
               <span className="panel-step">01</span>
               <div><h2>후보지 조건</h2><p>주소와 설치 조건을 입력하세요.</p></div>
@@ -309,40 +310,38 @@ const DashboardPage = () => {
                 ))}
               </div>
             )}
-          </aside>
+            </aside>
 
-          <div className="dashboard-workspace">
             <div className={`dashboard-map ${activeMobilePanel === 'map' ? 'mobile-active' : ''}`}>
               <div className="map-caption">
-                <span>LIVE SITE MAP</span>
+                <span>선택 위치</span>
                 <b>{address || '충청남도 홍성군 홍북읍 충남대로 21'}</b>
-                <small>{coordinates ? '선택 위치가 지도에 표시됩니다' : '샘플 분석 대상 위치'}</small>
               </div>
               {apiKey
                 ? <MapView apiKey={apiKey} setMap={setMap} selectedCoordinates={coordinates} />
                 : <div className="map-loading">지도를 불러오는 중...</div>}
             </div>
+          </div>
 
-            <div className={`dashboard-report-pane ${activeMobilePanel === 'result' ? 'mobile-active' : ''}`}>
-              <AnalysisReportDashboard
-                report={reportViewModel}
-                onDownload={downloadReport}
-              />
+          <div className={`dashboard-report-pane ${activeMobilePanel === 'result' ? 'mobile-active' : ''}`}>
+            <AnalysisReportDashboard
+              report={reportViewModel}
+              onDownload={downloadReport}
+            />
 
-              {compareSites.length > 0 && (
-                <section className="comparison-panel">
-                  <div className="comparison-heading"><h3>후보지 비교</h3><button type="button" onClick={() => setCompareSites([])}>초기화</button></div>
-                  <div className="comparison-list">
-                    {compareSites.map((site) => (
-                      <article key={site.id}>
-                        <strong>{site.suitabilityScore}점</strong><span>{site.address}</span>
-                        <small>연 수익 {formatNumber(site.estimatedAnnualRevenue, '원')}</small>
-                      </article>
-                    ))}
-                  </div>
-                </section>
-              )}
-            </div>
+            {compareSites.length > 0 && (
+              <section className="comparison-panel">
+                <div className="comparison-heading"><h3>후보지 비교</h3><button type="button" onClick={() => setCompareSites([])}>초기화</button></div>
+                <div className="comparison-list">
+                  {compareSites.map((site) => (
+                    <article key={site.id}>
+                      <strong>{site.suitabilityScore}점</strong><span>{site.address}</span>
+                      <small>연 수익 {formatNumber(site.estimatedAnnualRevenue, '원')}</small>
+                    </article>
+                  ))}
+                </div>
+              </section>
+            )}
           </div>
         </div>
       </section>
