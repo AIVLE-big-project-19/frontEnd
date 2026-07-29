@@ -141,21 +141,22 @@ const DashboardPage = () => {
     if (option) setCandidateSortDirection(option.direction);
   };
 
-  const downloadReport = async () => {
+  const downloadReport = async (targetType) => {
     if (!analysis) return;
     try {
-      const response = await fetch('/api/pdf/generate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ address: analysis.address }) });
+      const response = await fetch(`/api/pdf/generate/sample?type=${targetType}`);
       if (!response.ok) throw new Error();
       const url = URL.createObjectURL(await response.blob());
       const link = document.createElement('a');
       link.href = url;
-      link.download = 'SolarAivle_Site_Analysis.pdf';
+      link.download = `SolarAivle_Sample_${targetType}.pdf`;
       link.click();
       URL.revokeObjectURL(url);
     } catch {
       setStatus({ type: 'error', text: '보고서 생성에 실패했습니다. 잠시 후 다시 시도해 주세요.' });
     }
   };
+
 
   const gradeClass = analysis?.grade === '적합' ? 'good' : analysis?.grade === '검토 필요' ? 'review' : 'bad';
 
@@ -182,7 +183,7 @@ const DashboardPage = () => {
       <div className={`dashboard-map ${activeMobilePanel === 'map' ? 'mobile-active' : ''}`}><div className="map-caption"><span>LIVE MAP</span><b>{address || '후보지를 선택하세요'}</b><small>{coordinates ? '선택 위치가 지도에 표시됩니다' : '검색 후 위치를 확인할 수 있습니다'}</small></div>{apiKey ? <MapView apiKey={apiKey} setMap={setMap} selectedCoordinates={coordinates} /> : <div className="map-loading">지도를 불러오는 중...</div>}</div>
        <aside className={`dashboard-panel analysis-panel ${activeMobilePanel === 'result' ? 'mobile-active' : ''}`}>
          <div className="panel-heading"><span className="panel-step">02</span><div className="panel-heading-copy"><h2>분석 결과</h2><p>적합도와 예상 수익을 확인하세요.</p></div></div>
-        {!analysis ? <div className="empty-analysis"><strong>아직 분석 결과가 없어요.</strong><span>후보지를 선택한 후 분석을 실행하면 수익성과 적합도가 이곳에 표시됩니다.</span><button type="button" onClick={() => setActiveMobilePanel('site')}>후보지 선택하기</button></div> : <><div className={`grade-card grade-${gradeClass}`}><div><span>태양광 설치 적합도</span><b>{analysis.grade}</b></div><strong>{analysis.suitabilityScore}<small>점</small></strong><div className="score-bar"><i style={{ width: `${analysis.suitabilityScore}%` }} /></div></div><dl className="score-list"><div><dt>일사량</dt><dd>{analysis.irradiationScore}점</dd></div><div><dt>지형</dt><dd>{analysis.terrainScore}점</dd></div><div><dt>접근성</dt><dd>{analysis.accessScore}점</dd></div></dl><div className="simulation-heading"><span className="panel-step">03</span><div><h3>수익성 시뮬레이션</h3><p>현재 입력 조건 기준의 예상값입니다.</p></div></div><dl className="metric-list"><div><dt>연 수익</dt><dd>{formatNumber(analysis.estimatedAnnualRevenue, '원')}</dd></div><div><dt>투자 회수기간</dt><dd>{formatNumber(analysis.paybackPeriodYears, '년')}</dd></div><div><dt>연간 발전량</dt><dd>{formatNumber(analysis.annualGenerationKwh, ' kWh')}</dd></div><div><dt>설치비</dt><dd>{formatNumber(analysis.estimatedInstallationCost, '원')}</dd></div></dl><button type="button" className="report-button" onClick={downloadReport}>분석 보고서 다운로드 <span>↓</span></button></>}
+        {!analysis ? <div className="empty-analysis"><strong>아직 분석 결과가 없어요.</strong><span>후보지를 선택한 후 분석을 실행하면 수익성과 적합도가 이곳에 표시됩니다.</span><button type="button" onClick={() => setActiveMobilePanel('site')}>후보지 선택하기</button></div> : <><div className={`grade-card grade-${gradeClass}`}><div><span>태양광 설치 적합도</span><b>{analysis.grade}</b></div><strong>{analysis.suitabilityScore}<small>점</small></strong><div className="score-bar"><i style={{ width: `${analysis.suitabilityScore}%` }} /></div></div><dl className="score-list"><div><dt>일사량</dt><dd>{analysis.irradiationScore}점</dd></div><div><dt>지형</dt><dd>{analysis.terrainScore}점</dd></div><div><dt>접근성</dt><dd>{analysis.accessScore}점</dd></div></dl><div className="simulation-heading"><span className="panel-step">03</span><div><h3>수익성 시뮬레이션</h3><p>현재 입력 조건 기준의 예상값입니다.</p></div></div><dl className="metric-list"><div><dt>연 수익</dt><dd>{formatNumber(analysis.estimatedAnnualRevenue, '원')}</dd></div><div><dt>투자 회수기간</dt><dd>{formatNumber(analysis.paybackPeriodYears, '년')}</dd></div><div><dt>연간 발전량</dt><dd>{formatNumber(analysis.annualGenerationKwh, ' kWh')}</dd></div><div><dt>설치비</dt><dd>{formatNumber(analysis.estimatedInstallationCost, '원')}</dd></div></dl><div className="analysis-report-actions report-actions-bottom"><button type="button" onClick={() => downloadReport('LAND')} disabled={!analysis}>토지형 분석 보고서</button><button type="button" onClick={() => downloadReport('ROOF')} disabled={!analysis}>옥상형 분석 보고서</button></div></>}
         {compareSites.length > 0 && <section className="comparison-panel"><div className="comparison-heading"><h3>후보지 비교</h3><button type="button" onClick={() => setCompareSites([])}>초기화</button></div><div className="comparison-list">{compareSites.map((site) => <article key={site.id}><strong>{site.suitabilityScore}점</strong><span>{site.address}</span><small>연 수익 {formatNumber(site.estimatedAnnualRevenue, '원')}</small></article>)}</div></section>}
       </aside>
     </div>
