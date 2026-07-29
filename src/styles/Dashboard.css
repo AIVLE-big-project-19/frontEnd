@@ -826,22 +826,25 @@
 .dashboard-grid {
   grid-template-columns: 288px minmax(0, 1fr);
   max-width: 1380px;
+  align-items: stretch;
   gap: 16px;
 }
 
 .dashboard-sidebar {
-  position: sticky;
-  top: 12px;
+  position: relative;
   display: grid;
+  grid-template-rows: auto minmax(0, 1fr) 176px;
   min-width: 0;
-  align-self: start;
+  min-height: 0;
+  align-self: stretch;
   gap: 12px;
 }
 
 .search-panel {
   position: static;
-  max-height: calc(100vh - 212px);
+  max-height: none;
   padding: 18px;
+  overflow: visible;
   border-radius: 10px;
   box-shadow: none;
 }
@@ -1464,6 +1467,7 @@
 
 /* Dashboard surface polish */
 .search-panel,
+.candidate-panel,
 .dashboard-map,
 .decision-summary,
 .generation-chart-card,
@@ -1485,6 +1489,38 @@
 .search-panel {
   scrollbar-color: #cbd5dd transparent;
   scrollbar-width: thin;
+}
+
+.candidate-panel {
+  min-height: 0;
+  padding: 18px;
+  overflow-y: auto;
+  scrollbar-color: #cbd5dd transparent;
+  scrollbar-width: thin;
+}
+
+.candidate-panel > .list-title {
+  margin-bottom: 12px;
+}
+
+.candidate-panel > .candidate-list {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+}
+
+.candidate-panel .history-list {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid #e7ebef;
+}
+
+.candidate-empty {
+  margin: 18px 0 0;
+  color: var(--slate-500);
+  font-size: 11px;
+  line-height: 1.5;
+  text-align: center;
 }
 
 .search-panel .panel-heading {
@@ -1576,6 +1612,11 @@
 
 .site-inputs input {
   height: 38px;
+}
+
+.search-panel .input-row {
+  grid-template-columns: 1fr;
+  gap: 10px;
 }
 
 .analyze-button {
@@ -1780,6 +1821,15 @@
 
   .search-panel {
     max-height: none;
+  }
+
+  .search-panel.mobile-active {
+    margin-bottom: 12px;
+  }
+
+  .candidate-panel {
+    max-height: 360px;
+    overflow-y: auto;
   }
 
   .dashboard-hero {

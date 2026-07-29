@@ -271,10 +271,15 @@ const DashboardPage = () => {
               </div>
               <button type="button" className="analyze-button" onClick={handleAnalyze} disabled={loading}>{loading ? '분석 중...' : 'AI 분석 실행'}</button>
               </div>
+            </aside>
 
+            <section className={`dashboard-panel candidate-panel ${activeMobilePanel === 'site' ? 'mobile-active' : ''}`} aria-labelledby="candidate-panel-title">
+              <div className="list-title">
+                <h3 id="candidate-panel-title">분석 후보지</h3>
+                <span>{compareSites.length}/3 비교 선택</span>
+              </div>
               {demoSites.length > 0 && (
                 <div className="candidate-list">
-                <div className="list-title"><h3>분석 후보지</h3><span>{compareSites.length}/3 비교 선택</span></div>
                 <div className="candidate-type-filter">
                   <label htmlFor="candidate-type-filter">부지 유형</label>
                   <select id="candidate-type-filter" value={candidateTypeFilter} onChange={(event) => setCandidateTypeFilter(event.target.value)}>
@@ -302,6 +307,10 @@ const DashboardPage = () => {
                 </div>
               )}
 
+              {demoSites.length === 0 && history.length === 0 && (
+                <p className="candidate-empty">등록된 분석 후보지가 없습니다.</p>
+              )}
+
               {history.length > 0 && (
                 <div className="candidate-list history-list">
                 <div className="list-title"><h3>내 최근 분석</h3></div>
@@ -313,7 +322,7 @@ const DashboardPage = () => {
                 ))}
                 </div>
               )}
-            </aside>
+            </section>
 
             <div className={`dashboard-map ${activeMobilePanel === 'map' ? 'mobile-active' : ''}`}>
               <div className="map-caption">
