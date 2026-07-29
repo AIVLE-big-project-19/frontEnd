@@ -32,10 +32,10 @@ const Header = () => {
         <AuthNav />
       </div>
       <nav className="nav-menu">
-        <Link to="/" onClick={refreshIfCurrent('/')}>
-          {isHome && <span className="nav-card-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m3 10.8 9-7 9 7" /><path d="M5.5 9.5V21h13V9.5M9 21v-6h6v6" /></svg></span>}
-          <span>홈</span>
-          {isHome && <><small className="nav-card-description">SolarAivle 서비스 소개</small><span className="nav-hover-panel"><strong>홈</strong><small>태양광 후보지 분석 서비스</small></span></>}
+        <Link to="/analysis" onClick={refreshIfCurrent('/analysis')}>
+          {isHome && <span className="nav-card-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5" /><path d="M15.2 15.2 21 21" /><path d="M7.5 11.5 9.5 9l1.5 1.8L13.5 7.5" /></svg></span>}
+          <span>유휴부지 분석</span>
+          {isHome && <><small className="nav-card-description">SolarAivle 서비스 소개</small><span className="nav-hover-panel"><strong>유휴부지 분석</strong><small>태양광 후보지 분석 서비스</small></span></>}
         </Link>
         <Link to="/boards?category=공지사항" onClick={refreshIfCurrent('/boards?category=공지사항')}>
           {isHome && <span className="nav-card-icon nav-board-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="5" y="3.5" width="14" height="17" rx="2" /><path d="M8.5 9h7M8.5 13h7M8.5 17h7" /></svg></span>}
