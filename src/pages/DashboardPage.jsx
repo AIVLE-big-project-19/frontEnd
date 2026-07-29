@@ -223,7 +223,7 @@ const DashboardPage = () => {
       <section className="dashboard-page">
         <div className="dashboard-hero">
           <div>
-            <p className="eyebrow">SOLAR SPATIAL INTELLIGENCE</p>
+            <p className="eyebrow">태양광 후보지 사업성 분석</p>
             <h1>통합 대시보드</h1>
             <span>
               {hasTransferredCandidates
