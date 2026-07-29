@@ -31,11 +31,13 @@ test('향후 중첩 API 응답을 대시보드 표시 모델로 변환한다', (
   expect(report.visuals.monthlyGeneration[11].value).toBe(11100);
 });
 
-test('API 값이 없으면 샘플 경제성 지표를 안전하게 사용한다', () => {
+test('API 값이 없으면 샘플 수치를 만들지 않고 빈 값으로 유지한다', () => {
   const report = buildAnalysisReportViewModel({});
 
-  expect(report.source).toBe('sample');
-  expect(report.economics.roiPercent).toBe(12.4);
-  expect(report.economics.annualRevenue).toBe(24000000);
-  expect(report.visuals.monthlyGeneration.reduce((sum, item) => sum + item.value, 0)).toBeCloseTo(135000, -1);
+  expect(report.source).toBe('empty');
+  expect(report.economics.roiPercent).toBeNull();
+  expect(report.economics.annualRevenue).toBeNull();
+  expect(report.visuals.monthlyGeneration.reduce((sum, item) => sum + item.value, 0)).toBe(0);
+  expect(report.risks).toEqual([]);
+  expect(report.actions).toEqual([]);
 });
