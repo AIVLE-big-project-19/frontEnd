@@ -216,15 +216,21 @@ function MyPage() {
               )}
             </section>
 
-            <section className="mypage-card">
-              <div className="mypage-card-title"><h2>회원탈퇴</h2></div>
-              <p className="mypage-hint">탈퇴 시 모든 개인정보가 즉시 삭제되며 되돌릴 수 없습니다.</p>
+            <section className="mypage-card mypage-withdrawal">
+              <div className="mypage-card-title">
+                <h2>회원 탈퇴</h2>
+                <span className="mypage-withdrawal-label">계정 관리</span>
+              </div>
+              <div className="mypage-withdrawal-content">
+                <strong>서비스 이용을 종료하시겠어요?</strong>
+                <p>탈퇴하면 계정과 개인정보가 삭제되며, 삭제된 정보는 복구할 수 없습니다.</p>
+              </div>
               <button
                 type="button"
                 className="mypage-danger-button"
                 onClick={() => setShowWithdrawalModal(true)}
               >
-                회원탈퇴
+                회원 탈퇴
               </button>
             </section>
             </div>

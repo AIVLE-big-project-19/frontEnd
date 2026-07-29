@@ -109,8 +109,8 @@ test('회원탈퇴 버튼 클릭 시 확인 모달이 뜬다', async () => {
   getMyConsents.mockResolvedValue(baseConsents);
   renderMyPage();
 
-  await waitFor(() => expect(screen.getByRole('button', { name: '회원탈퇴' })).toBeInTheDocument());
-  await userEvent.click(screen.getByRole('button', { name: '회원탈퇴' }));
+  await waitFor(() => expect(screen.getByRole('button', { name: '회원 탈퇴' })).toBeInTheDocument());
+  await userEvent.click(screen.getByRole('button', { name: '회원 탈퇴' }));
 
   expect(screen.getByPlaceholderText('현재 비밀번호')).toBeInTheDocument();
 });
@@ -120,8 +120,8 @@ test('구글 계정이면 회원탈퇴 모달에 비밀번호 입력창이 없�
   getMyConsents.mockResolvedValue(baseConsents);
   renderMyPage();
 
-  await waitFor(() => expect(screen.getByRole('button', { name: '회원탈퇴' })).toBeInTheDocument());
-  await userEvent.click(screen.getByRole('button', { name: '회원탈퇴' }));
+  await waitFor(() => expect(screen.getByRole('button', { name: '회원 탈퇴' })).toBeInTheDocument());
+  await userEvent.click(screen.getByRole('button', { name: '회원 탈퇴' }));
 
   expect(screen.queryByPlaceholderText('현재 비밀번호')).not.toBeInTheDocument();
   expect(screen.getByText('정말 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없습니다.')).toBeInTheDocument();
