@@ -23,6 +23,7 @@ const Header = () => {
   };
 
   return (
+<<<<<<< HEAD
     <header>
       <div className="header-topbar">
         <Link className="logo-link" to="/" aria-label="SolarAivle 홈으로 이동" onClick={refreshIfCurrent('/')}>
@@ -54,6 +55,20 @@ const Header = () => {
         </a>
       </nav>
     </header>
+=======
+  <header>
+    <Link className="logo-link" to="/" aria-label="SolarAivle 홈으로 이동" onClick={refreshIfCurrent('/')}>
+      <img className="logo-image" src={solarAivleLogo} alt="SolarAivle" />
+    </Link>
+    <nav className="nav-menu">
+      <Link to="/" onClick={refreshIfCurrent('/')}>홈</Link>
+      <Link to="/boards?category=공지사항" onClick={refreshIfCurrent('/boards?category=공지사항')}>게시판</Link>
+      <Link to="/dashboard" onClick={refreshIfCurrent('/dashboard')}>통합 대시보드</Link>
+      <a href="/vision-ai" onClick={refreshHashIfCurrent('/vision-ai')}>Vision AI 분석</a>
+    </nav>
+    <AuthNav />
+  </header>
+>>>>>>> 18664f9 (feature: Vision ai / ML 연동, 유휴부지 Import)
   );
 };
 
