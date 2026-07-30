@@ -7,6 +7,7 @@ import ChatBot from '../components/ChatBot';
 import '../styles/AnalysisPage.css';
 import { transform } from 'ol/proj';
 import { searchIdleLands, downloadIdleLandReport } from '../api/idleLandApi';
+import { saveDashboardSelections } from '../utils/dashboardSelection';
 
 const GRADE_CLASS = { A: 'grade-a', B: 'grade-b', C: 'grade-c' };
 
@@ -22,7 +23,11 @@ const AnalysisPage = () => {
   const [idleLandSearched, setIdleLandSearched] = useState(false);
   const [idleLandError, setIdleLandError] = useState('');
   const [downloadingId, setDownloadingId] = useState(null);
+  const [selectedIdleLandIds, setSelectedIdleLandIds] = useState([]);
   const [selectedCoordinates, setSelectedCoordinates] = useState(null);
+  const [selectedAddress, setSelectedAddress] = useState(null);
+  const [selectedParcelGeometry, setSelectedParcelGeometry] = useState(null);
+  const [parcelFeatures, setParcelFeatures] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -31,6 +36,55 @@ const AnalysisPage = () => {
       .then((data) => setApiKey(data.apiKey))
       .catch((err) => console.error("키 로딩 실패", err));
   }, []);
+
+  useEffect(() => {
+    fetch('/data/parcelPolygons.geojson')
+      .then((res) => res.json())
+      .then((data) => setParcelFeatures(data.features || []))
+      .catch((err) => console.error("필지 경계 데이터 로딩 실패", err));
+  }, []);
+
+  // 레이캐스팅으로 점이 하나의 폴리곤 링 내부에 있는지 판정 (표준 point-in-polygon 알고리즘)
+  const isPointInRing = (lon, lat, ring) => {
+    let inside = false;
+    for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+      const [xi, yi] = ring[i];
+      const [xj, yj] = ring[j];
+      const intersect = yi > lat !== yj > lat && lon < ((xj - xi) * (lat - yi)) / (yj - yi) + xi;
+      if (intersect) inside = !inside;
+    }
+    return inside;
+  };
+
+  // MultiPolygon(구멍 포함) 내부에 점이 있는지 판정: 외곽선 안쪽 && 어떤 구멍에도 속하지 않아야 함
+  const isPointInMultiPolygon = (lon, lat, multiPolygonCoords) =>
+    multiPolygonCoords.some(([outerRing, ...holes]) => {
+      if (!isPointInRing(lon, lat, outerRing)) return false;
+      return !holes.some((hole) => isPointInRing(lon, lat, hole));
+    });
+
+  // 검색 결과 좌표와 매칭되는 필지 폴리곤을 찾는다.
+  // 주소 문자열은 인코딩이 깨져 있어 신뢰할 수 없으므로 좌표로 매칭한다.
+  // "가장 가까운 필지"로 대체하는 방식은 밀집 지역에서 엉뚱한 옆 필지(도로/구거 등)를
+  // 잘못 그리는 원인이 되므로 쓰지 않고, 점이 실제로 폴리곤 내부에 있을 때만 매칭한다.
+  // 로컬 GeoJSON에는 지적도 조회에 성공한 후보지만 들어있으므로, 이 파일에 없는
+  // 주소를 클릭하면 매칭되는 필지가 없어 아무 것도 그려지지 않는 것이 정상 동작이다.
+  const findParcelGeometry = (lon, lat) => {
+    const numLon = Number(lon);
+    const numLat = Number(lat);
+    if (!Number.isFinite(numLon) || !Number.isFinite(numLat) || parcelFeatures.length === 0) return null;
+
+    const matched = parcelFeatures.find((feature) => {
+      const coords = feature.geometry?.coordinates;
+      return coords && isPointInMultiPolygon(numLon, numLat, coords);
+    });
+
+    if (!matched) {
+      console.info('[parcel] 이 좌표를 포함하는 필지 경계 데이터가 없습니다:', numLon, numLat);
+      return null;
+    }
+    return matched.geometry;
+  };
 
   useEffect(() => {
     if (map && apiKey) {
@@ -120,6 +174,7 @@ const AnalysisPage = () => {
     try {
       const data = await searchIdleLands(keyword);
       setIdleLandResults(data || []);
+      setSelectedIdleLandIds([]);
     } catch (error) {
       setIdleLandResults([]);
       setIdleLandError(error.response?.data?.message || '유휴부지 검색 중 오류가 발생했습니다.');
@@ -131,6 +186,23 @@ const AnalysisPage = () => {
   const handleIdleLandItemClick = (item) => {
     if (item.longitude == null || item.latitude == null) return;
     setSelectedCoordinates(transform([item.longitude, item.latitude], 'EPSG:4326', 'EPSG:3857'));
+    setSelectedAddress(item.address || null);
+    // 클릭한 주소와 매칭되는 필지가 있으면 그 폴리곤만 그리고, 없으면 이전에 그려진 선을 지운다.
+    setSelectedParcelGeometry(findParcelGeometry(item.longitude, item.latitude));
+  };
+
+  const handleIdleLandSelection = (itemId) => {
+    setSelectedIdleLandIds((current) => (
+      current.includes(itemId)
+        ? current.filter((id) => id !== itemId)
+        : [...current, itemId]
+    ));
+  };
+
+  const handleDashboardAnalysis = () => {
+    const selectedCandidates = idleLandResults.filter((item) => selectedIdleLandIds.includes(item.id));
+    const candidates = saveDashboardSelections(selectedCandidates);
+    navigate('/dashboard', { state: { selectedCandidates: candidates } });
   };
 
   const handleIdleLandReportDownload = async (item) => {
@@ -171,7 +243,19 @@ const AnalysisPage = () => {
                 ) : (
                   <ul className="idle-land-list">
                     {idleLandResults.map((item) => (
-                      <li key={item.id} className="idle-land-item">
+                      <li
+                        key={item.id}
+                        className={`idle-land-item ${selectedIdleLandIds.includes(item.id) ? 'selected' : ''}`}
+                      >
+                        <label className="idle-land-select">
+                          <input
+                            type="checkbox"
+                            checked={selectedIdleLandIds.includes(item.id)}
+                            onChange={() => handleIdleLandSelection(item.id)}
+                            aria-label={`${item.address} 대시보드 분석 선택`}
+                          />
+                          <span aria-hidden="true" />
+                        </label>
                         <div
                           className="idle-land-item-info"
                           role="button"
@@ -203,6 +287,19 @@ const AnalysisPage = () => {
                     ))}
                   </ul>
                 )}
+                {idleLandResults.length > 0 && !idleLandLoading && !idleLandError && (
+                  <div className="idle-land-dashboard-actions">
+                    <span>{selectedIdleLandIds.length}개 후보지 선택</span>
+                    <button
+                      type="button"
+                      className="idle-land-dashboard-btn"
+                      disabled={selectedIdleLandIds.length === 0}
+                      onClick={handleDashboardAnalysis}
+                    >
+                      대시보드 분석
+                    </button>
+                  </div>
+                )}
               </div>
             )}
 
@@ -213,7 +310,7 @@ const AnalysisPage = () => {
           </div>
 
           <div className="map-container">
-            <MapView apiKey={apiKey} setMap={setMap} selectedCoordinates={selectedCoordinates} />
+            <MapView apiKey={apiKey} setMap={setMap} selectedCoordinates={selectedCoordinates} selectedAddress={selectedAddress} parcelGeometry={selectedParcelGeometry} />
 
             <div className="address-display">
               {currentAddress}

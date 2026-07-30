@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { createBoard } from "../api/boardApi";
 import { useAuth } from "../context/AuthContext";
 import { BOARD_CATEGORIES, isAdminOnlyCategory } from "../constants/boardCategory";
@@ -11,13 +11,17 @@ function BoardWritePage() {
     const navigate = useNavigate();
     const { isLoggedIn, loginId, isAdmin, isInitializing } = useAuth();
 
-    const availableCategories = isAdmin
-        ? BOARD_CATEGORIES
-        : BOARD_CATEGORIES.filter((item) => !isAdminOnlyCategory(item));
+    const [searchParams] = useSearchParams();
+    const requestedCategory = searchParams.get("category");
+    const fallbackCategory = isAdmin
+        ? BOARD_CATEGORIES[0]
+        : BOARD_CATEGORIES.find((item) => !isAdminOnlyCategory(item));
+    const category = BOARD_CATEGORIES.includes(requestedCategory)
+        ? requestedCategory
+        : fallbackCategory ?? "";
 
     const [title, setTitle] = useState("");
     const [content, setContent] = useState("");
-    const [category, setCategory] = useState("자유게시판");
     const [writerName, setWriterName] = useState(loginId ?? "");
     const [files, setFiles] = useState([]);
     const [previews, setPreviews] = useState([]);
@@ -43,13 +47,15 @@ function BoardWritePage() {
 
     const selectFiles = (event) => {
         const selected = Array.from(event.target.files ?? []);
-        const totalSize = selected.reduce((sum, file) => sum + file.size, 0);
-        if (selected.length > 10 || totalSize > 50 * 1024 * 1024 || selected.some((file) => file.size > 10 * 1024 * 1024)) {
+        const nextFiles = [...files, ...selected];
+        const totalSize = nextFiles.reduce((sum, file) => sum + file.size, 0);
+        if (nextFiles.length > 10 || totalSize > 50 * 1024 * 1024 || selected.some((file) => file.size > 10 * 1024 * 1024)) {
             alert("첨부 파일은 최대 10개, 파일당 10MB, 총 50MB까지 가능합니다.");
             event.target.value = "";
             return;
         }
-        setFiles(selected);
+        setFiles(nextFiles);
+        event.target.value = "";
     };
     const removeSelectedFile = (index) => {
         if (window.confirm("선택한 첨부 파일을 제거하시겠습니까?")) {
@@ -77,7 +83,7 @@ function BoardWritePage() {
         }
 
         if (!category.trim()) {
-            alert("카테고리를 선택해주세요.");
+            alert("게시글 카테고리를 확인할 수 없습니다.");
             return;
         }
 
@@ -156,33 +162,13 @@ function BoardWritePage() {
                         />
                     </div>
 
-                    <div className="board-form-meta">
-                        <div className="board-form-group">
-                            <label>작성자</label>
-                            <input
-                                className="board-input readonly"
-                                value={writerName}
-                                readOnly
-                            />
-                        </div>
-
-                        <div className="board-form-group">
-                            <label>카테고리</label>
-                            <select
-                                className="board-input"
-                                value={category}
-                                onChange={(e) => setCategory(e.target.value)}
-                            >
-                                {availableCategories.map((item) => (
-                                    <option key={item} value={item}>
-                                        {item}
-                                    </option>
-                                ))}
-                            </select>
-                            {!isAdmin && (
-                                <p className="board-form-help">공지사항과 FAQ는 관리자 계정에서만 작성할 수 있습니다.</p>
-                            )}
-                        </div>
+                    <div className="board-form-group">
+                        <label>작성자</label>
+                        <input
+                            className="board-input readonly"
+                            value={writerName}
+                            readOnly
+                        />
                     </div>
 
                     <div className="board-form-group">

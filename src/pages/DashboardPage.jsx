@@ -1,155 +1,216 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useLocation } from 'react-router-dom';
+import { fromLonLat } from 'ol/proj';
 import Layout from '../components/Layout';
 import MapView from '../components/MapView';
-import { fetchMapSearch } from '../api/mapApi';
-import { createSiteAnalysis, fetchDemoAnalyses, fetchMyAnalysisHistory } from '../api/dashboardApi';
-import { SITE_SORT_OPTIONS, sortSiteAnalyses } from '../utils/siteAnalysisSort';
+import AnalysisReportDashboard from '../components/AnalysisReportDashboard';
+import {
+  downloadDashboardCandidateReport,
+  fetchDashboardCandidateAnalysis,
+  fetchDashboardCandidatesByRegion,
+} from '../api/dashboardApi';
+import { KOREA_REGIONS, SIDO_LIST } from '../data/koreaRegions';
+import { buildAnalysisReportViewModel } from '../utils/analysisReportModel';
+import { loadDashboardSelections, normalizeDashboardSelections } from '../utils/dashboardSelection';
 import '../styles/Dashboard.css';
 
-const formatNumber = (value, suffix = '') => value === undefined || value === null
-  ? '-' : `${Number(value).toLocaleString('ko-KR', { maximumFractionDigits: 1 })}${suffix}`;
+const PAGE_SIZE = 20;
+
+const formatScore = (value) => (
+  value == null ? '-' : Number(value).toLocaleString('ko-KR', { maximumFractionDigits: 1 })
+);
 
 const DashboardPage = () => {
+  const location = useLocation();
+  const transferredCandidates = useMemo(() => {
+    const routed = normalizeDashboardSelections(location.state?.selectedCandidates);
+    return routed.length > 0 ? routed : loadDashboardSelections();
+  }, [location.state]);
+  const hasTransferredCandidates = transferredCandidates.length > 0;
   const [apiKey, setApiKey] = useState(null);
-  const [map, setMap] = useState(null);
-  const [keyword, setKeyword] = useState('');
-  const [searchResults, setSearchResults] = useState([]);
-  const [address, setAddress] = useState('');
+  const [, setMap] = useState(null);
+  const [selectedSido, setSelectedSido] = useState('');
+  const [selectedSigungu, setSelectedSigungu] = useState('');
+  const [selectedAssetType, setSelectedAssetType] = useState('ALL');
+  const [candidatePage, setCandidatePage] = useState(() => (
+    hasTransferredCandidates
+      ? {
+        content: transferredCandidates,
+        totalElements: transferredCandidates.length,
+      }
+      : null
+  ));
+  const [currentPage, setCurrentPage] = useState(0);
+  const [selectedCandidate, setSelectedCandidate] = useState(null);
   const [coordinates, setCoordinates] = useState(null);
-  const [areaM2, setAreaM2] = useState(100);
-  const [capacityKw, setCapacityKw] = useState(10);
-  const [installationPlace, setInstallationPlace] = useState('LAND');
   const [analysis, setAnalysis] = useState(null);
-  const [history, setHistory] = useState([]);
-  const [demoSites, setDemoSites] = useState([]);
-  const [compareSites, setCompareSites] = useState([]);
-  const [candidateTypeFilter, setCandidateTypeFilter] = useState('ALL');
-  const [candidateSort, setCandidateSort] = useState('suitabilityScore');
-  const [candidateSortDirection, setCandidateSortDirection] = useState('desc');
-  const [loading, setLoading] = useState(false);
+  const [candidateLoading, setCandidateLoading] = useState(false);
+  const [analysisLoading, setAnalysisLoading] = useState(false);
   const [activeMobilePanel, setActiveMobilePanel] = useState('site');
-  const [status, setStatus] = useState({ type: 'info', text: '주소를 검색하거나 데모 후보지를 선택해 분석을 시작하세요.' });
+  const [status, setStatus] = useState({
+    type: hasTransferredCandidates ? 'success' : 'info',
+    text: hasTransferredCandidates
+      ? `유휴부지 분석에서 선택한 후보지 ${transferredCandidates.length}건을 불러왔습니다.`
+      : '시/도와 시/군/구를 선택해 분석 후보지를 조회하세요.',
+  });
 
-  const sortedDemoSites = useMemo(
-    () => sortSiteAnalyses(
-      demoSites.filter((site) => candidateTypeFilter === 'ALL' || (site.siteType || 'LAND') === candidateTypeFilter),
-      candidateSort,
-      candidateSortDirection,
-    ),
-    [demoSites, candidateTypeFilter, candidateSort, candidateSortDirection],
+  const filteredCandidates = useMemo(
+    () => (candidatePage?.content || []).filter((candidate) => (
+        selectedAssetType === 'ALL'
+        || (selectedAssetType === 'LAND' && candidate.siteType === 'LAND')
+        || (selectedAssetType === 'BUILDING' && candidate.siteType === 'ROOF')
+      )),
+    [candidatePage, selectedAssetType],
+  );
+  const totalPages = Math.ceil(filteredCandidates.length / PAGE_SIZE);
+  const candidates = filteredCandidates.slice(
+    currentPage * PAGE_SIZE,
+    (currentPage + 1) * PAGE_SIZE,
+  );
+  const reportViewModel = useMemo(
+    () => buildAnalysisReportViewModel({ analysis }),
+    [analysis],
   );
 
   useEffect(() => {
-    fetch('/api/vworld-key').then((response) => response.json()).then((data) => setApiKey(data.apiKey))
-      .catch(() => setStatus({ type: 'error', text: '지도 정보를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.' }));
+    fetch('/api/vworld-key')
+      .then((response) => response.json())
+      .then((data) => setApiKey(data.apiKey))
+      .catch(() => setStatus({
+        type: 'error',
+        text: '지도 정보를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.',
+      }));
   }, []);
 
-  useEffect(() => {
-    fetchDemoAnalyses().then((items) => {
-      setDemoSites(items || []);
-      if (items?.length) {
-        setAnalysis(items[0]);
-        setStatus({ type: 'success', text: '데모 후보지 결과를 불러왔습니다. 목록에서 다른 후보지를 선택하거나 비교해 보세요.' });
-      }
-    }).catch(() => setStatus({ type: 'error', text: '데모 후보지 정보를 불러오지 못했습니다.' }));
-  }, []);
-
-  const applySite = (site) => {
-    setAnalysis(site);
-    setAddress(site.address);
-    setAreaM2(site.areaM2);
-    setCapacityKw(site.capacityKw);
-    setInstallationPlace(site.siteType || 'LAND');
-    setCoordinates(site.longitude && site.latitude ? [site.longitude, site.latitude] : null);
-    setActiveMobilePanel('result');
-    setStatus({ type: 'success', text: '후보지를 선택했습니다. 지도와 분석 결과를 확인해 보세요.' });
+  const resetCandidateSelection = () => {
+    setCandidatePage(null);
+    setCurrentPage(0);
+    setSelectedCandidate(null);
+    setCoordinates(null);
+    setAnalysis(null);
   };
 
-  const handleSearch = async (event) => {
-    event.preventDefault();
-    if (!keyword.trim()) return;
+  const handleSidoChange = (event) => {
+    setSelectedSido(event.target.value);
+    setSelectedSigungu('');
+    resetCandidateSelection();
+  };
+
+  const loadCandidates = async () => {
+    if (!selectedSido || !selectedSigungu) {
+      setStatus({ type: 'error', text: '시/도와 시/군/구를 모두 선택해 주세요.' });
+      return;
+    }
+
+    setCandidateLoading(true);
+    setSelectedCandidate(null);
+    setCoordinates(null);
+    setAnalysis(null);
+    setStatus({ type: 'loading', text: '선택 지역의 AI 분석 후보지를 조회하고 있습니다.' });
     try {
-      const data = await fetchMapSearch(keyword.trim());
-      const items = data?.response?.status === 'OK' ? data.response.result.items : [];
-      setSearchResults(items);
-      setStatus({ type: items.length ? 'info' : 'error', text: items.length ? '검색 결과에서 분석할 후보지를 선택하세요.' : '검색 결과가 없습니다. 주소를 다시 확인해 주세요.' });
-    } catch {
-      setStatus({ type: 'error', text: '장소 검색 중 오류가 발생했습니다. 다시 시도해 주세요.' });
+      const result = await fetchDashboardCandidatesByRegion({
+        sido: selectedSido,
+        sigungu: selectedSigungu,
+        page: 0,
+        size: 1_000,
+      });
+      setCandidatePage(result);
+      setCurrentPage(0);
+      setStatus({
+        type: result.totalElements > 0 ? 'success' : 'info',
+        text: result.totalElements > 0
+          ? `${selectedSido} ${selectedSigungu} 후보지 ${result.totalElements}건을 찾았습니다.`
+          : '선택한 지역에 등록된 분석 후보지가 없습니다.',
+      });
+    } catch (error) {
+      setCandidatePage(null);
+      setStatus({
+        type: 'error',
+        text: error.response?.data?.message || '지역 후보지 조회에 실패했습니다.',
+      });
+    } finally {
+      setCandidateLoading(false);
     }
   };
 
-  const selectSearchResult = (item) => {
-    const selectedAddress = item.address?.road || item.address?.parcel || item.title;
-    const point = item.point?.x && item.point?.y ? [Number(item.point.x), Number(item.point.y)] : null;
-    setAddress(selectedAddress);
-    setKeyword(item.title);
-    setCoordinates(point);
-    setSearchResults([]);
-    setActiveMobilePanel('map');
-    if (map && point) {
-      map.getView().setCenter(point);
-      map.getView().setZoom(18);
+  const handleRegionSearch = (event) => {
+    event.preventDefault();
+    loadCandidates();
+  };
+
+  const handleAssetTypeChange = (assetType) => {
+    setSelectedAssetType(assetType);
+    setCurrentPage(0);
+    setSelectedCandidate(null);
+    setCoordinates(null);
+    setAnalysis(null);
+    if (candidatePage) {
+      const count = candidatePage.content.filter((candidate) => (
+        assetType === 'ALL'
+        || (assetType === 'LAND' && candidate.siteType === 'LAND')
+        || (assetType === 'BUILDING' && candidate.siteType === 'ROOF')
+      )).length;
+      setStatus({
+        type: count > 0 ? 'success' : 'info',
+        text: `조회된 후보지에서 ${count}건이 선택한 유형과 일치합니다.`,
+      });
     }
-    setStatus({ type: 'success', text: '후보지를 선택했습니다. 면적과 설치 용량을 확인한 뒤 분석을 실행하세요.' });
+  };
+
+  const analyzeCandidate = async (candidate) => {
+    setAnalysisLoading(true);
+    setStatus({ type: 'loading', text: '선택 후보지의 ML·SHAP 상세 결과를 불러오고 있습니다.' });
+    try {
+      const detail = await fetchDashboardCandidateAnalysis(candidate.id);
+      setAnalysis(detail);
+      setStatus({ type: 'success', text: '실제 API 분석 결과를 대시보드에 표시했습니다.' });
+      setActiveMobilePanel('result');
+    } catch (error) {
+      setStatus({
+        type: 'error',
+        text: error.response?.data?.message || '후보지 상세 분석을 불러오지 못했습니다.',
+      });
+    } finally {
+      setAnalysisLoading(false);
+    }
+  };
+
+  const selectCandidate = (candidate) => {
+    setSelectedCandidate(candidate);
+    setAnalysis(null);
+    setCoordinates(
+      candidate.longitude != null && candidate.latitude != null
+        ? fromLonLat([candidate.longitude, candidate.latitude])
+        : null,
+    );
+    if (hasTransferredCandidates) {
+      analyzeCandidate(candidate);
+    } else {
+      setStatus({
+        type: 'success',
+        text: '후보지를 선택했습니다. 지도 위치를 확인한 뒤 AI 분석 실행을 눌러주세요.',
+      });
+      setActiveMobilePanel('map');
+    }
   };
 
   const handleAnalyze = async () => {
-    if (!address.trim()) {
-      setStatus({ type: 'error', text: '분석할 후보지를 먼저 선택해 주세요.' });
+    if (!selectedCandidate) {
+      setStatus({ type: 'error', text: '분석 후보지를 먼저 선택해 주세요.' });
       return;
     }
-    setLoading(true);
-    setStatus({ type: 'loading', text: '부지 조건을 계산하고 있습니다. 잠시만 기다려 주세요.' });
-    try {
-      const result = await createSiteAnalysis({ address, siteType: installationPlace, latitude: coordinates?.[1], longitude: coordinates?.[0], areaM2: Number(areaM2), capacityKw: Number(capacityKw) });
-      setAnalysis(result);
-      setCoordinates(result.longitude && result.latitude ? [result.longitude, result.latitude] : coordinates);
-      setActiveMobilePanel('result');
-      setStatus({ type: 'success', text: '분석이 완료되었습니다. 예상 수익과 투자 회수기간을 확인해 보세요.' });
-    } catch (error) {
-      setStatus({ type: 'error', text: error.response?.data?.message || '부지 분석에 실패했습니다. 입력값을 확인해 주세요.' });
-    } finally {
-      setLoading(false);
-    }
-  };
 
-  const loadHistory = async () => {
-    try {
-      const items = await fetchMyAnalysisHistory();
-      setHistory(items || []);
-      setStatus({ type: items?.length ? 'success' : 'info', text: items?.length ? '최근 분석 이력을 불러왔습니다.' : '저장된 분석 이력이 없습니다.' });
-    } catch {
-      setStatus({ type: 'error', text: '분석 이력은 로그인한 사용자만 조회할 수 있습니다.' });
-    }
-  };
-
-  const toggleCompare = (site) => {
-    setCompareSites((current) => {
-      if (current.some((item) => item.id === site.id)) return current.filter((item) => item.id !== site.id);
-      if (current.length === 3) {
-        setStatus({ type: 'info', text: '후보지는 최대 3곳까지 비교할 수 있습니다.' });
-        return current;
-      }
-      return [...current, site];
-    });
-  };
-
-  const handleCandidateSortChange = (event) => {
-    const nextSort = event.target.value;
-    setCandidateSort(nextSort);
-    const option = SITE_SORT_OPTIONS.find((item) => item.value === nextSort);
-    if (option) setCandidateSortDirection(option.direction);
+    await analyzeCandidate(selectedCandidate);
   };
 
   const downloadReport = async (targetType) => {
-    if (!analysis) return;
+    if (!selectedCandidate) return;
     try {
-      const response = await fetch(`/api/pdf/generate/sample?type=${targetType}`);
-      if (!response.ok) throw new Error();
-      const url = URL.createObjectURL(await response.blob());
+      const reportBlob = await downloadDashboardCandidateReport(selectedCandidate.id);
+      const url = URL.createObjectURL(reportBlob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `SolarAivle_Sample_${targetType}.pdf`;
+      link.download = `SolarAivle_${selectedCandidate.sourceId || selectedCandidate.id}_${targetType}.pdf`;
       link.click();
       URL.revokeObjectURL(url);
     } catch {
@@ -157,37 +218,170 @@ const DashboardPage = () => {
     }
   };
 
+  return (
+    <Layout>
+      <section className="dashboard-page">
+        <div className="dashboard-hero">
+          <div>
+            <p className="eyebrow">태양광 후보지 사업성 분석</p>
+            <h1>통합 대시보드</h1>
+            <span>
+              {hasTransferredCandidates
+                ? '선택한 후보지를 비교하고 상세 사업성을 확인하세요.'
+                : '지역별 태양광 후보지를 조회하고 AI 분석 결과를 확인하세요.'}
+            </span>
+          </div>
+          <div className="hero-actions">
+            <div className="demo-count">
+              <b>{candidatePage ? filteredCandidates.length : '-'}</b>
+              <span>{hasTransferredCandidates ? '선택 후보지' : '지역 후보지'}</span>
+            </div>
+          </div>
+        </div>
 
-  const gradeClass = analysis?.grade === '적합' ? 'good' : analysis?.grade === '검토 필요' ? 'review' : 'bad';
+        <div className={`dashboard-status status-${status.type}`} role="status" aria-live="polite">
+          <span className="status-dot" />
+          {status.type === 'loading' && <span className="status-spinner" />}
+          {status.text}
+        </div>
 
-  return <Layout><section className="dashboard-page">
-    <header className="dashboard-hero">
-      <div><p className="eyebrow">SOLAR SPATIAL INTELLIGENCE</p><h1>통합 대시보드</h1><span>후보지 탐색부터 발전 수익 예측까지, 한 번에 확인하세요.</span></div>
-      <div className="hero-actions"><div className="demo-count"><b>{demoSites.length || '-'}</b><span>데모 후보지</span></div><button type="button" className="history-button" onClick={loadHistory}>내 분석 이력</button></div>
-    </header>
-    <div className={`dashboard-status status-${status.type}`} role="status" aria-live="polite"><span className="status-dot" />{status.type === 'loading' && <span className="status-spinner" />}{status.text}</div>
-    <nav className="dashboard-mobile-nav" aria-label="대시보드 영역">
-      <button type="button" className={activeMobilePanel === 'site' ? 'active' : ''} onClick={() => setActiveMobilePanel('site')}><span>01</span> 후보지</button>
-      <button type="button" className={activeMobilePanel === 'map' ? 'active' : ''} onClick={() => setActiveMobilePanel('map')}><span>02</span> 지도</button>
-      <button type="button" className={activeMobilePanel === 'result' ? 'active' : ''} onClick={() => setActiveMobilePanel('result')}><span>03</span> 결과{analysis && <i />}</button>
-    </nav>
-    <div className="dashboard-grid">
-       <aside className={`dashboard-panel search-panel ${activeMobilePanel === 'site' ? 'mobile-active' : ''}`}>
-         <div className="panel-heading"><span className="panel-step">01</span><div><h2>후보지 선택</h2><p>주소를 검색하거나 예시 데이터를 선택하세요.</p></div></div>
-        <form onSubmit={handleSearch} className="dashboard-search-form"><input aria-label="주소 또는 장소명" value={keyword} onChange={(event) => setKeyword(event.target.value)} placeholder="주소 또는 장소명 입력" /><button type="submit">검색</button></form>
-        {searchResults.length > 0 && <ul className="dashboard-results">{searchResults.map((item, index) => <li key={`${item.id || item.title}-${index}`}><button type="button" onClick={() => selectSearchResult(item)}><strong>{item.title}</strong><span>{item.address?.road || item.address?.parcel}</span></button></li>)}</ul>}
-        <div className="site-inputs"><div className="installation-place-group"><label>선택 후보지<input value={address} onChange={(event) => setAddress(event.target.value)} placeholder="검색 결과에서 선택" /></label><fieldset className="installation-place-tabs"><legend>설치 장소</legend><div className="installation-place-options" role="group" aria-label="설치 장소 선택"><button type="button" className={installationPlace === 'LAND' ? 'selected' : ''} onClick={() => setInstallationPlace('LAND')} aria-pressed={installationPlace === 'LAND'}><span>토지</span><small>지상 설치</small></button><button type="button" className={installationPlace === 'ROOF' ? 'selected' : ''} onClick={() => setInstallationPlace('ROOF')} aria-pressed={installationPlace === 'ROOF'}><span>지붕/옥상</span><small>건물 상부 설치</small></button></div></fieldset></div><div className="land-info-group"><h3>토지 정보</h3><div className="input-row"><label>부지 면적 (㎡)<input type="number" min="1" value={areaM2} onChange={(event) => setAreaM2(event.target.value)} /></label><label>설치 용량 (kW)<input type="number" min="0.1" step="0.1" value={capacityKw} onChange={(event) => setCapacityKw(event.target.value)} /></label></div></div><button type="button" className="analyze-button" onClick={handleAnalyze} disabled={loading}>{loading ? '분석 중...' : '부지 분석 실행'}</button></div>
-         {demoSites.length > 0 && <div className="candidate-list"><div className="list-title"><h3>데모 후보지</h3><span>{compareSites.length}/3 비교 선택</span></div><div className="candidate-type-filter"><label htmlFor="candidate-type-filter">부지 유형</label><select id="candidate-type-filter" value={candidateTypeFilter} onChange={(event) => setCandidateTypeFilter(event.target.value)}><option value="ALL">전체</option><option value="LAND">토지</option><option value="ROOF">지붕/옥상</option></select></div><div className="candidate-sort-controls"><label htmlFor="candidate-sort">정렬 기준</label><select id="candidate-sort" value={candidateSort} onChange={handleCandidateSortChange}>{SITE_SORT_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select><button type="button" onClick={() => setCandidateSortDirection((direction) => direction === 'asc' ? 'desc' : 'asc')} aria-label="정렬 방향 변경">{candidateSortDirection === 'asc' ? '내림차순' : '오름차순'}</button></div>{sortedDemoSites.map((item) => <div className="candidate-row" key={item.id}><button type="button" className={analysis?.id === item.id ? 'active' : ''} onClick={() => applySite(item)}><span className={`candidate-score ${item.suitabilityScore >= 80 ? 'high' : item.suitabilityScore >= 70 ? 'medium' : ''}`}>{item.suitabilityScore}</span><span className="candidate-address">{item.address}<small>{item.siteType === 'ROOF' ? '지붕/옥상' : '토지'} · {item.grade} · {formatNumber(item.capacityKw, ' kW')}</small></span></button><button type="button" className={`compare-toggle ${compareSites.some((site) => site.id === item.id) ? 'selected' : ''}`} onClick={() => toggleCompare(item)} aria-label={`${item.address} 비교 선택`}>비교</button></div>)}</div>}
-        {history.length > 0 && <div className="candidate-list history-list"><div className="list-title"><h3>내 최근 분석</h3></div>{history.map((item) => <button type="button" key={item.id} onClick={() => applySite(item)}><span className="candidate-score">{item.suitabilityScore}</span><span className="candidate-address">{item.address}<small>{item.grade}</small></span></button>)}</div>}
-      </aside>
-      <div className={`dashboard-map ${activeMobilePanel === 'map' ? 'mobile-active' : ''}`}><div className="map-caption"><span>LIVE MAP</span><b>{address || '후보지를 선택하세요'}</b><small>{coordinates ? '선택 위치가 지도에 표시됩니다' : '검색 후 위치를 확인할 수 있습니다'}</small></div>{apiKey ? <MapView apiKey={apiKey} setMap={setMap} selectedCoordinates={coordinates} /> : <div className="map-loading">지도를 불러오는 중...</div>}</div>
-       <aside className={`dashboard-panel analysis-panel ${activeMobilePanel === 'result' ? 'mobile-active' : ''}`}>
-         <div className="panel-heading"><span className="panel-step">02</span><div className="panel-heading-copy"><h2>분석 결과</h2><p>적합도와 예상 수익을 확인하세요.</p></div></div>
-        {!analysis ? <div className="empty-analysis"><strong>아직 분석 결과가 없어요.</strong><span>후보지를 선택한 후 분석을 실행하면 수익성과 적합도가 이곳에 표시됩니다.</span><button type="button" onClick={() => setActiveMobilePanel('site')}>후보지 선택하기</button></div> : <><div className={`grade-card grade-${gradeClass}`}><div><span>태양광 설치 적합도</span><b>{analysis.grade}</b></div><strong>{analysis.suitabilityScore}<small>점</small></strong><div className="score-bar"><i style={{ width: `${analysis.suitabilityScore}%` }} /></div></div><dl className="score-list"><div><dt>일사량</dt><dd>{analysis.irradiationScore}점</dd></div><div><dt>지형</dt><dd>{analysis.terrainScore}점</dd></div><div><dt>접근성</dt><dd>{analysis.accessScore}점</dd></div></dl><div className="simulation-heading"><span className="panel-step">03</span><div><h3>수익성 시뮬레이션</h3><p>현재 입력 조건 기준의 예상값입니다.</p></div></div><dl className="metric-list"><div><dt>연 수익</dt><dd>{formatNumber(analysis.estimatedAnnualRevenue, '원')}</dd></div><div><dt>투자 회수기간</dt><dd>{formatNumber(analysis.paybackPeriodYears, '년')}</dd></div><div><dt>연간 발전량</dt><dd>{formatNumber(analysis.annualGenerationKwh, ' kWh')}</dd></div><div><dt>설치비</dt><dd>{formatNumber(analysis.estimatedInstallationCost, '원')}</dd></div></dl><div className="analysis-report-actions report-actions-bottom"><button type="button" onClick={() => downloadReport('LAND')} disabled={!analysis}>토지형 분석 보고서</button><button type="button" onClick={() => downloadReport('ROOF')} disabled={!analysis}>옥상형 분석 보고서</button></div></>}
-        {compareSites.length > 0 && <section className="comparison-panel"><div className="comparison-heading"><h3>후보지 비교</h3><button type="button" onClick={() => setCompareSites([])}>초기화</button></div><div className="comparison-list">{compareSites.map((site) => <article key={site.id}><strong>{site.suitabilityScore}점</strong><span>{site.address}</span><small>연 수익 {formatNumber(site.estimatedAnnualRevenue, '원')}</small></article>)}</div></section>}
-      </aside>
-    </div>
-  </section></Layout>;
+        <nav className="dashboard-mobile-nav" aria-label="대시보드 영역">
+          <button type="button" className={activeMobilePanel === 'site' ? 'active' : ''} onClick={() => setActiveMobilePanel('site')}><span>01</span> 지역·후보지</button>
+          <button type="button" className={activeMobilePanel === 'map' ? 'active' : ''} onClick={() => setActiveMobilePanel('map')}><span>02</span> 지도</button>
+          <button type="button" className={activeMobilePanel === 'result' ? 'active' : ''} onClick={() => setActiveMobilePanel('result')}><span>03</span> 분석 결과<i /></button>
+        </nav>
+
+        <div className="dashboard-grid">
+          <div className="dashboard-sidebar">
+            <aside className={`dashboard-panel search-panel ${activeMobilePanel === 'site' ? 'mobile-active' : ''}`}>
+              <div className="panel-heading">
+                <span className="panel-step">01</span>
+                <div>
+                  <h2>{hasTransferredCandidates ? '선택 후보지' : '지역 선택'}</h2>
+                  <p>
+                    {hasTransferredCandidates
+                      ? '유휴부지 분석에서 선택한 후보지를 확인하세요.'
+                      : '분석할 행정구역을 선택하세요.'}
+                  </p>
+                </div>
+              </div>
+
+              {!hasTransferredCandidates && <form onSubmit={handleRegionSearch} className="dashboard-region-form">
+                <label htmlFor="dashboard-sido">
+                  시/도
+                  <select id="dashboard-sido" value={selectedSido} onChange={handleSidoChange}>
+                    <option value="">시/도 선택</option>
+                    {SIDO_LIST.map((sido) => <option key={sido} value={sido}>{sido}</option>)}
+                  </select>
+                </label>
+                <label htmlFor="dashboard-sigungu">
+                  시/군/구
+                  <select
+                    id="dashboard-sigungu"
+                    value={selectedSigungu}
+                    onChange={(event) => {
+                      setSelectedSigungu(event.target.value);
+                      resetCandidateSelection();
+                    }}
+                    disabled={!selectedSido}
+                  >
+                    <option value="">시/군/구 선택</option>
+                    {(KOREA_REGIONS[selectedSido] || []).map((sigungu) => (
+                      <option key={sigungu} value={sigungu}>{sigungu}</option>
+                    ))}
+                  </select>
+                </label>
+                <button type="submit" className="analyze-button" disabled={candidateLoading || !selectedSido || !selectedSigungu}>
+                  {candidateLoading ? '조회 중...' : '분석 후보지 조회'}
+                </button>
+              </form>}
+            </aside>
+
+            <section className={`dashboard-panel candidate-panel ${activeMobilePanel === 'site' ? 'mobile-active' : ''}`} aria-labelledby="candidate-panel-title">
+              <div className="list-title">
+                <h3 id="candidate-panel-title">{hasTransferredCandidates ? '대시보드 분석 목록' : '분석 후보지'}</h3>
+                <span>
+                  {hasTransferredCandidates
+                    ? `${filteredCandidates.length}건`
+                    : candidatePage
+                    ? `${currentPage + 1}/${Math.max(totalPages, 1)} 페이지`
+                    : '지역을 선택하세요'}
+                </span>
+              </div>
+
+              <fieldset className="installation-place-tabs dashboard-asset-type" aria-label="후보지 유형">
+                <div className="installation-place-options" role="group" aria-label="후보지 유형">
+                  <button type="button" className={selectedAssetType === 'ALL' ? 'selected' : ''} onClick={() => handleAssetTypeChange('ALL')}>전체</button>
+                  <button type="button" className={selectedAssetType === 'LAND' ? 'selected' : ''} onClick={() => handleAssetTypeChange('LAND')}>토지</button>
+                  <button type="button" className={selectedAssetType === 'BUILDING' ? 'selected' : ''} onClick={() => handleAssetTypeChange('BUILDING')}>지붕/옥상</button>
+                </div>
+              </fieldset>
+
+              {candidates.length > 0 ? (
+                <>
+                  <div className="candidate-scroll-area" tabIndex="0" aria-label="분석 후보지 목록">
+                    {candidates.map((item) => (
+                      <div className="candidate-row candidate-row-single" key={item.id}>
+                        <button
+                          type="button"
+                          className={selectedCandidate?.id === item.id ? 'active' : ''}
+                          onClick={() => selectCandidate(item)}
+                          aria-pressed={selectedCandidate?.id === item.id}
+                        >
+                          <span className={`candidate-score ${item.suitabilityScore >= 80 ? 'high' : item.suitabilityScore >= 70 ? 'medium' : ''}`}>
+                            {formatScore(item.suitabilityScore)}
+                          </span>
+                          <span className="candidate-address">
+                            {item.address}
+                            <small>
+                              {item.siteType === 'ROOF' ? '건물' : '토지'} · {item.grade || '-'}
+                              {item.candidateRank != null && ` · ${item.candidateRank}위`}
+                            </small>
+                          </span>
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="candidate-pagination">
+                    <button type="button" disabled={currentPage === 0} onClick={() => setCurrentPage((page) => page - 1)}>이전</button>
+                    <span>{currentPage + 1} / {totalPages}</span>
+                    <button type="button" disabled={currentPage + 1 >= totalPages} onClick={() => setCurrentPage((page) => page + 1)}>다음</button>
+                  </div>
+                </>
+              ) : (
+                <p className="candidate-empty">
+                  {candidatePage ? '선택한 유형에 해당하는 후보지가 없습니다.' : '시/도와 시/군/구를 선택해 조회하세요.'}
+                </p>
+              )}
+
+              <button
+                type="button"
+                className="analyze-button candidate-analyze-button"
+                onClick={handleAnalyze}
+                disabled={!selectedCandidate || analysisLoading}
+              >
+                {analysisLoading ? 'AI 분석 중...' : hasTransferredCandidates ? '상세 분석 다시 불러오기' : 'AI 분석 실행'}
+              </button>
+            </section>
+
+            <div className={`dashboard-map ${activeMobilePanel === 'map' ? 'mobile-active' : ''}`}>
+              <div className="map-caption">
+                <span>선택 후보지 위치</span>
+                <b>{selectedCandidate?.address || '후보지를 선택해 주세요.'}</b>
+              </div>
+              {apiKey
+                ? <MapView apiKey={apiKey} setMap={setMap} selectedCoordinates={coordinates} />
+                : <div className="map-loading">지도를 불러오는 중...</div>}
+            </div>
+          </div>
+
+          <div className={`dashboard-report-pane ${activeMobilePanel === 'result' ? 'mobile-active' : ''}`}>
+            <AnalysisReportDashboard report={reportViewModel} onDownload={downloadReport} />
+          </div>
+        </div>
+      </section>
+    </Layout>
+  );
 };
 
 export default DashboardPage;
