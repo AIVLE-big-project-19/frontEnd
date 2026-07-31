@@ -210,11 +210,21 @@
   }
 }
 
-.chatbot-excel-btn {
+.chatbot-report-indicator {
+  padding: 7px 12px;
+  color: var(--teal-700);
+  background: #e3f5f3;
+  border-top: 1px solid var(--slate-200);
+  border-left: 3px solid var(--teal-600);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.chatbot-pdf-btn {
   background: #6b7280 !important;
   flex-shrink: 0;
 }
 
-.chatbot-excel-btn:hover:not(:disabled) {
+.chatbot-pdf-btn:hover:not(:disabled) {
   background: #4b5563 !important;
 }
