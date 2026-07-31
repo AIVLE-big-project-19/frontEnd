@@ -5,7 +5,7 @@ import {
 } from '../auth/tokenStorage';
 import { showErrorToast } from '../notifications/errorToastStore';
 
-const instance = axios.create({ baseURL: '/api' });
+const instance = axios.create({ baseURL: import.meta.env.VITE_API_BASE_URL || '/api' });
 
 // 401이 와도 토큰 재발급을 시도하면 안 되는 엔드포인트
 const NO_REFRESH_URLS = ['/auth/login', '/auth/token/refresh'];

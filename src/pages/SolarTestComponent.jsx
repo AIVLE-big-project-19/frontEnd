@@ -27,7 +27,8 @@ export default function SolarAnalysisComponent() {
     formData.append('extent3857', extent3857);
 
     try {
-      const response = await fetch('http://localhost:8080/api/v1/solar/analyze', {
+      const apiBase = import.meta.env.VITE_API_BASE_URL || '/api';
+      const response = await fetch(`${apiBase}/v1/solar/analyze`, {
         method: 'POST',
         body: formData,
       });
