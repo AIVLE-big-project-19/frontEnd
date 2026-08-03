@@ -12,6 +12,34 @@ const getScoreState = (value) => {
   return { label: '주의', className: 'caution' };
 };
 
+const KpiHelp = ({ label, formula, description, checks, sources }) => (
+  <span className="kpi-help">
+    <button
+      type="button"
+      className="kpi-help-trigger"
+      aria-label={`${label} 산정 기준과 출처 보기`}
+      aria-haspopup="dialog"
+    >
+      i
+    </button>
+    <span className="kpi-help-popover" role="dialog" aria-label={`${label} 산정 기준과 공식 출처`}>
+      <strong>{label}</strong>
+      <code>{formula}</code>
+      <span>{description}</span>
+      <b>직접 확인할 사항</b>
+      <span>{checks}</span>
+      <b>공식 자료</b>
+      <span className="kpi-help-sources">
+        {sources.map((source) => (
+          <a key={source.href} href={source.href} target="_blank" rel="noreferrer">
+            {source.label}<span aria-hidden="true"> ↗</span>
+          </a>
+        ))}
+      </span>
+    </span>
+  </span>
+);
+
 const AnalysisReportDashboard = ({ report, onDownload }) => (
   <section className="decision-report" aria-labelledby="decision-report-title">
     <div className="decision-report-header">
@@ -58,27 +86,79 @@ const AnalysisReportDashboard = ({ report, onDownload }) => (
     <dl className="decision-kpis">
       <div>
         <span className="kpi-mark area" aria-hidden="true">㎡</span>
-        <dt>{report.site.type === 'ROOF' ? '가용 지붕 면적' : '가용 부지 면적'}</dt>
+        <dt>
+          AI 추정 가용 면적
+          <KpiHelp
+            label="AI 추정 가용 면적"
+            formula="탐지 픽셀 면적 × 영상 해상도"
+            description="위성영상에서 AI가 탐지한 영역을 ㎡로 환산한 개략값입니다. 현재 EPSG:3857 영상 좌표를 사용하므로 실제 지표면 면적과 차이가 날 수 있습니다."
+            checks={report.site.type === 'ROOF'
+              ? '건축물대장·건축물현황도와 현장 실측으로 실제 설치 가능 면적을 확인하세요.'
+              : '토지대장·지적도와 현장 실측으로 경계 및 실제 설치 가능 면적을 확인하세요.'}
+            sources={[
+              { label: 'EPSG:3857 공식 설명', href: 'https://epsg.org/crs_3857/WGS-84-Pseudo-Mercator.html' },
+              report.site.type === 'ROOF'
+                ? { label: '정부24 건축물대장 열람', href: 'https://www.gov.kr/mw/AA020InfoCappView.do?CappBizCD=15000000098&tp_seq=03' }
+                : { label: '정부24 토지·임야대장 열람', href: 'https://www.gov.kr/mw/AA020InfoCappView.do?CappBizCD=13100000026&HighCtgCD=A02001001&Mcode=10207' },
+            ]}
+          />
+        </dt>
         <dd>{formatNumber(report.site.usableAreaM2, ' m²')}</dd>
-        <small>활용률 {formatNumber(report.site.utilizationRate, '%')}</small>
+        <small>{report.site.type === 'ROOF' ? 'AI 추정 지붕 활용률' : 'AI 추정 부지 활용률'} {formatNumber(report.site.utilizationRate, '%')}</small>
       </div>
       <div>
         <span className="kpi-mark capacity" aria-hidden="true">kW</span>
-        <dt>추천 설치 용량</dt>
+        <dt>
+          면적 기반 개략 용량
+          <KpiHelp
+            label="면적 기반 개략 용량"
+            formula="max(3kW, 반올림(AI 추정 가용 면적 ÷ 10㎡/kW))"
+            description="10㎡당 1kW, 최소 3kW를 가정한 초기 검토값입니다. 실제 용량은 패널 규격, 이격거리, 통로, 장애물과 구조하중에 따라 달라집니다."
+            checks="시공사의 패널 배치도와 구조안전 검토를 통해 최종 설치용량을 확인하세요."
+            sources={[
+              { label: '한국에너지공단 태양광 설치면적 안내', href: 'https://nr.energy.or.kr/A0/GN_01/GN_01_00_040.do' },
+            ]}
+          />
+        </dt>
         <dd>{formatNumber(report.economics.capacityKw, ' kW')}</dd>
-        <small>고정식 패널 기준</small>
+        <small>10㎡/kW·고정식 패널 가정</small>
       </div>
       <div>
         <span className="kpi-mark generation" aria-hidden="true">↗</span>
-        <dt>연간 예상 발전량</dt>
+        <dt>
+          평균 발전계수 기반 예상 발전량
+          <KpiHelp
+            label="평균 발전계수 기반 예상 발전량"
+            formula="개략 용량 × 1,300kWh/kW·년"
+            description="전국 공통 평균 발전계수를 적용한 초기 예상치입니다. 지역 일사량, 경사·방위, 음영, 손실과 출력제어는 후보지별로 달라질 수 있습니다."
+            checks="지역 기상자료와 설계 경사·방위·음영을 반영한 발전량 시뮬레이션을 확인하세요."
+            sources={[
+              { label: '한국에너지공단 공공 태양광 사례', href: 'https://www.energy.or.kr/energy_issue/mail_vol269/pdf/issue_372_03_all.pdf' },
+              { label: '한국에너지공단 재생에너지 클라우드', href: 'https://recloud.energy.or.kr/main/main.do' },
+            ]}
+          />
+        </dt>
         <dd>{formatNumber(report.economics.annualGenerationKwh, ' kWh')}</dd>
-        <small>현재 입력 조건 기준</small>
+        <small>1,300kWh/kW·년 가정</small>
       </div>
       <div className="primary">
         <span className="kpi-mark revenue" aria-hidden="true">₩</span>
-        <dt>연간 예상 수익</dt>
+        <dt>
+          기본 가정 기준 연간 예상 매출
+          <KpiHelp
+            label="기본 가정 기준 연간 예상 매출"
+            formula="예상 발전량 × 160원/kWh"
+            description="160원/kWh의 단일 판매단가를 적용한 매출 추정치입니다. 실제 수익은 SMP, REC 가격·가중치, 고정가격계약 및 자가소비 여부에 따라 달라집니다."
+            checks="계약 방식과 최신 SMP·REC 가격을 확인하고 유지보수비, 보험료, 임대료, 세금, 금융비용을 별도로 반영하세요."
+            sources={[
+              { label: '전력거래소 SMP·REC 시장정보', href: 'https://new.kpx.or.kr/?bbsNo=12&key=17' },
+              { label: '신재생에너지센터 REC 가중치 계산', href: 'https://rps.energy.or.kr/' },
+              { label: '국가법령정보센터 REC 가중치', href: 'https://www.law.go.kr/LSW/flDownload.do?bylClsCd=200201&flNm=%5B%EB%B3%84%ED%91%9C+2%5D+%EC%8B%A0%C2%B7%EC%9E%AC%EC%83%9D%EC%97%90%EB%84%88%EC%A7%80%EC%9B%90%EB%B3%84+%EA%B0%80%EC%A4%91%EC%B9%98&flSeq=157758139' },
+            ]}
+          />
+        </dt>
         <dd>{formatNumber(report.economics.annualRevenue == null ? null : report.economics.annualRevenue / 100000000, ' 억')}</dd>
-        <small>ROI {formatNumber(report.economics.roiPercent, '%')} · 회수 {formatNumber(report.economics.paybackYears, '년')}</small>
+        <small>단순 예상 수익률 {formatNumber(report.economics.roiPercent, '%')} · 단순 회수 {formatNumber(report.economics.paybackYears, '년')}</small>
       </div>
     </dl>
 
@@ -105,18 +185,18 @@ const AnalysisReportDashboard = ({ report, onDownload }) => (
 
       <article className="payback-chart-card">
         <div className="chart-heading">
-          <div><span>투자 판단</span><h3>예상 회수 시점</h3></div>
+          <div><span>투자 판단</span><h3>단순 예상 회수 시점</h3></div>
         </div>
         {report.economics.paybackYears == null ? (
           <p className="decision-chart-empty">투자비와 예상 수익이 산정된 뒤 회수 시점을 확인할 수 있습니다.</p>
         ) : (
           <>
-            <div className="roi-value"><strong>{formatNumber(report.economics.roiPercent, '%')}</strong><span>연간 투자수익률</span></div>
+            <div className="roi-value"><strong>{formatNumber(report.economics.roiPercent, '%')}</strong><span>연간 단순 예상 수익률</span></div>
             <div className="payback-visual">
               <div className="payback-track"><i style={{ width: `${report.visuals.paybackMarkerPercent}%` }} /><b style={{ left: `${report.visuals.paybackMarkerPercent}%` }} /></div>
               <div className="payback-labels"><span>투자 시작</span><strong>{formatNumber(report.economics.paybackYears, '년')}</strong><span>{report.visuals.paybackScaleYears}년</span></div>
             </div>
-            <p>예상 운영기간 내 투자금 회수가 가능하며, 이후 수익 구간으로 전환됩니다.</p>
+            <p>고정 단가와 초기 설치비만 반영한 개략값입니다. 실제 투자 판단에는 운영비와 금융조건 확인이 필요합니다.</p>
           </>
         )}
       </article>
