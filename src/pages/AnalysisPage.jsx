@@ -7,7 +7,7 @@ import ChatBot from '../components/ChatBot';
 import '../styles/AnalysisPage.css';
 import { transform } from 'ol/proj';
 import { searchIdleLands, downloadIdleLandReport } from '../api/idleLandApi';
-import { saveDashboardSelections } from '../utils/dashboardSelection';
+import { loadDashboardSelections, saveDashboardSelections } from '../utils/dashboardSelection';
 import { API_BASE_URL } from '../api/axiosInstance';
 
 const GRADE_CLASS = { A: 'grade-a', B: 'grade-b', C: 'grade-c' };
@@ -202,7 +202,8 @@ const AnalysisPage = () => {
 
   const handleDashboardAnalysis = () => {
     const selectedCandidates = idleLandResults.filter((item) => selectedIdleLandIds.includes(item.id));
-    const candidates = saveDashboardSelections(selectedCandidates);
+    const previousCandidates = loadDashboardSelections();
+    const candidates = saveDashboardSelections([...selectedCandidates, ...previousCandidates]);
     navigate('/dashboard', { state: { selectedCandidates: candidates } });
   };
 

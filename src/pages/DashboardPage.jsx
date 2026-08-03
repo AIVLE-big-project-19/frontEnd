@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import { fromLonLat } from 'ol/proj';
 import Layout from '../components/Layout';
 import MapView from '../components/MapView';
@@ -12,6 +13,7 @@ import {
 import { KOREA_REGIONS, SIDO_LIST } from '../data/koreaRegions';
 import { buildAnalysisReportViewModel } from '../utils/analysisReportModel';
 import { loadDashboardSelections, normalizeDashboardSelections } from '../utils/dashboardSelection';
+import { saveAnalysisHistoryEntry } from '../utils/analysisHistory';
 import { API_BASE_URL } from '../api/axiosInstance';
 import '../styles/Dashboard.css';
 
@@ -23,6 +25,7 @@ const formatScore = (value) => (
 
 const DashboardPage = () => {
   const location = useLocation();
+  const { loginId } = useAuth();
   const transferredCandidates = useMemo(() => {
     const routed = normalizeDashboardSelections(location.state?.selectedCandidates);
     return routed.length > 0 ? routed : loadDashboardSelections();
@@ -164,6 +167,7 @@ const DashboardPage = () => {
     try {
       const detail = await fetchDashboardCandidateAnalysis(candidate.id);
       setAnalysis(detail);
+      if (loginId) saveAnalysisHistoryEntry(loginId, candidate, detail);
       setStatus({ type: 'success', text: '실제 API 분석 결과를 대시보드에 표시했습니다.' });
       setActiveMobilePanel('result');
     } catch (error) {

@@ -28,6 +28,11 @@
 .home-layout > header > .nav-menu a { display: grid; grid-template-rows: auto auto; gap: 0; width: calc(clamp(90px, 8vw, 120px) + 18px); aspect-ratio: 1; flex: 0 0 calc(clamp(90px, 8vw, 120px) + 18px); align-content: center; justify-items: center; padding: 10px; color: #111827; background: rgba(255,255,255,.73); border: 1px solid rgba(255,255,255,.69); border-radius: 10px; box-shadow: 0 8px 18px rgba(0,0,0,.2); font-size: clamp(12px, 1.05vw, 16px); font-weight: 750; line-height: 1.1; text-align: center; text-decoration: none; white-space: normal; transition: background .2s, transform .2s, box-shadow .2s; }
 .home-layout .nav-card-icon { margin: 0; color: #120a8f; font-size: clamp(25px, 2.2vw, 34px); font-weight: 800; line-height: 1; transform: translateY(-16px); }
 .home-layout .nav-card-icon svg { display: block; width: clamp(27px, 2.4vw, 36px); height: clamp(27px, 2.4vw, 36px); fill: currentColor; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.6; }
+.home-layout .nav-search-icon svg { fill: none; stroke: #120a8f; stroke-width: 2.1; }
+.home-layout .nav-history-icon .history-icon-base { fill: #120a8f; stroke: #120a8f; stroke-width: 1.2; }
+.home-layout .nav-history-icon .history-icon-paper { fill: none; stroke: #fff; stroke-width: 1.4; }
+.home-layout .nav-history-icon .history-icon-accent { fill: #f59e0b; stroke: #f59e0b; stroke-width: 1; }
+.home-layout .nav-history-icon .history-icon-star { fill: #fff; stroke: #fff; stroke-width: .55; stroke-linejoin: round; }
 .home-layout .nav-vision-icon svg { width: clamp(31px, 2.7vw, 40px); height: clamp(31px, 2.7vw, 40px); }
 .home-layout .nav-board-icon svg path { fill: none; stroke: #fff; stroke-width: 1.5; }
 .home-layout .nav-card-description { display: none; color: #f3f4f6; font-size: clamp(10px, .85vw, 12px); font-weight: 500; line-height: 1.35; text-align: center; }

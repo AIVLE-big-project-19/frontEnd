@@ -20,6 +20,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import AdminUsersPage from './pages/AdminUsersPage';
 import AdminIdleLandsPage from './pages/AdminIdleLandsPage';
 import DashboardPage from './pages/DashboardPage';
+import AnalysisHistoryPage from './pages/AnalysisHistoryPage';
 import ErrorToast from './components/ErrorToast';
 
 export const AppRoutes = () => (
@@ -37,6 +38,7 @@ export const AppRoutes = () => (
     <Route path="/boards" element={<BoardListPage />} />
     <Route path="/community/:communityCategory" element={<BoardListPage />} />
     <Route path="/dashboard" element={<DashboardPage />} />
+    <Route path="/analysis-history" element={<ProtectedRoute><AnalysisHistoryPage /></ProtectedRoute>} />
     <Route path="/boards/write" element={<BoardWritePage />} />
     <Route path="/boards/:boardId" element={<BoardDetailPage />} />
     <Route path="/test" element={<TestPage />} />
