@@ -50,10 +50,13 @@ export const buildAnalysisReportViewModel = ({
   const hasAnalysis = Object.keys(source).length > 0;
   const scoreSource = source.scores || source.scoreDetails || {};
   const roofSource = source.roofAnalysis || source.visionAnalysis || {};
+  const generationForecast = source.generationForecast || null;
   const score = toNumberOrNull(source.suitabilityScore);
   const paybackYears = toNumberOrNull(source.paybackPeriodYears);
   const annualRevenue = toNumberOrNull(source.estimatedAnnualRevenue);
-  const annualGenerationKwh = toNumberOrNull(source.annualGenerationKwh);
+  const annualGenerationKwh = toNumberOrNull(
+    generationForecast?.annualGenerationKwh ?? source.annualGenerationKwh,
+  );
   const installationCost = toNumberOrNull(source.estimatedInstallationCost);
   const roiFromCost = installationCost > 0 ? annualRevenue / installationCost * 100 : null;
   const resolvedCapacityKw = toNumberOrNull(hasAnalysis ? source.capacityKw : capacityKw);
@@ -116,6 +119,14 @@ export const buildAnalysisReportViewModel = ({
     },
     visuals: {
       monthlyGeneration: buildMonthlyGeneration(source, annualGenerationKwh),
+      generationForecast: generationForecast ? {
+        source: generationForecast.source || null,
+        method: generationForecast.method || null,
+        fallback: Boolean(generationForecast.fallback),
+        tiltDegrees: toNumberOrNull(generationForecast.tiltDegrees),
+        azimuthDegrees: toNumberOrNull(generationForecast.azimuthDegrees),
+        systemLossPercent: toNumberOrNull(generationForecast.systemLossPercent),
+      } : null,
       paybackScaleYears: paybackYears === null ? 10 : Math.max(10, Math.ceil(paybackYears / 5) * 5),
       paybackMarkerPercent: paybackYears === null
         ? 0

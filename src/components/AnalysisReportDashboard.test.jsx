@@ -12,6 +12,16 @@ test('의사결정에 필요한 핵심 지표와 다음 행동을 보여준다',
       annualGenerationKwh: 135000,
       estimatedAnnualRevenue: 24000000,
       paybackPeriodYears: 6.5,
+      generationForecast: {
+        source: 'PVGIS 5.3 / ERA5',
+        method: 'LOCATION_BASED_PV_SIMULATION',
+        fallback: false,
+        annualGenerationKwh: 135000,
+        tiltDegrees: 30,
+        azimuthDegrees: 0,
+        systemLossPercent: 14,
+        monthly: Array.from({ length: 12 }, () => ({ generationKwh: 11250 })),
+      },
     },
     address: '충청남도 홍성군 홍북읍 충남대로 21',
     areaM2: 1200,
@@ -28,6 +38,8 @@ test('의사결정에 필요한 핵심 지표와 다음 행동을 보여준다',
   expect(screen.getAllByText('면적 기반 개략 용량')).toHaveLength(2);
   expect(screen.getByRole('heading', { name: '단순 예상 회수 시점' })).toBeInTheDocument();
   expect(screen.getByRole('button', { name: '기본 가정 기준 연간 예상 매출 산정 기준과 출처 보기' })).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: '위치 기반 예상 발전량 산정 기준과 출처 보기' })).toBeInTheDocument();
+  expect(screen.getByText('PVGIS 5.3 / ERA5·경사 30°·손실 14%')).toBeInTheDocument();
   expect(screen.getByText('구조안전진단')).toBeInTheDocument();
   expect(screen.getByText('상세 기술 지표 보기')).toBeInTheDocument();
 });
