@@ -168,7 +168,7 @@ function MyPage() {
                   <p className="mypage-hint">8~16자, 영문·숫자·특수문자 포함</p>
                   <button className="mypage-primary" disabled={saving || !passwords.current || !passwords.next || !passwords.confirm}>비밀번호 변경</button>
                 </form>
-              ) : <div className="mypage-state">소셜 계정은 연결된 서비스에서 비밀번호를 변경해주세요.</div>}
+              ) : <div className="mypage-state mypage-social-password-note">소셜 계정은 연결된 서비스에서 비밀번호를 변경해주세요.</div>}
             </section>
 
             <section className="mypage-card mypage-activity">

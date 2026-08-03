@@ -41,6 +41,7 @@
 .mypage-primary:disabled { opacity: .45; cursor: not-allowed; }
 .mypage-hint { margin-top: -7px; color: #9ca3af; font-size: 12px; }
 .mypage-state, .route-loading { padding: 35px; text-align: center; color: #6b7280; }
+.mypage-social-password-note { padding-right: 0; padding-left: 0; font-size: inherit; letter-spacing: -.04em; white-space: nowrap; }
 
 .mypage-board-list { display: flex; flex-direction: column; }
 .mypage-board-list a { display: grid; grid-template-columns: 90px 1fr auto; align-items: center; gap: 16px; padding: 16px 4px; border-top: 1px solid #f0f1f3; color: #374151; text-decoration: none; }
