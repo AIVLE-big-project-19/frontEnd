@@ -11,6 +11,13 @@ test('향후 중첩 API 응답을 대시보드 표시 모델로 변환한다', (
       estimatedAnnualRevenue: 30000000,
       paybackPeriodYears: 7.2,
       generationForecast: {
+        source: 'PVGIS 5.3 / ERA5',
+        method: 'LOCATION_BASED_PV_SIMULATION',
+        fallback: false,
+        annualGenerationKwh: 126600,
+        tiltDegrees: 30,
+        azimuthDegrees: 0,
+        systemLossPercent: 14,
         monthly: Array.from({ length: 12 }, (_, index) => ({ generationKwh: 10000 + index * 100 })),
       },
       scores: { ml: 90, vision: 92, regulation: 94 },
@@ -33,6 +40,9 @@ test('향후 중첩 API 응답을 대시보드 표시 모델로 변환한다', (
   expect(report.actions[0].title).toBe('현장 방문');
   expect(report.visuals.monthlyGeneration).toHaveLength(12);
   expect(report.visuals.monthlyGeneration[11].value).toBe(11100);
+  expect(report.economics.annualGenerationKwh).toBe(126600);
+  expect(report.visuals.generationForecast.source).toBe('PVGIS 5.3 / ERA5');
+  expect(report.visuals.generationForecast.fallback).toBe(false);
 });
 
 test('API 값이 없으면 샘플 수치를 만들지 않고 빈 값으로 유지한다', () => {

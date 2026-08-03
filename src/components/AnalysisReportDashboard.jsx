@@ -40,7 +40,17 @@ const KpiHelp = ({ label, formula, description, checks, sources }) => (
   </span>
 );
 
-const AnalysisReportDashboard = ({ report, onDownload }) => (
+const AnalysisReportDashboard = ({ report, onDownload }) => {
+  const forecast = report.visuals.generationForecast;
+  const hasLocationForecast = forecast?.method === 'LOCATION_BASED_PV_SIMULATION' && !forecast.fallback;
+  const generationLabel = hasLocationForecast
+    ? '위치 기반 예상 발전량'
+    : '평균 발전계수 기반 예상 발전량';
+  const generationBasis = hasLocationForecast
+    ? `${forecast.source}·경사 ${formatNumber(forecast.tiltDegrees, '°')}·손실 ${formatNumber(forecast.systemLossPercent, '%')}`
+    : '1,300kWh/kW·년 가정';
+
+  return (
   <section className="decision-report" aria-labelledby="decision-report-title">
     <div className="decision-report-header">
       <div>
@@ -126,20 +136,27 @@ const AnalysisReportDashboard = ({ report, onDownload }) => (
       <div>
         <span className="kpi-mark generation" aria-hidden="true">↗</span>
         <dt>
-          평균 발전계수 기반 예상 발전량
+          {generationLabel}
           <KpiHelp
-            label="평균 발전계수 기반 예상 발전량"
-            formula="개략 용량 × 1,300kWh/kW·년"
-            description="전국 공통 평균 발전계수를 적용한 초기 예상치입니다. 지역 일사량, 경사·방위, 음영, 손실과 출력제어는 후보지별로 달라질 수 있습니다."
+            label={generationLabel}
+            formula={hasLocationForecast
+              ? '후보지 좌표 + 설치용량 + 경사·방향 + 시스템 손실률'
+              : '개략 용량 × 1,300kWh/kW·년'}
+            description={hasLocationForecast
+              ? `${forecast.source}의 위치별 일사량 자료로 12개월 발전량을 계산하고 그 합계를 연간 발전량으로 사용했습니다. 현장 음영과 계통 출력제어는 별도 확인이 필요합니다.`
+              : '외부 위치 기반 계산을 사용할 수 없어 전국 공통 연간 발전계수와 내부 계절 가중치를 적용한 참고값입니다.'}
             checks="지역 기상자료와 설계 경사·방위·음영을 반영한 발전량 시뮬레이션을 확인하세요."
-            sources={[
+            sources={hasLocationForecast ? [
+              { label: 'EU JRC PVGIS 공식 설명', href: 'https://joint-research-centre.ec.europa.eu/photovoltaic-geographical-information-system-pvgis_en' },
+              { label: 'PVGIS API 산정 항목', href: 'https://joint-research-centre.ec.europa.eu/photovoltaic-geographical-information-system-pvgis/using-pvgis-5/api-non-interactive-service_en' },
+            ] : [
               { label: '한국에너지공단 공공 태양광 사례', href: 'https://www.energy.or.kr/energy_issue/mail_vol269/pdf/issue_372_03_all.pdf' },
               { label: '한국에너지공단 재생에너지 클라우드', href: 'https://recloud.energy.or.kr/main/main.do' },
             ]}
           />
         </dt>
         <dd>{formatNumber(report.economics.annualGenerationKwh, ' kWh')}</dd>
-        <small>1,300kWh/kW·년 가정</small>
+        <small>{generationBasis}</small>
       </div>
       <div className="primary">
         <span className="kpi-mark revenue" aria-hidden="true">₩</span>
@@ -165,7 +182,7 @@ const AnalysisReportDashboard = ({ report, onDownload }) => (
     <section className="decision-visuals" aria-label="발전량과 투자 회수 시각화">
       <article className="generation-chart-card">
         <div className="chart-heading">
-          <div><span>발전량 전망</span><h3>월별 예상 발전량</h3></div>
+          <div><span>{hasLocationForecast ? forecast.source : '계절 가중치 참고값'}</span><h3>월별 예상 발전량</h3></div>
           <strong>{formatNumber(report.economics.annualGenerationKwh, ' kWh / 년')}</strong>
         </div>
         {report.economics.annualGenerationKwh == null ? (
@@ -286,6 +303,7 @@ const AnalysisReportDashboard = ({ report, onDownload }) => (
       </dl>
     </details>
   </section>
-);
+  );
+};
 
 export default AnalysisReportDashboard;
