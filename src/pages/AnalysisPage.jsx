@@ -7,8 +7,8 @@ import ChatBot from '../components/ChatBot';
 import '../styles/AnalysisPage.css';
 import { transform } from 'ol/proj';
 import { searchIdleLands, downloadIdleLandReport } from '../api/idleLandApi';
-import { loadDashboardSelections, saveDashboardSelections } from '../utils/dashboardSelection';
-import { API_BASE_URL } from '../api/axiosInstance';
+import { saveDashboardSelections } from '../utils/dashboardSelection';
+import parcelPolygonsUrl from '../data/parcelPolygons.geojson?url';
 
 const GRADE_CLASS = { A: 'grade-a', B: 'grade-b', C: 'grade-c' };
 
@@ -32,14 +32,14 @@ const AnalysisPage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch(`${API_BASE_URL}/vworld-key`)
+    fetch('/api/vworld-key')
       .then((res) => res.json())
       .then((data) => setApiKey(data.apiKey))
       .catch((err) => console.error("키 로딩 실패", err));
   }, []);
 
   useEffect(() => {
-    fetch('/data/parcelPolygons.geojson')
+    fetch(parcelPolygonsUrl)
       .then((res) => res.json())
       .then((data) => setParcelFeatures(data.features || []))
       .catch((err) => console.error("필지 경계 데이터 로딩 실패", err));
@@ -93,7 +93,7 @@ const AnalysisPage = () => {
         const center = map.getView().getCenter();
         const latLon = transform(center, 'EPSG:3857', 'EPSG:4326');
 
-        fetch(`https://api.vworld.kr/req/address?service=address&request=getAddress&point=${latLon[0]},${latLon[1]}&type=road&key=${apiKey}`)
+        fetch(`/vworld-api/req/address?service=address&request=getAddress&point=${latLon[0]},${latLon[1]}&type=road&key=${apiKey}`)
           .then((res) => res.json())
           .then((data) => {
             if (data.response?.status === 'OK') {
@@ -117,7 +117,7 @@ const AnalysisPage = () => {
     }
 
     try {
-      const response = await fetch(`${API_BASE_URL}/pdf/generate`, {
+      const response = await fetch('/api/pdf/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ address: currentAddress }),
@@ -139,7 +139,7 @@ const AnalysisPage = () => {
 
   const handleDownloadSamplePdf = async (targetType) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/pdf/generate/sample?type=${targetType}`);
+      const response = await fetch(`/api/pdf/generate/sample?type=${targetType}`);
 
       if (!response.ok) throw new Error("예제 PDF 생성 실패");
 
@@ -202,8 +202,7 @@ const AnalysisPage = () => {
 
   const handleDashboardAnalysis = () => {
     const selectedCandidates = idleLandResults.filter((item) => selectedIdleLandIds.includes(item.id));
-    const previousCandidates = loadDashboardSelections();
-    const candidates = saveDashboardSelections([...selectedCandidates, ...previousCandidates]);
+    const candidates = saveDashboardSelections(selectedCandidates);
     navigate('/dashboard', { state: { selectedCandidates: candidates } });
   };
 
