@@ -1,23 +1,26 @@
-const formatNumber = (value, suffix = '') => `${Number(value).toLocaleString('ko-KR', {
-  maximumFractionDigits: 1,
-})}${suffix}`;
+const formatNumber = (value, suffix = '') => {
+  if (value === undefined || value === null || value === '' || !Number.isFinite(Number(value))) {
+    return '-';
+  }
+  return `${Number(value).toLocaleString('ko-KR', { maximumFractionDigits: 1 })}${suffix}`;
+};
 
 const AnalysisReportDashboard = ({ report, onDownload }) => (
   <section className="decision-report" aria-labelledby="decision-report-title">
     <div className="decision-report-header">
       <div>
         <div className="report-context">
-          <span>{report.source === 'sample' ? '샘플 보고서' : '분석 완료'}</span>
-          <span>옥상형 태양광</span>
+          <span>{report.source === 'analysis' ? 'API 분석 완료' : '후보지 선택 대기'}</span>
+          <span>{report.site.type === 'ROOF' ? '옥상형 태양광' : '토지형 태양광'}</span>
         </div>
         <h2 id="decision-report-title">{report.site.address}</h2>
       </div>
-      <button type="button" onClick={() => onDownload('ROOF')}>PDF 내려받기</button>
+      <button type="button" disabled={report.source !== 'analysis'} onClick={() => onDownload(report.site.type)}>PDF 내려받기</button>
     </div>
 
     <div className="decision-summary">
       <div className="decision-score">
-        <strong>{report.decision.score}</strong>
+        <strong>{formatNumber(report.decision.score)}</strong>
         <span>종합점수</span>
       </div>
       <div className="decision-copy">
@@ -26,13 +29,13 @@ const AnalysisReportDashboard = ({ report, onDownload }) => (
       </div>
       <div className="decision-primary-action">
         <span>다음 필수 단계</span>
-        <strong>구조안전진단</strong>
+        <strong>{report.site.type === 'ROOF' ? '구조안전진단' : '현장 부지조사'}</strong>
       </div>
     </div>
 
     <dl className="decision-kpis">
       <div>
-        <dt>가용 지붕 면적</dt>
+        <dt>{report.site.type === 'ROOF' ? '가용 지붕 면적' : '가용 부지 면적'}</dt>
         <dd>{formatNumber(report.site.usableAreaM2, ' m²')}</dd>
         <small>활용률 {formatNumber(report.site.utilizationRate, '%')}</small>
       </div>
@@ -48,7 +51,7 @@ const AnalysisReportDashboard = ({ report, onDownload }) => (
       </div>
       <div className="primary">
         <dt>연간 예상 수익</dt>
-        <dd>{formatNumber(report.economics.annualRevenue / 10000, ' 만원')}</dd>
+        <dd>{formatNumber(report.economics.annualRevenue == null ? null : report.economics.annualRevenue / 10000, ' 만원')}</dd>
         <small>ROI {formatNumber(report.economics.roiPercent, '%')} · 회수 {formatNumber(report.economics.paybackYears, '년')}</small>
       </div>
     </dl>
@@ -92,8 +95,8 @@ const AnalysisReportDashboard = ({ report, onDownload }) => (
         <div className="decision-score-list">
           {report.scores.map((item) => (
             <div key={item.key}>
-              <div><span>{item.label}</span><strong>{item.value}점</strong></div>
-              <div className="decision-score-track"><i style={{ width: `${item.value}%` }} /></div>
+              <div><span>{item.label}</span><strong>{formatNumber(item.value, '점')}</strong></div>
+              <div className="decision-score-track"><i style={{ width: `${item.value ?? 0}%` }} /></div>
             </div>
           ))}
         </div>
@@ -104,6 +107,7 @@ const AnalysisReportDashboard = ({ report, onDownload }) => (
           <div><span>위험 확인</span><h3>추진 전 확인사항</h3></div>
         </div>
         <div className="decision-risk-list">
+          {report.risks.length === 0 && <p>API에서 제공된 리스크 분석 결과가 없습니다.</p>}
           {report.risks.map((risk) => (
             <div key={risk.key}>
               <span className={`risk-state ${risk.level}`}>{risk.status}</span>
@@ -119,6 +123,7 @@ const AnalysisReportDashboard = ({ report, onDownload }) => (
         <div><span>다음 행동</span><h3>사업 검토를 이어가기 위해 필요한 작업</h3></div>
       </div>
       <ol>
+        {report.actions.length === 0 && <li><div><strong>체크리스트 없음</strong><p>API에서 제공된 현장 점검 항목이 없습니다.</p></div></li>}
         {report.actions.map((action, index) => (
           <li key={action.key}>
             <span>{index + 1}</span>
@@ -131,10 +136,10 @@ const AnalysisReportDashboard = ({ report, onDownload }) => (
     <details className="technical-details">
       <summary>상세 기술 지표 보기</summary>
       <dl>
-        <div><dt>지붕 구조</dt><dd>{report.roof.type} · {report.roof.structure}</dd></div>
-        <div><dt>지붕 경사</dt><dd>{formatNumber(report.roof.slopeDegrees, '°')}</dd></div>
-        <div><dt>음영 비율</dt><dd>{formatNumber(report.roof.shadowRate, '%')}</dd></div>
-        <div><dt>음영 면적</dt><dd>{formatNumber(report.roof.shadowAreaM2, ' m²')}</dd></div>
+        <div><dt>{report.site.type === 'ROOF' ? '지붕 구조' : '부지 유형'}</dt><dd>{[report.roof.type, report.roof.structure].filter(Boolean).join(' · ') || '-'}</dd></div>
+        <div><dt>{report.site.type === 'ROOF' ? '지붕 경사' : '부지 경사'}</dt><dd>{formatNumber(report.roof.slopeDegrees, '°')}</dd></div>
+        <div><dt>{report.site.type === 'ROOF' ? '음영 비율' : '식생·장애물 비율'}</dt><dd>{formatNumber(report.roof.shadowRate, '%')}</dd></div>
+        <div><dt>{report.site.type === 'ROOF' ? '음영 면적' : '장애물 면적'}</dt><dd>{formatNumber(report.roof.shadowAreaM2, ' m²')}</dd></div>
         <div><dt>모듈 방향</dt><dd>{report.roof.moduleDirection}</dd></div>
         <div><dt>설치 각도</dt><dd>{formatNumber(report.roof.installAngleDegrees, '°')}</dd></div>
       </dl>

@@ -6,6 +6,7 @@ import { FREE_CATEGORY, INQUIRY_CATEGORY } from "../constants/boardCategory";
 
 function CommentList({ boardId, boardCategory }) {
     const { loginId, isAdmin } = useAuth();
+    const responseLabel = boardCategory === INQUIRY_CATEGORY ? "답변" : "댓글";
     const [comments, setComments] = useState([]);
     const [loading, setLoading] = useState(true);
     const [editingId, setEditingId] = useState(null);
@@ -17,7 +18,7 @@ function CommentList({ boardId, boardCategory }) {
             setComments(response.data.data);
         } catch (error) {
             console.error(error);
-            alert("댓글 목록을 불러오지 못했습니다.");
+            alert(`${responseLabel} 목록을 불러오지 못했습니다.`);
         } finally {
             setLoading(false);
         }
@@ -41,7 +42,7 @@ function CommentList({ boardId, boardCategory }) {
 
     const handleUpdate = async (commentId) => {
         if (!editContent.trim()) {
-            alert("댓글 내용을 입력해주세요.");
+            alert(`${responseLabel} 내용을 입력해주세요.`);
             return;
         }
 
@@ -52,13 +53,13 @@ function CommentList({ boardId, boardCategory }) {
         } catch (error) {
             console.error(error);
             alert(error.response?.status === 403
-                ? "본인이 작성한 댓글만 수정할 수 있습니다."
-                : "댓글 수정에 실패했습니다.");
+                ? `본인이 작성한 ${responseLabel}만 수정할 수 있습니다.`
+                : `${responseLabel} 수정에 실패했습니다.`);
         }
     };
 
     const handleDelete = async (commentId) => {
-        if (!window.confirm("댓글을 삭제하시겠습니까?")) return;
+        if (!window.confirm(`${responseLabel}을(를) 삭제하시겠습니까?`)) return;
 
         try {
             await deleteComment(commentId);
@@ -66,19 +67,19 @@ function CommentList({ boardId, boardCategory }) {
         } catch (error) {
             console.error(error);
             alert(error.response?.status === 403
-                ? "본인이 작성한 댓글만 삭제할 수 있습니다."
-                : "댓글 삭제에 실패했습니다.");
+                ? `본인이 작성한 ${responseLabel}만 삭제할 수 있습니다.`
+                : `${responseLabel} 삭제에 실패했습니다.`);
         }
     };
 
     return (
         <div className="comment-section">
-            <h3 className="comment-title">댓글</h3>
+            <h3 className="comment-title">{responseLabel}</h3>
 
             {loading ? (
-                <div className="board-loading">댓글을 불러오는 중...</div>
+                <div className="board-loading">{responseLabel}을(를) 불러오는 중...</div>
             ) : comments.length === 0 ? (
-                <div className="board-empty">등록된 댓글이 없습니다.</div>
+                <div className="board-empty">등록된 {responseLabel}이(가) 없습니다.</div>
             ) : (
                 <div className="comment-list">
                     {comments.map((comment) => {
@@ -92,7 +93,7 @@ function CommentList({ boardId, boardCategory }) {
                                     <span className="comment-writer">{comment.writerName ?? comment.writer}</span>
 
                                     {comment.secret && (
-                                        <span className="comment-secret-badge">비밀댓글</span>
+                                        <span className="comment-secret-badge">비밀{responseLabel}</span>
                                     )}
 
                                     {canManage && comment.canView !== false && (
@@ -132,6 +133,7 @@ function CommentList({ boardId, boardCategory }) {
                     boardId={boardId}
                     onCommentCreated={loadComments}
                     allowSecret={boardCategory === FREE_CATEGORY}
+                    responseLabel={responseLabel}
                 />
             )}
         </div>

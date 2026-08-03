@@ -11,7 +11,7 @@ function BoardListPage() {
     const navigate = useNavigate();
     const [searchParams, setSearchParams] = useSearchParams();
     const { communityCategory } = useParams();
-    const { isAdmin } = useAuth();
+    const { isAdmin, isInitializing } = useAuth();
 
     const [boards, setBoards] = useState([]);
     const [pageInfo, setPageInfo] = useState({
@@ -36,6 +36,7 @@ function BoardListPage() {
 
     useEffect(() => {
         const loadBoards = async () => {
+            if (isInitializing) return;
             try {
                 const response = await getBoards(currentPage, 6, selectedCategory);
                 const data = response.data.data;
@@ -62,7 +63,7 @@ function BoardListPage() {
         };
 
         loadBoards();
-    }, [currentPage, refreshKey, selectedCategory, setSearchParams]);
+    }, [currentPage, isInitializing, refreshKey, selectedCategory, setSearchParams]);
 
     const selectCategory = (category) => {
         const nextCategory = BOARD_CATEGORY_DETAILS.find(({ name }) => name === category);
@@ -124,7 +125,7 @@ function BoardListPage() {
                     </div>
                 </div>
 
-                {loading ? (
+                {loading || isInitializing ? (
                     <div className="board-loading">게시글을 불러오는 중...</div>
                 ) : boards.length === 0 ? (
                     <div className="board-empty">

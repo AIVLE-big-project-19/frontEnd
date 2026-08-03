@@ -3,7 +3,7 @@ import { createComment } from "../api/commentApi";
 import { useAuth } from "../context/AuthContext";
 import { getMyProfile } from "../api/myPageApi";
 
-function CommentForm({ boardId, onCommentCreated, allowSecret = false }) {
+function CommentForm({ boardId, onCommentCreated, allowSecret = false, responseLabel = "댓글" }) {
     const { isLoggedIn, loginId } = useAuth();
     const [content, setContent] = useState("");
     const [secret, setSecret] = useState(false);
@@ -24,7 +24,7 @@ function CommentForm({ boardId, onCommentCreated, allowSecret = false }) {
 
     const submit = async () => {
         if (!content.trim()) {
-            alert("댓글 내용을 입력해주세요.");
+            alert(`${responseLabel} 내용을 입력해주세요.`);
             return;
         }
 
@@ -35,25 +35,25 @@ function CommentForm({ boardId, onCommentCreated, allowSecret = false }) {
             await onCommentCreated?.();
         } catch (error) {
             console.error(error);
-            alert("댓글 등록에 실패했습니다.");
+            alert(`${responseLabel} 등록에 실패했습니다.`);
         }
     };
 
     if (!isLoggedIn) {
-        return <div className="comment-login-notice">댓글을 작성하려면 로그인해주세요.</div>;
+        return <div className="comment-login-notice">{responseLabel}을(를) 작성하려면 로그인해주세요.</div>;
     }
 
     return (
         <div className="comment-form">
-            <h4>댓글 작성</h4>
+            <h4>{responseLabel} 작성</h4>
             <div className="comment-current-writer">작성자: {writerName}</div>
             <textarea
-                placeholder="댓글을 입력하세요."
+                placeholder={`${responseLabel}을(를) 입력하세요.`}
                 value={content}
                 onChange={(event) => setContent(event.target.value)}
             />
             <div className="comment-submit-row">
-                <button className="board-btn" onClick={submit}>댓글 등록</button>
+                <button className="board-btn" onClick={submit}>{responseLabel} 등록</button>
                 {allowSecret && (
                     <label className="comment-secret-option">
                         <input
@@ -61,7 +61,7 @@ function CommentForm({ boardId, onCommentCreated, allowSecret = false }) {
                             checked={secret}
                             onChange={(event) => setSecret(event.target.checked)}
                         />
-                        비밀댓글
+                        비밀{responseLabel}
                     </label>
                 )}
             </div>
