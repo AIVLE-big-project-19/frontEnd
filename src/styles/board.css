@@ -568,8 +568,7 @@
 
 .board-form-meta {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) var(--board-category-width);
-  gap: 18px;
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .board-form-group label {
