@@ -1,8 +1,8 @@
-.analysis-history-page { width: 100%; min-height: 100%; padding: 34px clamp(20px, 4vw, 64px) 64px; color: #0f2742; background: #f4f7f9; }
+.analysis-history-page { width: 100%; min-height: 100%; padding: 20px 24px 40px; color: #0f2742; background: #f4f7f9; }
 .analysis-history-hero, .analysis-history-toolbar, .history-compare, .history-list-heading, .history-list, .history-empty { width: min(1360px, 100%); margin: 0 auto; }
-.analysis-history-hero { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; padding: 16px 0 28px; border-bottom: 1px solid #d9e1e8; }
+.analysis-history-hero { display: flex; min-height: 74px; align-items: center; justify-content: space-between; gap: 24px; padding: 11px 2px 14px; border-bottom: 1px solid #d9e1e8; }
 .analysis-history-eyebrow { margin: 0 0 8px; color: #0b8b83; font-size: 11px; font-weight: 800; letter-spacing: .16em; }
-.analysis-history-hero h1 { margin: 0; font-size: clamp(28px, 3vw, 42px); letter-spacing: -.06em; }
+.analysis-history-hero h1 { margin: 0; color: var(--navy-900); font-size: 30px; font-weight: 800; line-height: 1.25; letter-spacing: -.035em; }
 .analysis-history-hero p:not(.analysis-history-eyebrow) { margin: 9px 0 0; color: #64748b; font-size: 14px; }
 .analysis-history-count { display: grid; min-width: 130px; padding: 14px 18px; color: #0b8b83; background: #e8f5f2; border: 1px solid #c8e9e3; border-radius: 12px; text-align: center; }
 .analysis-history-count strong { font-size: 27px; line-height: 1; }
@@ -75,9 +75,10 @@
   .history-status { grid-column: auto; }
 }
 @media (max-width: 560px) {
-  .analysis-history-page { padding: 23px 15px 42px; }
+  .analysis-history-page { padding: 12px 12px 28px; }
   .analysis-history-hero { align-items: flex-start; flex-direction: column; }
   .analysis-history-count { width: 100%; }
+  .analysis-history-hero h1 { font-size: 26px; }
   .analysis-history-toolbar select, .analysis-history-toolbar input { flex: 1 1 100%; width: 100%; }
   .history-compare { padding: 16px; }
   .history-card { padding: 17px; }

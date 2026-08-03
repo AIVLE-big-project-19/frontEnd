@@ -18,8 +18,10 @@
   margin: 0 10px 2px;
   color: var(--navy-900);
   content: "AI 태양광 입지 분석";
-  font-size: 20px;
+  font-size: 30px;
   font-weight: 800;
+  line-height: 1.25;
+  letter-spacing: -0.035em;
   letter-spacing: -0.03em;
 }
 
@@ -671,6 +673,10 @@
   .search-bar-container::after {
     margin-right: 2px;
     margin-left: 2px;
+  }
+
+  .search-bar-container::before {
+    font-size: 26px;
   }
 
   .dropdown-list {

@@ -42,8 +42,9 @@
 .dashboard-hero h1 {
   margin: 0;
   color: #102a43;
-  font-size: 26px;
+  font-size: 30px;
   font-weight: 800;
+  line-height: 1.25;
   letter-spacing: -.035em;
 }
 
@@ -1487,7 +1488,7 @@
   }
 
   .dashboard-hero h1 {
-    font-size: 23px;
+    font-size: 26px;
   }
 
   .hero-actions {
