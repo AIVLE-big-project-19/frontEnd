@@ -5,7 +5,9 @@ import { attachAuthHeader } from './axiosInstance';
 // 그 서버는 토큰이 없거나 만료돼도 에러 없이 익명으로 동작하므로, axiosInstance처럼
 // 401 발생 시 토큰을 재발급받고 재시도하는 로직은 필요 없다. 로그인 중이면 같은
 // Authorization 헤더를 붙여서 로그인 사용자의 채팅 기록이 이어지게만 해준다.
-const chatBotInstance = axios.create({ baseURL: '/chatbot-api' });
+const chatBotInstance = axios.create({
+  baseURL: import.meta.env.VITE_CHATBOT_BASE_URL || 'http://localhost:8010',
+});
 
 chatBotInstance.interceptors.request.use(attachAuthHeader);
 
