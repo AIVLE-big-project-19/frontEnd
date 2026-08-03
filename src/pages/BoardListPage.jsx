@@ -3,7 +3,7 @@ import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { getBoards } from "../api/boardApi";
 import BoardCard from "../components/BoardCard";
 import Layout from "../components/Layout";
-import { BOARD_CATEGORY_DETAILS } from "../constants/boardCategory";
+import { BOARD_CATEGORY_DETAILS, isAdminOnlyCategory } from "../constants/boardCategory";
 import { useAuth } from "../context/AuthContext";
 import "../styles/board.css";
 
@@ -11,7 +11,7 @@ function BoardListPage() {
     const navigate = useNavigate();
     const [searchParams, setSearchParams] = useSearchParams();
     const { communityCategory } = useParams();
-    const { isInitializing } = useAuth();
+    const { isAdmin, isInitializing } = useAuth();
 
     const [boards, setBoards] = useState([]);
     const [pageInfo, setPageInfo] = useState({
@@ -114,12 +114,14 @@ function BoardListPage() {
                             메인으로
                         </button>
 
-                        <button
-                            className="board-btn"
-                            onClick={() => navigate(`/boards/write?category=${encodeURIComponent(selectedCategory)}`)}
-                        >
-                            글쓰기
-                        </button>
+                        {(!isAdminOnlyCategory(selectedCategory) || isAdmin) && (
+                            <button
+                                className="board-btn"
+                                onClick={() => navigate(`/boards/write?category=${encodeURIComponent(selectedCategory)}`)}
+                            >
+                                글쓰기
+                            </button>
+                        )}
                     </div>
                 </div>
 

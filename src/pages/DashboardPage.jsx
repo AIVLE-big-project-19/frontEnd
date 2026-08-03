@@ -12,6 +12,7 @@ import {
 import { KOREA_REGIONS, SIDO_LIST } from '../data/koreaRegions';
 import { buildAnalysisReportViewModel } from '../utils/analysisReportModel';
 import { loadDashboardSelections, normalizeDashboardSelections } from '../utils/dashboardSelection';
+import { API_BASE_URL } from '../api/axiosInstance';
 import '../styles/Dashboard.css';
 
 const PAGE_SIZE = 20;
@@ -73,7 +74,7 @@ const DashboardPage = () => {
   );
 
   useEffect(() => {
-    fetch('/api/vworld-key')
+    fetch(`${API_BASE_URL}/vworld-key`)
       .then((response) => response.json())
       .then((data) => setApiKey(data.apiKey))
       .catch(() => setStatus({

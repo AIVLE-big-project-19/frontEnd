@@ -9,22 +9,28 @@ import { getMyProfile } from "../api/myPageApi";
 
 function BoardWritePage() {
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
     const { isLoggedIn, loginId, isAdmin, isInitializing } = useAuth();
 
-    const [searchParams] = useSearchParams();
+    const availableCategories = isAdmin
+        ? BOARD_CATEGORIES
+        : BOARD_CATEGORIES.filter((item) => !isAdminOnlyCategory(item));
     const requestedCategory = searchParams.get("category");
-    const fallbackCategory = isAdmin
-        ? BOARD_CATEGORIES[0]
-        : BOARD_CATEGORIES.find((item) => !isAdminOnlyCategory(item));
-    const category = BOARD_CATEGORIES.includes(requestedCategory)
-        ? requestedCategory
-        : fallbackCategory ?? "";
 
     const [title, setTitle] = useState("");
     const [content, setContent] = useState("");
+    const [category, setCategory] = useState("");
     const [writerName, setWriterName] = useState(loginId ?? "");
     const [files, setFiles] = useState([]);
     const [previews, setPreviews] = useState([]);
+
+    useEffect(() => {
+        if (isInitializing) return;
+
+        const requestedCategoryAllowed = BOARD_CATEGORIES.includes(requestedCategory)
+            && (isAdmin || !isAdminOnlyCategory(requestedCategory));
+        setCategory(requestedCategoryAllowed ? requestedCategory : (availableCategories[0] ?? ""));
+    }, [isAdmin, isInitializing, requestedCategory]);
 
     useEffect(() => {
         if (!isLoggedIn) return;
@@ -162,13 +168,16 @@ function BoardWritePage() {
                         />
                     </div>
 
-                    <div className="board-form-group">
-                        <label>작성자</label>
-                        <input
-                            className="board-input readonly"
-                            value={writerName}
-                            readOnly
-                        />
+                    <div className="board-form-meta">
+                        <div className="board-form-group">
+                            <label>작성자</label>
+                            <input
+                                className="board-input readonly"
+                                value={writerName}
+                                readOnly
+                            />
+                        </div>
+
                     </div>
 
                     <div className="board-form-group">
