@@ -58,8 +58,10 @@
 .home-layout .auth-nav a:hover,
 .home-layout .auth-nav button:hover { color: #fff; background: transparent; border-color: transparent; }
 
-.home-layout .main-content { display: block; height: 100vh; min-height: 680px; overflow: hidden; background: #020a14; }
-.home-layout footer { display: none; }
+.home-layout .main-content { display: block; height: auto; min-height: 0; overflow: visible; background: #020a14; }
+.home-layout footer { display: flex; align-items: center; justify-content: center; min-height: 42px; padding: 8px 24px; color: #9fb1c4; background: var(--navy-950); border-top: 1px solid rgba(255,255,255,.08); font-size: 12px; gap: 24px; }
+.home-layout .footer-links { display: flex; gap: 16px; }
+.home-layout .footer-links a { color: #9fb1c4; font-size: 12px; text-decoration: none; }
 
 .space-hero {
   position: relative;
@@ -91,7 +93,7 @@
   .home-layout .auth-nav { margin-left: auto; }
   .home-layout .auth-nav a,
   .home-layout .auth-nav button { padding: 7px 9px; font-size: 12px; }
-  .home-layout .main-content { min-height: 100svh; }
+  .home-layout .main-content { height: auto; min-height: 0; overflow: visible; }
   .space-hero { min-height: 100svh; }
   .space-hero::before { background-position: 62% center; }
   .space-hero-content { top: 42%; width: calc(100% - 40px); margin: 0; }
