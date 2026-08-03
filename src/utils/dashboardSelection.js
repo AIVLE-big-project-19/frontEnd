@@ -12,13 +12,20 @@ export const toDashboardSelection = (item) => ({
   candidateRank: item.candidateRank,
 });
 
-export const normalizeDashboardSelections = (items) => (
-  Array.isArray(items)
-    ? items
-      .filter((item) => item?.id != null)
-      .map(toDashboardSelection)
-    : []
-);
+export const normalizeDashboardSelections = (items) => {
+  if (!Array.isArray(items)) return [];
+
+  const seen = new Set();
+  return items
+    .filter((item) => item?.id != null)
+    .map(toDashboardSelection)
+    .filter((item) => {
+      const key = String(item.id);
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+};
 
 export const saveDashboardSelections = (items, storage = window.sessionStorage) => {
   const candidates = normalizeDashboardSelections(items);

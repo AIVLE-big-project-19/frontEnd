@@ -5,16 +5,14 @@ function BoardCard({ board }) {
     const categoryKey = getBoardCategoryKey(board.category);
 
     return (
-        <div className={`board-card category-${categoryKey}`}>
+        <Link className={`board-card category-${categoryKey}`} to={`/boards/${board.boardId}`}>
             <div className="board-card-category">
                 <span className="board-badge">{board.category}</span>
             </div>
 
             <div className="board-card-body">
                 <h3 className="board-card-title">
-                    <Link to={`/boards/${board.boardId}`}>
-                        {board.title}
-                    </Link>
+                    {board.title}
                 </h3>
 
                 <div className="board-card-meta">
@@ -28,7 +26,7 @@ function BoardCard({ board }) {
                     </span>
                 </div>
             </div>
-        </div>
+        </Link>
     );
 }
 

@@ -54,4 +54,17 @@ describe('dashboard selection', () => {
 
     expect(loadDashboardSelections(storage)).toEqual([]);
   });
+
+  test('같은 후보지를 누적 저장해도 목록에 한 번만 표시한다', () => {
+    const storage = createStorage();
+
+    saveDashboardSelections([
+      { id: 3, address: '기존 후보지' },
+      { id: 3, address: '갱신 후보지' },
+      { id: 4, address: '새 후보지' },
+    ], storage);
+
+    expect(loadDashboardSelections(storage)).toHaveLength(2);
+    expect(loadDashboardSelections(storage)[0].address).toBe('기존 후보지');
+  });
 });
