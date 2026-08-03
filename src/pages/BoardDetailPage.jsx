@@ -10,7 +10,7 @@ import "../styles/board.css";
 function BoardDetailPage() {
     const { boardId } = useParams();
     const navigate = useNavigate();
-    const { loginId, isAdmin } = useAuth();
+    const { loginId, isAdmin, isInitializing } = useAuth();
 
     const [board, setBoard] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -25,6 +25,8 @@ function BoardDetailPage() {
         let active = true;
 
         const loadBoard = async () => {
+            if (isInitializing) return;
+
             try {
                 const response = await getBoard(boardId);
                 if (active) setBoard(response.data.data);
@@ -43,7 +45,7 @@ function BoardDetailPage() {
 
         loadBoard();
         return () => { active = false; };
-    }, [boardId, navigate]);
+    }, [boardId, isInitializing, navigate]);
 
     useEffect(() => {
         if (!board?.attachments?.length) return undefined;
@@ -122,7 +124,7 @@ function BoardDetailPage() {
         }
     };
 
-    if (loading) {
+    if (isInitializing || loading) {
         return (
             <Layout>
                 <div className="board-page">

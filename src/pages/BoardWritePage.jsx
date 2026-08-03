@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { createBoard } from "../api/boardApi";
 import { useAuth } from "../context/AuthContext";
 import { BOARD_CATEGORIES, isAdminOnlyCategory } from "../constants/boardCategory";
@@ -9,6 +9,7 @@ import { getMyProfile } from "../api/myPageApi";
 
 function BoardWritePage() {
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
     const { isLoggedIn, loginId, isAdmin, isInitializing } = useAuth();
 
     const availableCategories = isAdmin
@@ -17,10 +18,19 @@ function BoardWritePage() {
 
     const [title, setTitle] = useState("");
     const [content, setContent] = useState("");
-    const [category, setCategory] = useState(availableCategories[0] ?? "");
+    const requestedCategory = searchParams.get("category");
+    const [category, setCategory] = useState("");
     const [writerName, setWriterName] = useState(loginId ?? "");
     const [files, setFiles] = useState([]);
     const [previews, setPreviews] = useState([]);
+
+    useEffect(() => {
+        if (isInitializing) return;
+
+        const requestedCategoryAllowed = BOARD_CATEGORIES.includes(requestedCategory)
+            && (isAdmin || !isAdminOnlyCategory(requestedCategory));
+        setCategory(requestedCategoryAllowed ? requestedCategory : (availableCategories[0] ?? ""));
+    }, [isAdmin, isInitializing, requestedCategory]);
 
     useEffect(() => {
         if (!isLoggedIn) return;
@@ -166,23 +176,6 @@ function BoardWritePage() {
                             />
                         </div>
 
-                        <div className="board-form-group">
-                            <label>카테고리</label>
-                            <select
-                                className="board-input"
-                                value={category}
-                                onChange={(e) => setCategory(e.target.value)}
-                            >
-                                {availableCategories.map((item) => (
-                                    <option key={item} value={item}>
-                                        {item}
-                                    </option>
-                                ))}
-                            </select>
-                            {!isAdmin && (
-                                <p className="board-form-help">공지사항과 FAQ는 관리자 계정에서만 작성할 수 있습니다.</p>
-                            )}
-                        </div>
                     </div>
 
                     <div className="board-form-group">
