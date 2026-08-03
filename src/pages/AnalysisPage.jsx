@@ -7,6 +7,7 @@ import ChatBot from '../components/ChatBot';
 import '../styles/AnalysisPage.css';
 import { transform } from 'ol/proj';
 import { searchIdleLands, downloadIdleLandReport } from '../api/idleLandApi';
+import { fetchAddressByPoint } from '../api/mapApi';
 import { saveDashboardSelections } from '../utils/dashboardSelection';
 import instance from '../api/axiosInstance';
 import parcelPolygonsUrl from '../data/parcelPolygons.json?url';
@@ -93,13 +94,12 @@ const AnalysisPage = () => {
         const center = map.getView().getCenter();
         const latLon = transform(center, 'EPSG:3857', 'EPSG:4326');
 
-        fetch(`/vworld-api/req/address?service=address&request=getAddress&point=${latLon[0]},${latLon[1]}&type=road&key=${apiKey}`)
-          .then((res) => res.json())
+        fetchAddressByPoint(latLon[0], latLon[1])
           .then((data) => {
             if (data.response?.status === 'OK') {
               setCurrentAddress(data.response.result[0].text);
             } else {
-              setCurrentAddress("해당 위치의 주소 정보가 없습니다.");
+              setCurrentAddress("지도의 위치를 다른곳으로 옮겨서 확인해보세요.");
             }
           })
           .catch(() => setCurrentAddress("통신 오류 발생"));
