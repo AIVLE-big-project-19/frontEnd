@@ -12,18 +12,7 @@ const AuthNav = () => {
 
 const handleAdminTestLogin = async () => {
   try {
-    const response = await fetch('/api/auth/test-login/admin', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error('로그인 실패');
-    }
-
-    const data = await response.json();
+    const { data } = await api.post('/auth/test-login/admin');
 
     // data = { accessToken, refreshToken } (관리자 계정 loginId는 백엔드에 "admin"으로 고정돼 있음)
     login(data, 'admin', true);
