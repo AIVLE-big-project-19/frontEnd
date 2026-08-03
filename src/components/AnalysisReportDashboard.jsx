@@ -77,7 +77,7 @@ const AnalysisReportDashboard = ({ report, onDownload }) => (
       <div className="primary">
         <span className="kpi-mark revenue" aria-hidden="true">₩</span>
         <dt>연간 예상 수익</dt>
-        <dd>{formatNumber(report.economics.annualRevenue == null ? null : report.economics.annualRevenue / 10000, ' 만원')}</dd>
+        <dd>{formatNumber(report.economics.annualRevenue == null ? null : report.economics.annualRevenue / 100000000, ' 억')}</dd>
         <small>ROI {formatNumber(report.economics.roiPercent, '%')} · 회수 {formatNumber(report.economics.paybackYears, '년')}</small>
       </div>
     </dl>
