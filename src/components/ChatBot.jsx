@@ -1,16 +1,18 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { sendChatMessage, sendChatExcel } from '../api/chatApi';
+import { sendChatMessage, sendChatPdf } from '../api/chatApi';
 import '../styles/ChatBot.css';
 
 const ChatBot = () => {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
-    { role: 'bot', text: '안녕하세요! 후보지 조회 추천을 해드릴게요!\n 채팅을 입력하거나 제공된 excel 파일을 업로드 해주시면 답변 드리겠습니다!' },
+    { role: 'bot', text: '안녕하세요! 후보지 조회 추천을 해드릴게요!\n PDF 보고서를 한 번 첨부해두시면, 이후에는 그냥 채팅으로 편하게 질문하실 수 있어요!' },
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [reportContext, setReportContext] = useState(null);
+  const [reportName, setReportName] = useState(null);
   const messagesEndRef = useRef(null);
   const fileInputRef = useRef(null);
 
@@ -43,7 +45,7 @@ const ChatBot = () => {
     setIsLoading(true);
 
     try {
-      const data = await sendChatMessage(text);
+      const data = await sendChatMessage(text, reportContext);
       applyBotResponse(data);
     } catch (error) {
       console.error('챗봇 응답 실패:', error);
@@ -62,27 +64,32 @@ const ChatBot = () => {
     }
   };
 
-  const handleExcelButtonClick = () => {
+  const handlePdfButtonClick = () => {
     if (isLoading) return;
     fileInputRef.current?.click();
   };
 
-  const handleExcelChange = async (e) => {
+  const handlePdfChange = async (e) => {
     const file = e.target.files[0];
     e.target.value = '';
     if (!file || isLoading) return;
 
-    setMessages((prev) => [...prev, { role: 'user', text: `[엑셀 업로드] ${file.name}` }]);
+    const question = input.trim() || '이 보고서를 분석해서 요약해줘.';
+    setMessages((prev) => [...prev, { role: 'user', text: `[PDF 첨부: ${file.name}] ${question}` }]);
+    setInput('');
     setIsLoading(true);
 
     try {
-      const data = await sendChatExcel(file);
+      const data = await sendChatPdf(file, question);
+      const context = data?.data?.report_context ?? null;
+      setReportContext(context);
+      setReportName(context ? file.name : null);
       applyBotResponse(data);
     } catch (error) {
-      console.error('엑셀 분석 실패:', error);
+      console.error('PDF 분석 실패:', error);
       setMessages((prev) => [
         ...prev,
-        { role: 'bot', text: '엑셀 파일을 분석하지 못했어요. 형식을 확인하고 다시 시도해주세요.' },
+        { role: 'bot', text: 'PDF 보고서를 분석하지 못했어요. 형식을 확인하고 다시 시도해주세요.' },
       ]);
     } finally {
       setIsLoading(false);
@@ -112,22 +119,29 @@ const ChatBot = () => {
             <div ref={messagesEndRef} />
           </div>
 
+          {reportName && (
+            <div className="chatbot-report-indicator">
+              [{reportName}] 
+              <br/>보고서를 참고해서 답변하고 있어요.
+            </div>
+          )}
+
           <div className="chatbot-input-area">
             <input
               type="file"
-              accept=".xlsx,.xls"
+              accept=".pdf"
               ref={fileInputRef}
-              onChange={handleExcelChange}
+              onChange={handlePdfChange}
               style={{ display: 'none' }}
             />
             <button
               type="button"
-              className="chatbot-excel-btn"
-              onClick={handleExcelButtonClick}
+              className="chatbot-pdf-btn"
+              onClick={handlePdfButtonClick}
               disabled={isLoading}
-              title="엑셀 파일 업로드"
+              title={reportName ? '다른 PDF 보고서로 교체' : 'PDF 보고서 첨부'}
             >
-              엑셀
+              PDF
             </button>
             <input
               type="text"

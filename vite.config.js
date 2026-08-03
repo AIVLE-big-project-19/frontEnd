@@ -40,6 +40,12 @@ export default defineConfig({
         target: 'https://api.vworld.kr',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/vworld-api/, '') // 요청 경로에서 /vworld-api 제거
+      },
+      // 챗봇 기능은 Spring 백엔드에서 분리되어 별도 FastAPI 서버(chat_bot)
+      '/chatbot-api': {
+        target: process.env.VITE_CHATBOT_PROXY_TARGET || 'http://localhost:8010',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/chatbot-api/, ''),
       }
     }
   }
