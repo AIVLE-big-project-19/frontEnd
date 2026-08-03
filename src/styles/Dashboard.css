@@ -528,6 +528,10 @@
   font-size: 12px;
 }
 
+.mobile-map-analyze-button {
+  display: none;
+}
+
 .dashboard-report-pane {
   min-width: 0;
 }
@@ -537,6 +541,38 @@
   min-width: 0;
   gap: 10px;
   color: #334155;
+}
+
+.decision-data-notice {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 14px;
+  color: #7a5512;
+  background: #fff9e8;
+  border: 1px solid #ead7a4;
+  border-radius: 6px;
+  font-size: 11px;
+}
+
+.decision-data-notice strong {
+  flex: 0 0 auto;
+  color: #8b5e08;
+}
+
+.decision-chart-empty {
+  display: grid;
+  min-height: 128px;
+  margin: 0;
+  padding: 20px;
+  place-items: center;
+  color: #64748b;
+  background: #f8fafb;
+  border: 1px dashed #cbd5df;
+  border-radius: 5px;
+  font-size: 11px;
+  line-height: 1.5;
+  text-align: center;
 }
 
 .decision-report-header {
@@ -823,6 +859,14 @@
   padding: 14px 16px;
 }
 
+.generation-chart-card,
+.payback-chart-card {
+  display: flex;
+  min-height: 210px;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
 .chart-heading,
 .decision-panel-heading {
   display: flex;
@@ -856,6 +900,7 @@
 
 .generation-chart {
   display: grid;
+  flex: 1;
   grid-template-columns: repeat(12, minmax(16px, 1fr));
   height: 132px;
   align-items: end;
@@ -974,6 +1019,14 @@
   border-top: 1px solid #e7ebef;
   font-size: 9px;
   line-height: 1.45;
+}
+
+.generation-chart-card > .decision-chart-empty,
+.payback-chart-card > .decision-chart-empty {
+  flex: 1;
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 10px;
 }
 
 .decision-detail-grid {
@@ -1400,6 +1453,33 @@
   .dashboard-map {
     height: 300px;
     min-height: 300px;
+  }
+
+  .dashboard-map:has(.mobile-map-analyze-button) .map-caption {
+    bottom: 62px;
+  }
+
+  .mobile-map-analyze-button {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    left: 10px;
+    z-index: 30;
+    display: block;
+    min-height: 44px;
+    color: #fff;
+    background: #087f78;
+    border: 0;
+    border-radius: 5px;
+    font-size: 12px;
+    font-weight: 750;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(15, 68, 65, .2);
+  }
+
+  .mobile-map-analyze-button:disabled {
+    cursor: wait;
+    opacity: .65;
   }
 
   .decision-report-header {

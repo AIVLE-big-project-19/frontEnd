@@ -164,7 +164,15 @@ const DashboardPage = () => {
     try {
       const detail = await fetchDashboardCandidateAnalysis(candidate.id);
       setAnalysis(detail);
-      setStatus({ type: 'success', text: '실제 API 분석 결과를 대시보드에 표시했습니다.' });
+      const hasEconomicEstimate = [
+        detail.capacityKw,
+        detail.annualGenerationKwh,
+        detail.estimatedAnnualRevenue,
+        detail.paybackPeriodYears,
+      ].every((value) => value != null);
+      setStatus(hasEconomicEstimate
+        ? { type: 'success', text: '입지 적합도와 경제성 분석 결과를 표시했습니다.' }
+        : { type: 'info', text: '입지 적합도 분석을 표시했습니다. 경제성 지표는 아직 미산정입니다.' });
       setActiveMobilePanel('result');
     } catch (error) {
       setStatus({
@@ -373,6 +381,16 @@ const DashboardPage = () => {
               {apiKey
                 ? <MapView apiKey={apiKey} setMap={setMap} selectedCoordinates={coordinates} />
                 : <div className="map-loading">지도를 불러오는 중...</div>}
+              {selectedCandidate && (
+                <button
+                  type="button"
+                  className="mobile-map-analyze-button"
+                  onClick={handleAnalyze}
+                  disabled={analysisLoading}
+                >
+                  {analysisLoading ? 'AI 분석 중...' : analysis ? 'AI 분석 다시 실행' : '이 후보지 AI 분석하기'}
+                </button>
+              )}
             </div>
           </div>
 

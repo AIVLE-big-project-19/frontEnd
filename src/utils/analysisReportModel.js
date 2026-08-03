@@ -56,6 +56,8 @@ export const buildAnalysisReportViewModel = ({
   const annualGenerationKwh = toNumberOrNull(source.annualGenerationKwh);
   const installationCost = toNumberOrNull(source.estimatedInstallationCost);
   const roiFromCost = installationCost > 0 ? annualRevenue / installationCost * 100 : null;
+  const resolvedCapacityKw = toNumberOrNull(hasAnalysis ? source.capacityKw : capacityKw);
+  const roiPercent = toNumberOrNull(source.roiPercent ?? roiFromCost);
   const risks = Array.isArray(source.risks) && source.risks.length
     ? source.risks.slice(0, 3).map(normalizeRisk)
     : [];
@@ -68,9 +70,29 @@ export const buildAnalysisReportViewModel = ({
     : [];
   const siteType = source.siteType || source.targetType || 'LAND';
   const hasScore = score !== null;
+  const hasEconomicEstimate = [
+    resolvedCapacityKw,
+    annualGenerationKwh,
+    annualRevenue,
+    paybackYears,
+  ].every((value) => value !== null);
+  const analysisStatus = !hasAnalysis ? 'empty' : hasEconomicEstimate ? 'complete' : 'partial';
+  const decisionLabel = !hasScore
+    ? '분석 데이터 없음'
+    : !hasEconomicEstimate
+    ? score >= 80 ? '입지 적합도 우수' : score >= 70 ? '입지 조건 검토' : '입지 재검토 필요'
+    : score >= 80 ? '설치 권장' : score >= 70 ? '조건부 검토' : '재검토 필요';
+  const decisionSummary = !hasScore
+    ? '왼쪽 후보지 목록에서 분석할 대상을 선택하세요.'
+    : !hasEconomicEstimate
+    ? '입지 적합도 분석은 완료됐지만 경제성 지표가 미산정되어 설치 여부를 확정할 수 없습니다.'
+    : score >= 80
+    ? '수익성과 설치 여건이 양호합니다. 구조안전 확인 후 사업 추진을 권장합니다.'
+    : '일부 조건을 보완한 뒤 사업 추진 여부를 다시 판단해야 합니다.';
 
   return {
     source: hasAnalysis ? 'analysis' : 'empty',
+    analysisStatus,
     site: {
       address: source.address || address || '분석할 후보지를 선택하세요.',
       type: siteType,
@@ -81,19 +103,16 @@ export const buildAnalysisReportViewModel = ({
     decision: {
       score,
       grade: source.grade || (hasScore ? (score >= 90 ? 'A' : score >= 80 ? 'B' : score >= 70 ? 'C' : 'D') : '-'),
-      label: !hasScore ? '분석 데이터 없음' : score >= 80 ? '설치 권장' : score >= 70 ? '조건부 검토' : '재검토 필요',
-      summary: !hasScore
-        ? '왼쪽 후보지 목록에서 분석할 대상을 선택하세요.'
-        : score >= 80
-        ? '수익성과 설치 여건이 양호합니다. 구조안전 확인 후 사업 추진을 권장합니다.'
-        : '일부 조건을 보완한 뒤 사업 추진 여부를 다시 판단해야 합니다.',
+      label: decisionLabel,
+      summary: decisionSummary,
     },
     economics: {
-      capacityKw: toNumberOrNull(hasAnalysis ? source.capacityKw : capacityKw),
+      capacityKw: resolvedCapacityKw,
       annualGenerationKwh,
       annualRevenue,
-      roiPercent: toNumberOrNull(source.roiPercent ?? roiFromCost),
+      roiPercent,
       paybackYears,
+      hasEstimate: hasEconomicEstimate,
     },
     visuals: {
       monthlyGeneration: buildMonthlyGeneration(source, annualGenerationKwh),
