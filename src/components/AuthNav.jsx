@@ -1,5 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import instance from '../api/axiosInstance';
 
 const AuthNav = () => {
   const { isLoggedIn, loginId, isAdmin, login, logout } = useAuth();
@@ -12,7 +13,7 @@ const AuthNav = () => {
 
 const handleAdminTestLogin = async () => {
   try {
-    const { data } = await api.post('/auth/test-login/admin');
+    const { data } = await instance.post('/auth/test-login/admin');
 
     // data = { accessToken, refreshToken } (관리자 계정 loginId는 백엔드에 "admin"으로 고정돼 있음)
     login(data, 'admin', true);
