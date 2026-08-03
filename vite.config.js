@@ -35,14 +35,8 @@ export default defineConfig({
         target: process.env.VITE_API_PROXY_TARGET || 'http://localhost:8080',
         changeOrigin: true,
       },
-      // 새로 추가할 VWorld API 설정
-      '/vworld-api': {
-        target: 'https://api.vworld.kr',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/vworld-api/, '') // 요청 경로에서 /vworld-api 제거
-      }
-      // 챗봇 서버는 이제 CloudFront(VITE_CHATBOT_BASE_URL)를 직접 호출하므로
-      // 별도 dev 프록시가 필요 없다.
+ㄴ
+
     }
   }
 })
