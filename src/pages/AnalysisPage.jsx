@@ -8,7 +8,8 @@ import '../styles/AnalysisPage.css';
 import { transform } from 'ol/proj';
 import { searchIdleLands, downloadIdleLandReport } from '../api/idleLandApi';
 import { saveDashboardSelections } from '../utils/dashboardSelection';
-import parcelPolygonsUrl from '../data/parcelPolygons.geojson?url';
+import instance from '../api/axiosInstance';
+import parcelPolygonsUrl from '../data/parcelPolygons.json?url';
 
 const GRADE_CLASS = { A: 'grade-a', B: 'grade-b', C: 'grade-c' };
 
@@ -32,9 +33,8 @@ const AnalysisPage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch('/api/vworld-key')
-      .then((res) => res.json())
-      .then((data) => setApiKey(data.apiKey))
+    instance.get('/vworld-key')
+      .then(({ data }) => setApiKey(data.apiKey))
       .catch((err) => console.error("키 로딩 실패", err));
   }, []);
 
@@ -117,16 +117,13 @@ const AnalysisPage = () => {
     }
 
     try {
-      const response = await fetch('/api/pdf/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ address: currentAddress }),
-      });
+      const response = await instance.post(
+        '/pdf/generate',
+        { address: currentAddress },
+        { responseType: 'blob' },
+      );
 
-      if (!response.ok) throw new Error("PDF 생성 실패");
-
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
+      const url = window.URL.createObjectURL(response.data);
       const a = document.createElement('a');
       a.href = url;
       a.download = 'SolarAivle_Report.pdf';
@@ -139,12 +136,12 @@ const AnalysisPage = () => {
 
   const handleDownloadSamplePdf = async (targetType) => {
     try {
-      const response = await fetch(`/api/pdf/generate/sample?type=${targetType}`);
+      const response = await instance.get('/pdf/generate/sample', {
+        params: { type: targetType },
+        responseType: 'blob',
+      });
 
-      if (!response.ok) throw new Error("예제 PDF 생성 실패");
-
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
+      const url = window.URL.createObjectURL(response.data);
       const a = document.createElement('a');
       a.href = url;
       a.download = `SolarAivle_Sample_${targetType}.pdf`;
