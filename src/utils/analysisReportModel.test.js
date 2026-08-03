@@ -6,8 +6,10 @@ test('향후 중첩 API 응답을 대시보드 표시 모델로 변환한다', (
     analysis: {
       id: 42,
       suitabilityScore: 91,
+      capacityKw: 120,
       annualGenerationKwh: 160000,
       estimatedAnnualRevenue: 30000000,
+      paybackPeriodYears: 7.2,
       generationForecast: {
         monthly: Array.from({ length: 12 }, (_, index) => ({ generationKwh: 10000 + index * 100 })),
       },
@@ -22,6 +24,8 @@ test('향후 중첩 API 응답을 대시보드 표시 모델로 변환한다', (
   });
 
   expect(report.source).toBe('analysis');
+  expect(report.analysisStatus).toBe('complete');
+  expect(report.decision.label).toBe('설치 권장');
   expect(report.site.usableAreaM2).toBe(910);
   expect(report.scores.map((item) => item.value)).toEqual([90, 92, 94]);
   expect(report.roof.moduleDirection).toBe('남남서향');
@@ -40,4 +44,18 @@ test('API 값이 없으면 샘플 수치를 만들지 않고 빈 값으로 유�
   expect(report.visuals.monthlyGeneration.reduce((sum, item) => sum + item.value, 0)).toBe(0);
   expect(report.risks).toEqual([]);
   expect(report.actions).toEqual([]);
+});
+
+test('경제성 값이 빠진 분석 결과는 입지 분석으로만 표시한다', () => {
+  const report = buildAnalysisReportViewModel({
+    analysis: {
+      suitabilityScore: 92,
+      scores: { ml: 92 },
+    },
+  });
+
+  expect(report.analysisStatus).toBe('partial');
+  expect(report.decision.label).toBe('입지 적합도 우수');
+  expect(report.decision.summary).toContain('설치 여부를 확정할 수 없습니다');
+  expect(report.economics.hasEstimate).toBe(false);
 });

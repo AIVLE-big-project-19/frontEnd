@@ -17,7 +17,7 @@ const AnalysisReportDashboard = ({ report, onDownload }) => (
     <div className="decision-report-header">
       <div>
         <div className="report-context">
-          <span>{report.source === 'analysis' ? '분석 완료' : '후보지 선택 대기'}</span>
+          <span>{report.analysisStatus === 'partial' ? '입지 분석 완료' : report.source === 'analysis' ? '분석 완료' : '후보지 선택 대기'}</span>
           <span>{report.site.type === 'ROOF' ? '옥상형 태양광' : '토지형 태양광'}</span>
         </div>
         <h2 id="decision-report-title">{report.site.address}</h2>
@@ -47,6 +47,13 @@ const AnalysisReportDashboard = ({ report, onDownload }) => (
         <strong>{report.site.type === 'ROOF' ? '구조안전진단' : '현장 부지조사'}</strong>
       </div>
     </div>
+
+    {report.analysisStatus === 'partial' && (
+      <div className="decision-data-notice" role="status">
+        <strong>경제성 지표 미산정</strong>
+        <span>설치용량·발전량·수익·회수기간을 확인한 뒤 최종 사업성을 판단하세요.</span>
+      </div>
+    )}
 
     <dl className="decision-kpis">
       <div>
@@ -81,27 +88,37 @@ const AnalysisReportDashboard = ({ report, onDownload }) => (
           <div><span>발전량 전망</span><h3>월별 예상 발전량</h3></div>
           <strong>{formatNumber(report.economics.annualGenerationKwh, ' kWh / 년')}</strong>
         </div>
-        <div className="generation-chart" role="img" aria-label="1월부터 12월까지 월별 예상 발전량 막대 그래프">
-          {report.visuals.monthlyGeneration.map((item) => (
-            <div className="generation-bar-column" key={item.month} aria-label={`${item.month}월 ${formatNumber(item.value, ' kWh')}`}>
-              <span>{formatNumber(item.value / 1000, 'k')}</span>
-              <i style={{ '--generation-height': `${item.heightPercent}%` }} />
-              <b>{item.month}월</b>
-            </div>
-          ))}
-        </div>
+        {report.economics.annualGenerationKwh == null ? (
+          <p className="decision-chart-empty">발전량 산정에 필요한 데이터가 없습니다.</p>
+        ) : (
+          <div className="generation-chart" role="img" aria-label="1월부터 12월까지 월별 예상 발전량 막대 그래프">
+            {report.visuals.monthlyGeneration.map((item) => (
+              <div className="generation-bar-column" key={item.month} aria-label={`${item.month}월 ${formatNumber(item.value, ' kWh')}`}>
+                <span>{formatNumber(item.value / 1000, 'k')}</span>
+                <i style={{ '--generation-height': `${item.heightPercent}%` }} />
+                <b>{item.month}월</b>
+              </div>
+            ))}
+          </div>
+        )}
       </article>
 
       <article className="payback-chart-card">
         <div className="chart-heading">
           <div><span>투자 판단</span><h3>예상 회수 시점</h3></div>
         </div>
-        <div className="roi-value"><strong>{formatNumber(report.economics.roiPercent, '%')}</strong><span>연간 투자수익률</span></div>
-        <div className="payback-visual">
-          <div className="payback-track"><i style={{ width: `${report.visuals.paybackMarkerPercent}%` }} /><b style={{ left: `${report.visuals.paybackMarkerPercent}%` }} /></div>
-          <div className="payback-labels"><span>투자 시작</span><strong>{formatNumber(report.economics.paybackYears, '년')}</strong><span>{report.visuals.paybackScaleYears}년</span></div>
-        </div>
-        <p>예상 운영기간 내 투자금 회수가 가능하며, 이후 수익 구간으로 전환됩니다.</p>
+        {report.economics.paybackYears == null ? (
+          <p className="decision-chart-empty">투자비와 예상 수익이 산정된 뒤 회수 시점을 확인할 수 있습니다.</p>
+        ) : (
+          <>
+            <div className="roi-value"><strong>{formatNumber(report.economics.roiPercent, '%')}</strong><span>연간 투자수익률</span></div>
+            <div className="payback-visual">
+              <div className="payback-track"><i style={{ width: `${report.visuals.paybackMarkerPercent}%` }} /><b style={{ left: `${report.visuals.paybackMarkerPercent}%` }} /></div>
+              <div className="payback-labels"><span>투자 시작</span><strong>{formatNumber(report.economics.paybackYears, '년')}</strong><span>{report.visuals.paybackScaleYears}년</span></div>
+            </div>
+            <p>예상 운영기간 내 투자금 회수가 가능하며, 이후 수익 구간으로 전환됩니다.</p>
+          </>
+        )}
       </article>
     </section>
 
