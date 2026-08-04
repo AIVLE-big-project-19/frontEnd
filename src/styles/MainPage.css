@@ -183,6 +183,19 @@
 .home-layout .logo-word b,
 .app-container:not(.home-layout) .logo-word b { color: #fff; font-weight: 800; }
 
+@media (max-width: 1400px) {
+  .app-container:not(.home-layout) header { grid-template-columns: auto minmax(0, 1fr) auto; padding: 0 18px; }
+  .app-container:not(.home-layout) .logo-mark { width: 48px; height: 48px; flex-basis: 48px; }
+  .app-container:not(.home-layout) .logo-mark .logo-image { width: 132px; height: 48px; }
+  .app-container:not(.home-layout) .logo-word { display: none; }
+  .app-container:not(.home-layout) header > .nav-menu { gap: clamp(8px, 1.6vw, 32px); }
+  .app-container:not(.home-layout) header > .nav-menu a,
+  .app-container:not(.home-layout) .nav-community-link { font-size: clamp(12px, 1.2vw, 16px); }
+  .app-container:not(.home-layout) .header-topbar > .auth-nav { gap: 6px; margin-left: 12px; }
+  .app-container:not(.home-layout) .auth-nav a,
+  .app-container:not(.home-layout) .auth-nav button { padding: 7px 9px; font-size: 12px; }
+}
+
 @media (max-width: 760px) {
   .home-layout .logo-mark,
   .app-container:not(.home-layout) .logo-mark { width: 42px; height: 42px; flex-basis: 42px; }
