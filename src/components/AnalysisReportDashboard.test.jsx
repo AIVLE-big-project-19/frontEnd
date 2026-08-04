@@ -73,5 +73,6 @@ test('경제성 값이 없으면 확정적인 설치 및 회수 표현을 숨긴
   expect(screen.getByText('발전량 산정에 필요한 데이터가 없습니다.')).toBeInTheDocument();
   expect(screen.getByText('NREL 지상형 태양광 토지 사용량').closest('a'))
     .toHaveAttribute('href', 'https://research-hub.nlr.gov/en/publications/land-use-requirements-for-solar-power-plants-in-the-united-states/');
+  expect(screen.queryByText(/AI 추정 부지 활용률/)).not.toBeInTheDocument();
   expect(screen.queryByText('고정 단가와 초기 설치비만 반영한 개략값입니다. 실제 투자 판단에는 운영비와 금융조건 확인이 필요합니다.')).not.toBeInTheDocument();
 });

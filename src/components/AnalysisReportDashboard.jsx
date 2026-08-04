@@ -134,7 +134,9 @@ const AnalysisReportDashboard = ({ report, onDownload }) => {
           />
         </dt>
         <dd>{formatNumber(report.site.usableAreaM2, ' m²')}</dd>
-        <small>{report.site.type === 'ROOF' ? 'AI 추정 지붕 활용률' : 'AI 추정 부지 활용률'} {formatNumber(report.site.utilizationRate, '%')}</small>
+        {report.site.utilizationRate != null && (
+          <small>{report.site.type === 'ROOF' ? 'AI 추정 지붕 활용률' : 'AI 추정 부지 활용률'} {formatNumber(report.site.utilizationRate, '%')}</small>
+        )}
       </div>
       <div>
         <span className="kpi-mark capacity" aria-hidden="true">kW</span>
