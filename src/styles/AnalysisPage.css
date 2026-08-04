@@ -245,6 +245,7 @@
 }
 
 .idle-land-select {
+  position: relative;
   display: grid;
   flex: 0 0 22px;
   place-items: center;
