@@ -51,6 +51,7 @@ export const buildAnalysisReportViewModel = ({
   const scoreSource = source.scores || source.scoreDetails || {};
   const roofSource = source.roofAnalysis || source.visionAnalysis || {};
   const generationForecast = source.generationForecast || null;
+  const capacityEstimate = source.capacityEstimate || null;
   const score = toNumberOrNull(source.suitabilityScore);
   const paybackYears = toNumberOrNull(source.paybackPeriodYears);
   const annualRevenue = toNumberOrNull(source.estimatedAnnualRevenue);
@@ -111,6 +112,14 @@ export const buildAnalysisReportViewModel = ({
     },
     economics: {
       capacityKw: resolvedCapacityKw,
+      capacityEstimate: capacityEstimate ? {
+        registeredType: capacityEstimate.registeredType || siteType,
+        visionType: capacityEstimate.visionType || null,
+        availableAreaM2: toNumberOrNull(capacityEstimate.availableAreaM2),
+        areaPerKwM2: toNumberOrNull(capacityEstimate.areaPerKwM2),
+        formula: capacityEstimate.formula || null,
+        source: capacityEstimate.source || null,
+      } : null,
       annualGenerationKwh,
       annualRevenue,
       roiPercent,

@@ -12,6 +12,13 @@ const getScoreState = (value) => {
   return { label: '주의', className: 'caution' };
 };
 
+const getSiteTypeLabel = (type) => {
+  if (type === 'ROOF') return '건물 지붕형';
+  if (type === 'PARKING_LOT') return '주차장형';
+  if (type === 'LAND') return '토지형';
+  return type || '미확인';
+};
+
 const KpiHelp = ({ label, formula, description, checks, sources }) => (
   <span className="kpi-help">
     <button
@@ -42,6 +49,19 @@ const KpiHelp = ({ label, formula, description, checks, sources }) => (
 
 const AnalysisReportDashboard = ({ report, onDownload }) => {
   const forecast = report.visuals.generationForecast;
+  const capacityEstimate = report.economics.capacityEstimate;
+  const registeredType = capacityEstimate?.registeredType || report.site.type;
+  const capacityTypeLabel = getSiteTypeLabel(registeredType);
+  const visionTypeLabel = getSiteTypeLabel(capacityEstimate?.visionType);
+  const areaPerKwM2 = capacityEstimate?.areaPerKwM2
+    ?? (registeredType === 'ROOF' ? 7.5 : 10);
+  const capacityAreaM2 = capacityEstimate?.availableAreaM2 ?? report.site.usableAreaM2;
+  const capacityFormula = capacityAreaM2 == null
+    ? `max(3kW, 반올림(가용 면적 ÷ ${formatNumber(areaPerKwM2, '㎡/kW')}))`
+    : `max(3kW, 반올림(${formatNumber(capacityAreaM2, '㎡')} ÷ ${formatNumber(areaPerKwM2, '㎡/kW')}))`;
+  const visionReference = capacityEstimate?.visionType
+    ? ` Vision AI 참고 유형은 ${visionTypeLabel}입니다.`
+    : ' Vision AI 유형 정보는 제공되지 않았습니다.';
   const hasLocationForecast = forecast?.method === 'LOCATION_BASED_PV_SIMULATION' && !forecast.fallback;
   const generationLabel = hasLocationForecast
     ? '위치 기반 예상 발전량'
@@ -122,16 +142,20 @@ const AnalysisReportDashboard = ({ report, onDownload }) => {
           면적 기반 개략 용량
           <KpiHelp
             label="면적 기반 개략 용량"
-            formula="max(3kW, 반올림(AI 추정 가용 면적 ÷ 10㎡/kW))"
-            description="10㎡당 1kW, 최소 3kW를 가정한 초기 검토값입니다. 실제 용량은 패널 규격, 이격거리, 통로, 장애물과 구조하중에 따라 달라집니다."
+            formula={capacityFormula}
+            description={`등록 유형 ${capacityTypeLabel}을 계산 기준으로 적용했습니다. ${formatNumber(areaPerKwM2, '㎡')}당 1kW, 최소 3kW를 가정한 초기 검토값입니다.${visionReference} 실제 용량은 패널 규격, 이격거리, 통로, 장애물과 구조하중에 따라 달라집니다.`}
             checks="시공사의 패널 배치도와 구조안전 검토를 통해 최종 설치용량을 확인하세요."
-            sources={[
-              { label: '한국에너지공단 태양광 설치면적 안내', href: 'https://nr.energy.or.kr/A0/GN_01/GN_01_00_040.do' },
+            sources={registeredType === 'ROOF' ? [
+              { label: 'PVGIS 설비용량·모듈 효율 공식 설명', href: 'https://joint-research-centre.ec.europa.eu/photovoltaic-geographical-information-system-pvgis/getting-started-pvgis/using-pvgis-frequently-asked-questions_en' },
+              { label: '정부24 건축물대장 열람', href: 'https://www.gov.kr/mw/AA020InfoCappView.do?CappBizCD=15000000098&tp_seq=03' },
+            ] : [
+              { label: 'PVGIS 설비용량·모듈 효율 공식 설명', href: 'https://joint-research-centre.ec.europa.eu/photovoltaic-geographical-information-system-pvgis/getting-started-pvgis/using-pvgis-frequently-asked-questions_en' },
+              { label: 'NREL 지상형 태양광 토지 사용량', href: 'https://www.nrel.gov/docs/fy13osti/56290.pdf' },
             ]}
           />
         </dt>
         <dd>{formatNumber(report.economics.capacityKw, ' kW')}</dd>
-        <small>10㎡/kW·고정식 패널 가정</small>
+        <small>{capacityTypeLabel}·{formatNumber(areaPerKwM2, '㎡/kW')} 가정</small>
       </div>
       <div>
         <span className="kpi-mark generation" aria-hidden="true">↗</span>

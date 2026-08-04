@@ -9,6 +9,14 @@ test('의사결정에 필요한 핵심 지표와 다음 행동을 보여준다',
       siteType: 'ROOF',
       suitabilityScore: 98,
       capacityKw: 100,
+      capacityEstimate: {
+        registeredType: 'ROOF',
+        visionType: 'LAND',
+        availableAreaM2: 750,
+        areaPerKwM2: 7.5,
+        formula: 'max(3, round(availableAreaM2 / areaPerKwM2))',
+        source: 'REGISTERED_TYPE_AREA',
+      },
       annualGenerationKwh: 135000,
       estimatedAnnualRevenue: 24000000,
       paybackPeriodYears: 6.5,
@@ -36,6 +44,10 @@ test('의사결정에 필요한 핵심 지표와 다음 행동을 보여준다',
   expect(screen.getByRole('img', { name: '1월부터 12월까지 월별 예상 발전량 막대 그래프' })).toBeInTheDocument();
   expect(screen.getAllByText('AI 추정 가용 면적')).toHaveLength(2);
   expect(screen.getAllByText('면적 기반 개략 용량')).toHaveLength(2);
+  expect(screen.getByText('건물 지붕형·7.5㎡/kW 가정')).toBeInTheDocument();
+  expect(screen.getByText('max(3kW, 반올림(750㎡ ÷ 7.5㎡/kW))')).toBeInTheDocument();
+  expect(screen.getByText(/등록 유형 건물 지붕형을 계산 기준으로 적용했습니다/)).toBeInTheDocument();
+  expect(screen.getByText(/Vision AI 참고 유형은 토지형입니다/)).toBeInTheDocument();
   expect(screen.getByRole('heading', { name: '단순 예상 회수 시점' })).toBeInTheDocument();
   expect(screen.getByRole('button', { name: '기본 가정 기준 연간 예상 매출 산정 기준과 출처 보기' })).toBeInTheDocument();
   expect(screen.getByRole('button', { name: '위치 기반 예상 발전량 산정 기준과 출처 보기' })).toBeInTheDocument();

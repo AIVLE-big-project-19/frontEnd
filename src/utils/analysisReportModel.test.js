@@ -7,6 +7,14 @@ test('향후 중첩 API 응답을 대시보드 표시 모델로 변환한다', (
       id: 42,
       suitabilityScore: 91,
       capacityKw: 120,
+      capacityEstimate: {
+        registeredType: 'LAND',
+        visionType: 'ROOF',
+        availableAreaM2: 1200,
+        areaPerKwM2: 10,
+        formula: 'max(3, round(availableAreaM2 / areaPerKwM2))',
+        source: 'REGISTERED_TYPE_AREA',
+      },
       annualGenerationKwh: 160000,
       estimatedAnnualRevenue: 30000000,
       paybackPeriodYears: 7.2,
@@ -41,6 +49,9 @@ test('향후 중첩 API 응답을 대시보드 표시 모델로 변환한다', (
   expect(report.visuals.monthlyGeneration).toHaveLength(12);
   expect(report.visuals.monthlyGeneration[11].value).toBe(11100);
   expect(report.economics.annualGenerationKwh).toBe(126600);
+  expect(report.economics.capacityEstimate.registeredType).toBe('LAND');
+  expect(report.economics.capacityEstimate.visionType).toBe('ROOF');
+  expect(report.economics.capacityEstimate.areaPerKwM2).toBe(10);
   expect(report.visuals.generationForecast.source).toBe('PVGIS 5.3 / ERA5');
   expect(report.visuals.generationForecast.fallback).toBe(false);
 });
