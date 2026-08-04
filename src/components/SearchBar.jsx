@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { fetchMapSearch } from '../api/mapApi';
-import { SIDO_LIST, KOREA_REGIONS } from '../data/koreaRegions';
+import { SUPPORTED_SIDO_LIST, KOREA_REGIONS } from '../data/koreaRegions';
 
 const SearchBar = ({ onSearchResult, onIdleLandSearch }) => {
   const [keyword, setKeyword] = useState('');
@@ -56,7 +56,7 @@ const SearchBar = ({ onSearchResult, onIdleLandSearch }) => {
           <div className="detail-search-selects">
             <select value={sido} onChange={handleSidoChange}>
               <option value="">시/도 선택</option>
-              {SIDO_LIST.map((name) => (
+              {SUPPORTED_SIDO_LIST.map((name) => (
                 <option key={name} value={name}>{name}</option>
               ))}
             </select>

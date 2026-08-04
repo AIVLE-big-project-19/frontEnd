@@ -10,7 +10,7 @@ import {
   fetchDashboardCandidateAnalysis,
   fetchDashboardCandidatesByRegion,
 } from '../api/dashboardApi';
-import { KOREA_REGIONS, SIDO_LIST } from '../data/koreaRegions';
+import { KOREA_REGIONS, SUPPORTED_SIDO_LIST } from '../data/koreaRegions';
 import { buildAnalysisReportViewModel } from '../utils/analysisReportModel';
 import { loadDashboardSelections, normalizeDashboardSelections } from '../utils/dashboardSelection';
 import { saveAnalysisHistoryEntry } from '../utils/analysisHistory';
@@ -284,7 +284,7 @@ const DashboardPage = () => {
                   시/도
                   <select id="dashboard-sido" value={selectedSido} onChange={handleSidoChange}>
                     <option value="">시/도 선택</option>
-                    {SIDO_LIST.map((sido) => <option key={sido} value={sido}>{sido}</option>)}
+                    {SUPPORTED_SIDO_LIST.map((sido) => <option key={sido} value={sido}>{sido}</option>)}
                   </select>
                 </label>
                 <label htmlFor="dashboard-sigungu">
