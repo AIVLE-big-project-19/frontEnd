@@ -134,8 +134,10 @@ const AnalysisReportDashboard = ({ report, onDownload }) => {
           />
         </dt>
         <dd>{formatNumber(report.site.usableAreaM2, ' m²')}</dd>
-        {report.site.utilizationRate != null && (
+        {report.site.utilizationRate != null ? (
           <small>{report.site.type === 'ROOF' ? 'AI 추정 지붕 활용률' : 'AI 추정 부지 활용률'} {formatNumber(report.site.utilizationRate, '%')}</small>
+        ) : (
+          <small aria-hidden="true">&nbsp;</small>
         )}
       </div>
       <div>
