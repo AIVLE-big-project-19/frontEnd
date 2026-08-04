@@ -78,7 +78,7 @@ const SearchBar = ({ onSearchResult, onIdleLandSearch }) => {
           />
 
           <button className="search-button detail-search-button" onClick={handleDetailSearch} disabled={!sido}>
-            지역으로 검색
+            해당 지역 분석 요청
           </button>
         </div>
       
