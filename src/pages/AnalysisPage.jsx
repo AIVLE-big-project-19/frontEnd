@@ -204,6 +204,7 @@ const AnalysisPage = () => {
   };
 
   const handleIdleLandReportDownload = async (item) => {
+    if (downloadingId !== null) return;
     setDownloadingId(item.id);
     try {
       const blob = await downloadIdleLandReport(item.id);
@@ -276,7 +277,7 @@ const AnalysisPage = () => {
                         <button
                           type="button"
                           className="idle-land-download-btn"
-                          disabled={downloadingId === item.id}
+                          disabled={downloadingId !== null}
                           onClick={() => handleIdleLandReportDownload(item)}
                         >
                           {downloadingId === item.id ? '생성 중...' : '보고서 다운로드'}

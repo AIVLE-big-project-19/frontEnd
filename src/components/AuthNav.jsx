@@ -42,7 +42,7 @@ const handleAdminTestLogin = async () => {
         onClick={handleAdminTestLogin} 
         style={{ background: 'none', border: '1px solid #ccc', cursor: 'pointer', padding: '5px 10px', borderRadius: '4px' }}
       >
-        관리자 로그인 테스트
+        테스트용 관리자 로그인
       </button>
       <Link to="/login">로그인</Link>
       <Link to="/signup">회원가입</Link>
