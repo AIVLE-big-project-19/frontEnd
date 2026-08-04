@@ -150,7 +150,7 @@ const AnalysisReportDashboard = ({ report, onDownload }) => {
               { label: '정부24 건축물대장 열람', href: 'https://www.gov.kr/mw/AA020InfoCappView.do?CappBizCD=15000000098&tp_seq=03' },
             ] : [
               { label: 'PVGIS 설비용량·모듈 효율 공식 설명', href: 'https://joint-research-centre.ec.europa.eu/photovoltaic-geographical-information-system-pvgis/getting-started-pvgis/using-pvgis-frequently-asked-questions_en' },
-              { label: 'NREL 지상형 태양광 토지 사용량', href: 'https://www.nrel.gov/docs/fy13osti/56290.pdf' },
+              { label: 'NREL 지상형 태양광 토지 사용량', href: 'https://research-hub.nlr.gov/en/publications/land-use-requirements-for-solar-power-plants-in-the-united-states/' },
             ]}
           />
         </dt>
