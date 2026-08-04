@@ -59,14 +59,14 @@
 .home-layout .auth-nav button:hover { color: #fff; background: transparent; border-color: transparent; }
 
 .home-layout .main-content { display: block; height: auto; min-height: 0; overflow: visible; background: #020a14; }
-.home-layout footer { display: flex; align-items: center; justify-content: center; min-height: 42px; padding: 8px 24px; color: #9fb1c4; background: var(--navy-950); border-top: 1px solid rgba(255,255,255,.08); font-size: 12px; gap: 24px; }
+.home-layout footer { display: flex; align-items: center; justify-content: center; min-height: 34px; padding: 6px 24px; color: #9fb1c4; background: var(--navy-950); border-top: 1px solid rgba(255,255,255,.08); font-size: 12px; gap: 24px; }
 .home-layout .footer-links { display: flex; gap: 16px; }
 .home-layout .footer-links a { color: #9fb1c4; font-size: 12px; text-decoration: none; }
 
 .space-hero {
   position: relative;
   display: grid;
-  min-height: 100vh;
+  min-height: calc(100vh - 47px);
   overflow: hidden;
   place-items: center;
   isolation: isolate;
@@ -94,7 +94,7 @@
   .home-layout .auth-nav a,
   .home-layout .auth-nav button { padding: 7px 9px; font-size: 12px; }
   .home-layout .main-content { height: auto; min-height: 0; overflow: visible; }
-  .space-hero { min-height: 100svh; }
+  .space-hero { min-height: calc(100svh - 47px); }
   .space-hero::before { background-position: 62% center; }
   .space-hero-content { top: 42%; width: calc(100% - 40px); margin: 0; }
   .space-eyebrow { font-size: 9px; letter-spacing: .1em; }
@@ -109,7 +109,7 @@
   grid-template-columns: minmax(210px, auto) minmax(0, 1fr) auto;
   grid-template-areas: 'logo nav auth';
   align-items: center;
-  min-height: 84px;
+  min-height: 78px;
   padding: 0 32px;
   color: #fff;
   background: var(--navy-950);
@@ -118,11 +118,13 @@
 }
 .app-container:not(.home-layout) header::after { position: absolute; right: 0; bottom: -1px; left: 0; height: 2px; content: ''; background: linear-gradient(90deg, var(--teal-600), var(--solar-500) 62%, transparent 92%); }
 .app-container:not(.home-layout) .header-topbar { display: contents; }
-.app-container:not(.home-layout) .logo-link { display: inline-flex; grid-area: logo; align-items: center; height: 84px; text-decoration: none; }
+.app-container:not(.home-layout) .logo-link { display: inline-flex; grid-area: logo; align-items: center; height: 78px; text-decoration: none; }
 .app-container:not(.home-layout) .logo-image { display: block; width: auto; height: 70px; object-fit: contain; filter: brightness(1.14) contrast(1.24) drop-shadow(0 2px 5px rgba(0,0,0,.3)); opacity: 1; transform: translateY(6px); }
 .app-container:not(.home-layout) header > .nav-menu { display: flex; grid-area: nav; align-items: center; justify-content: center; gap: clamp(40px, 5vw, 78px); min-width: 0; }
-.app-container:not(.home-layout) header > .nav-menu a { position: relative; padding: 10px 2px; color: #fff; font-size: clamp(14px, 1.33vw, 19px); font-weight: 700; line-height: 1.1; text-decoration: none; white-space: nowrap; }
-.app-container:not(.home-layout) header > .nav-menu a:hover { color: #fff; }
+.app-container:not(.home-layout) header > .nav-menu a { position: relative; padding: 10px 2px; color: #fff; font-size: clamp(14px, 1.33vw, 19px); font-weight: 700; line-height: 1.1; text-decoration: none; white-space: nowrap; transition: color 160ms ease; }
+.app-container:not(.home-layout) header > .nav-menu a::after { position: absolute; right: 2px; bottom: 0; left: 2px; height: 2px; content: ''; background: linear-gradient(90deg, var(--teal-500, #14b8a6), var(--solar-500)); border-radius: 2px; opacity: 0; transform: scaleX(.4); transform-origin: center; transition: transform 220ms cubic-bezier(.22,1,.36,1), opacity 220ms ease; }
+.app-container:not(.home-layout) header > .nav-menu a:hover { color: var(--solar-500); }
+.app-container:not(.home-layout) header > .nav-menu a:hover::after { opacity: 1; transform: scaleX(1); }
 .app-container:not(.home-layout) .nav-card-icon { display: none; }
 .app-container:not(.home-layout) .nav-card-description { display: none !important; }
 .app-container:not(.home-layout) .header-topbar > .auth-nav { display: flex; grid-area: auth; align-items: center; justify-content: flex-end; gap: 10px; margin-left: 24px; }
@@ -132,7 +134,7 @@
 .app-container:not(.home-layout) .auth-nav a:last-child,
 .app-container:not(.home-layout) .auth-nav button:last-child { color: #fff; background: var(--teal-600); border-color: var(--teal-600); }
 .app-container:not(.home-layout) .main-content { display: flex; flex: 1 0 auto; width: 100%; min-height: calc(100vh - 126px); height: auto; overflow: visible; background: var(--surface-soft); }
-.app-container:not(.home-layout) footer { display: flex; align-items: center; justify-content: center; min-height: 42px; padding: 8px 24px; color: #9fb1c4; background: var(--navy-950); border-top: 1px solid rgba(255,255,255,.08); font-size: 12px; gap: 24px; }
+.app-container:not(.home-layout) footer { display: flex; align-items: center; justify-content: center; min-height: 34px; padding: 6px 24px; color: #9fb1c4; background: var(--navy-950); border-top: 1px solid rgba(255,255,255,.08); font-size: 12px; gap: 24px; }
 .app-container:not(.home-layout) .footer-links { display: flex; gap: 16px; }
 .app-container:not(.home-layout) .footer-links a { color: #9fb1c4; font-size: 12px; text-decoration: none; }
 
@@ -152,7 +154,12 @@
 .home-layout .nav-community-link { width: 100% !important; height: 100%; }
 .home-layout .community-submenu { top: calc(100% + 12px); }
 .app-container:not(.home-layout) .nav-community-item { min-width: 0; }
-.app-container:not(.home-layout) .nav-community-link { position: relative; padding: 10px 2px; color: #fff; font-size: clamp(14px, 1.33vw, 19px); font-weight: 700; line-height: 1.1; text-decoration: none; white-space: nowrap; }
+.app-container:not(.home-layout) .nav-community-link { position: relative; padding: 10px 2px; color: #fff; font-size: clamp(14px, 1.33vw, 19px); font-weight: 700; line-height: 1.1; text-decoration: none; white-space: nowrap; transition: color 160ms ease; }
+.app-container:not(.home-layout) .nav-community-link::after { position: absolute; right: 2px; bottom: 0; left: 2px; height: 2px; content: ''; background: linear-gradient(90deg, var(--teal-500, #14b8a6), var(--solar-500)); border-radius: 2px; opacity: 0; transform: scaleX(.4); transform-origin: center; transition: transform 220ms cubic-bezier(.22,1,.36,1), opacity 220ms ease; }
+.app-container:not(.home-layout) .nav-community-item:hover .nav-community-link,
+.app-container:not(.home-layout) .nav-community-link:hover { color: var(--solar-500); }
+.app-container:not(.home-layout) .nav-community-item:hover .nav-community-link::after,
+.app-container:not(.home-layout) .nav-community-link:hover::after { opacity: 1; transform: scaleX(1); }
 
 @media (max-width: 760px) {
   .home-layout .nav-community-item { display: none; }
@@ -168,7 +175,7 @@
   .app-container:not(.home-layout) .header-topbar > .auth-nav { margin-left: auto; }
   .app-container:not(.home-layout) .auth-nav a,
   .app-container:not(.home-layout) .auth-nav button { padding: 8px 10px; font-size: 13px; }
-  .app-container:not(.home-layout) .main-content { height: auto; min-height: calc(100vh - 106px); overflow: visible; }
+  .app-container:not(.home-layout) .main-content { height: auto; min-height: calc(100vh - 112px); overflow: visible; }
 }
 
 /* Shared brand lockup: the icon stays image-based while the wordmark colors are controlled by CSS. */
