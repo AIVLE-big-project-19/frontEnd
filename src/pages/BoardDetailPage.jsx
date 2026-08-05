@@ -195,17 +195,16 @@ function BoardDetailPage() {
 
                 <div className="board-detail-card">
                     <h2 className="board-detail-title">
-                        {getBoardCategoryKey(board.category) === "notice" && dayjs().diff(dayjs(board.createdAt), "day") < 3 && (
+                        {board.title}
+                                                {getBoardCategoryKey(board.category) === "notice" && dayjs().diff(dayjs(board.createdAt), "day") < 3 && (
                             <span className="board-new-badge">NEW</span>
                         )}
-                        {board.title}
                     </h2>
 <div className={`board-detail-meta category-${getBoardCategoryKey(board.category)}`}>
     <span className="board-badge">{board.category}</span>
     {getBoardCategoryKey(board.category) === "inquiry" && (
         <span>작성자: {board.writerName ?? board.writer}</span>
     )}
-    {/* 원하는 포맷('YYYY-MM-DD' 또는 'YYYY-MM-DD HH:mm')으로 변경 */}
     <span>작성일: {dayjs(board.createdAt).format('YYYY. M. D. HH:MM')}</span>
     <span>조회수: {board.viewCount}</span>
 </div>
