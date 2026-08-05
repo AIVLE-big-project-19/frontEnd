@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import '../styles/AuthPage.css';
 
 const HIDE_UNTIL_KEY = 'welcome-guide-hide-date';
 const VISIBLE_PATHS = ['/analysis', '/dashboard', '/analysis-history'];
+const BUTTON_SIZE = 52;
+const DRAG_THRESHOLD = 5;
 
 const todayKey = () => new Date().toDateString();
 
@@ -12,6 +14,12 @@ const shouldAutoShow = () => localStorage.getItem(HIDE_UNTIL_KEY) !== todayKey()
 const WelcomeGuideModal = () => {
   const { pathname } = useLocation();
   const [open, setOpen] = useState(shouldAutoShow);
+  const [position, setPosition] = useState(() => ({
+    left: 24,
+    top: window.innerHeight - BUTTON_SIZE - 24,
+  }));
+  const dragRef = useRef(null);
+  const draggedRef = useRef(false);
 
   if (!VISIBLE_PATHS.includes(pathname)) return null;
 
@@ -24,26 +32,63 @@ const WelcomeGuideModal = () => {
     setOpen(false);
   };
 
+  const handlePointerDown = (e) => {
+    dragRef.current = { startX: e.clientX, startY: e.clientY, origLeft: position.left, origTop: position.top };
+    e.currentTarget.setPointerCapture(e.pointerId);
+  };
+
+  const handlePointerMove = (e) => {
+    if (!dragRef.current) return;
+    const dx = e.clientX - dragRef.current.startX;
+    const dy = e.clientY - dragRef.current.startY;
+    if (Math.abs(dx) > DRAG_THRESHOLD || Math.abs(dy) > DRAG_THRESHOLD) {
+      draggedRef.current = true;
+    }
+    const maxLeft = window.innerWidth - BUTTON_SIZE;
+    const maxTop = window.innerHeight - BUTTON_SIZE;
+    setPosition({
+      left: Math.min(Math.max(dragRef.current.origLeft + dx, 0), maxLeft),
+      top: Math.min(Math.max(dragRef.current.origTop + dy, 0), maxTop),
+    });
+  };
+
+  const handlePointerUp = () => {
+    dragRef.current = null;
+  };
+
+  const handleToggle = () => {
+    if (draggedRef.current) {
+      draggedRef.current = false;
+      return;
+    }
+    setOpen((prev) => !prev);
+  };
+
   return (
     <>
       <button
         type="button"
         aria-label="사용법 보기"
-        onClick={() => setOpen((prev) => !prev)}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onClick={handleToggle}
         style={{
           position: 'fixed',
-          left: 24,
-          bottom: 24,
+          left: position.left,
+          top: position.top,
           zIndex: 999,
-          width: 52,
-          height: 52,
+          width: BUTTON_SIZE,
+          height: BUTTON_SIZE,
           borderRadius: '50%',
           border: 'none',
           background: '#14b8a6',
           color: '#fff',
           fontSize: 24,
-          cursor: 'pointer',
+          cursor: 'grab',
           boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
+          touchAction: 'none',
+          userSelect: 'none',
         }}
       >
         📢
