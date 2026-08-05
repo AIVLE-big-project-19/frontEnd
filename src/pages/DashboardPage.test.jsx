@@ -25,7 +25,7 @@ vi.mock('../components/MapView', () => ({
 }));
 
 vi.mock('../components/AnalysisReportDashboard', () => ({
-  default: () => <div data-testid="analysis-report" />,
+  default: ({ report }) => <div data-testid="analysis-report">{report.site.address}</div>,
 }));
 
 vi.mock('../api/dashboardApi', () => ({
@@ -45,6 +45,7 @@ beforeEach(() => {
     json: vi.fn().mockResolvedValue({ apiKey: 'test-key' }),
   });
   fetchAnalysisMock.mockResolvedValue({
+    address: '충청남도 테스트 후보지',
     capacityKw: 100,
     annualGenerationKwh: 130000,
     estimatedAnnualRevenue: 20800000,
@@ -58,16 +59,28 @@ test('후보 클릭은 지도만 이동하고 분석 버튼을 눌렀을 때 상
     <MemoryRouter initialEntries={[{
       pathname: '/dashboard',
       state: {
-        selectedCandidates: [{
-          id: 7,
-          sourceId: 'SOLAR-7',
-          address: '충청남도 테스트 후보지',
-          siteType: 'LAND',
-          latitude: 36.5,
-          longitude: 127.2,
-          suitabilityScore: 90,
-          grade: 'A',
-        }],
+        selectedCandidates: [
+          {
+            id: 7,
+            sourceId: 'SOLAR-7',
+            address: '충청남도 테스트 후보지',
+            siteType: 'LAND',
+            latitude: 36.5,
+            longitude: 127.2,
+            suitabilityScore: 90,
+            grade: 'A',
+          },
+          {
+            id: 8,
+            sourceId: 'SOLAR-8',
+            address: '충청남도 두 번째 후보지',
+            siteType: 'LAND',
+            latitude: 36.7,
+            longitude: 127.4,
+            suitabilityScore: 85,
+            grade: 'A',
+          },
+        ],
       },
     }]}
     >
@@ -84,4 +97,11 @@ test('후보 클릭은 지도만 이동하고 분석 버튼을 눌렀을 때 상
   await user.click(screen.getByRole('button', { name: 'AI 분석 실행' }));
 
   await waitFor(() => expect(fetchAnalysisMock).toHaveBeenCalledWith(7));
+
+  expect(screen.getByTestId('analysis-report')).toHaveTextContent('충청남도 테스트 후보지');
+  await user.click(screen.getByRole('button', { name: /충청남도 두 번째 후보지/ }));
+
+  expect(fetchAnalysisMock).toHaveBeenCalledTimes(1);
+  expect(screen.getByTestId('analysis-report')).toHaveTextContent('충청남도 테스트 후보지');
+  expect(screen.getByRole('button', { name: 'AI 분석 실행' })).toBeEnabled();
 });

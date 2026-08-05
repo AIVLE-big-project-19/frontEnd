@@ -46,6 +46,7 @@ const DashboardPage = () => {
   ));
   const [currentPage, setCurrentPage] = useState(0);
   const [selectedCandidate, setSelectedCandidate] = useState(null);
+  const [analyzedCandidate, setAnalyzedCandidate] = useState(null);
   const [coordinates, setCoordinates] = useState(null);
   const [analysis, setAnalysis] = useState(null);
   const [candidateLoading, setCandidateLoading] = useState(false);
@@ -76,6 +77,9 @@ const DashboardPage = () => {
     () => buildAnalysisReportViewModel({ analysis }),
     [analysis],
   );
+  const selectedCandidateHasAnalysis = Boolean(
+    analysis && analyzedCandidate?.id === selectedCandidate?.id,
+  );
 
   useEffect(() => {
     fetch(`${API_BASE_URL}/vworld-key`)
@@ -91,6 +95,7 @@ const DashboardPage = () => {
     setCandidatePage(null);
     setCurrentPage(0);
     setSelectedCandidate(null);
+    setAnalyzedCandidate(null);
     setCoordinates(null);
     setAnalysis(null);
   };
@@ -109,6 +114,7 @@ const DashboardPage = () => {
 
     setCandidateLoading(true);
     setSelectedCandidate(null);
+    setAnalyzedCandidate(null);
     setCoordinates(null);
     setAnalysis(null);
     setStatus({ type: 'loading', text: '선택 지역의 AI 분석 후보지를 조회하고 있습니다.' });
@@ -147,6 +153,7 @@ const DashboardPage = () => {
     setSelectedAssetType(assetType);
     setCurrentPage(0);
     setSelectedCandidate(null);
+    setAnalyzedCandidate(null);
     setCoordinates(null);
     setAnalysis(null);
     if (candidatePage) {
@@ -171,6 +178,7 @@ const DashboardPage = () => {
     try {
       const detail = await fetchDashboardCandidateAnalysis(candidate.id);
       setAnalysis(detail);
+      setAnalyzedCandidate(candidate);
       if (loginId) saveAnalysisHistoryEntry(loginId, candidate, detail);
       const hasEconomicEstimate = [
         detail.capacityKw,
@@ -197,7 +205,6 @@ const DashboardPage = () => {
     if (analysisLoadingRef.current) return;
 
     setSelectedCandidate(candidate);
-    setAnalysis(null);
     setCoordinates(
       candidate.longitude != null && candidate.latitude != null
         ? fromLonLat([candidate.longitude, candidate.latitude])
@@ -220,13 +227,13 @@ const DashboardPage = () => {
   };
 
   const downloadReport = async (targetType) => {
-    if (!selectedCandidate) return;
+    if (!analyzedCandidate) return;
     try {
-      const reportBlob = await downloadDashboardCandidateReport(selectedCandidate.id);
+      const reportBlob = await downloadDashboardCandidateReport(analyzedCandidate.id);
       const url = URL.createObjectURL(reportBlob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `SolarAivle_${selectedCandidate.sourceId || selectedCandidate.id}_${targetType}.pdf`;
+      link.download = `SolarAivle_${analyzedCandidate.sourceId || analyzedCandidate.id}_${targetType}.pdf`;
       link.click();
       URL.revokeObjectURL(url);
     } catch {
@@ -371,7 +378,7 @@ const DashboardPage = () => {
                 onClick={handleAnalyze}
                 disabled={!selectedCandidate || analysisLoading}
               >
-                {analysisLoading ? 'AI 분석 중...' : analysis ? 'AI 분석 다시 실행' : 'AI 분석 실행'}
+                {analysisLoading ? 'AI 분석 중...' : selectedCandidateHasAnalysis ? 'AI 분석 다시 실행' : 'AI 분석 실행'}
               </button>
             </section>
 
@@ -390,7 +397,7 @@ const DashboardPage = () => {
                   onClick={handleAnalyze}
                   disabled={analysisLoading}
                 >
-                  {analysisLoading ? 'AI 분석 중...' : analysis ? 'AI 분석 다시 실행' : '이 후보지 AI 분석하기'}
+                  {analysisLoading ? 'AI 분석 중...' : selectedCandidateHasAnalysis ? 'AI 분석 다시 실행' : '이 후보지 AI 분석하기'}
                 </button>
               )}
             </div>
