@@ -6,6 +6,7 @@ import CommentList from "../components/CommentList";
 import Layout from "../components/Layout";
 import { allowsComments, getBoardCategoryKey, INQUIRY_CATEGORY, isAdminOnlyCategory } from "../constants/boardCategory";
 import "../styles/board.css";
+import dayjs from 'dayjs';
 
 function BoardDetailPage() {
     const { boardId } = useParams();
@@ -194,12 +195,15 @@ function BoardDetailPage() {
 
                 <div className="board-detail-card">
                     <h2 className="board-detail-title">{board.title}</h2>
-
-                    <div className={`board-detail-meta category-${getBoardCategoryKey(board.category)}`}>
-                        <span className="board-badge">{board.category}</span>
-                        <span>작성자: {board.writerName ?? board.writer}</span>
-                        <span>조회수: {board.viewCount}</span>
-                    </div>
+<div className={`board-detail-meta category-${getBoardCategoryKey(board.category)}`}>
+    <span className="board-badge">{board.category}</span>
+    {getBoardCategoryKey(board.category) === "inquiry" && (
+        <span>작성자: {board.writerName ?? board.writer}</span>
+    )}
+    {/* 원하는 포맷('YYYY-MM-DD' 또는 'YYYY-MM-DD HH:mm')으로 변경 */}
+    <span>작성일: {dayjs(board.createdAt).format('YYYY년 MM월 DD일 HH시 MM분')}</span>
+    <span>조회수: {board.viewCount}</span>
+</div>
 
                     <div className="board-detail-content">
                         {board.content}
