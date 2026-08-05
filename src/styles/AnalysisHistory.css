@@ -33,8 +33,10 @@
 .history-compare-table td { color: #173653; font-weight: 750; }
 .history-list-heading { margin-bottom: 12px; }
 .history-list-heading span { color: #64748b; font-size: 13px; }
-.history-list { display: grid; gap: 13px; }
-.history-card { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 24px; padding: 21px 24px; background: #fff; border: 1px solid #dce5ea; border-left: 4px solid #94a9b8; border-radius: 12px; box-shadow: 0 5px 17px rgba(16,42,67,.045); }
+.history-list { display: grid; min-width: 0; gap: 13px; }
+.history-card { display: grid; min-width: 0; grid-template-columns: minmax(0, 1fr) auto; gap: 24px; padding: 21px 24px; background: #fff; border: 1px solid #dce5ea; border-left: 4px solid #94a9b8; border-radius: 12px; box-shadow: 0 5px 17px rgba(16,42,67,.045); }
+.history-card-main { min-width: 0; }
+.history-card h3 { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .history-card.is-favorite { border-left-color: #f0a41a; }
 .history-card-topline { display: flex; align-items: center; gap: 10px; }
 .history-site-type { padding: 5px 9px; border-radius: 999px; font-size: 11px; font-weight: 800; }
@@ -64,6 +66,11 @@
 .history-empty strong { color: #27435e; font-size: 17px; }
 .history-empty p { margin: 8px 0 19px; font-size: 13px; }
 .history-primary-button { color: #fff; background: #0b8b83; border-color: #0b8b83; font-size: 13px; }
+.history-pagination { display: flex; align-items: center; justify-content: center; gap: 14px; margin: 24px auto 0; }
+.history-pagination button { min-width: 58px; padding: 8px 12px; color: #31516c; background: #fff; border: 1px solid #d0dce4; border-radius: 6px; font: inherit; font-size: 12px; font-weight: 750; cursor: pointer; }
+.history-pagination button:hover:not(:disabled) { color: #fff; background: #0b8b83; border-color: #0b8b83; }
+.history-pagination button:disabled { color: #aab7c2; background: #f1f4f6; cursor: not-allowed; }
+.history-pagination span { min-width: 54px; color: #31516c; font-size: 13px; font-weight: 800; text-align: center; }
 @media (max-width: 900px) {
   .analysis-history-toolbar { flex-wrap: wrap; }
   .history-tabs { margin-right: 0; }
@@ -73,6 +80,7 @@
   .history-card-actions { justify-items: start; min-width: 0; }
   .history-buttons { justify-content: flex-start; }
   .history-status { grid-column: auto; }
+  .history-card h3 { white-space: normal; }
 }
 @media (max-width: 560px) {
   .analysis-history-page { padding: 12px 12px 28px; }

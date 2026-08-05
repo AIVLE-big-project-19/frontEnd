@@ -22,6 +22,7 @@ const formatNumber = (value, suffix = '') => (
 const formatDate = (value) => value
   ? new Intl.DateTimeFormat('ko-KR', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(value))
   : '-';
+const PAGE_SIZE = 10;
 
 const statusLabel = (value) => ANALYSIS_HISTORY_STATUSES.find((item) => item.value === value)?.label || '검토 중';
 
@@ -35,6 +36,7 @@ function AnalysisHistoryPage() {
   const [query, setQuery] = useState('');
   const [compareIds, setCompareIds] = useState([]);
   const [downloadingId, setDownloadingId] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     let active = true;
@@ -64,6 +66,19 @@ function AnalysisHistoryPage() {
       return matchesFavorite && matchesType && matchesStatus && matchesQuery;
     });
   }, [filter, history, query, statusFilter, typeFilter]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredHistory.length / PAGE_SIZE));
+  const paginatedHistory = useMemo(() => (
+    filteredHistory.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
+  ), [currentPage, filteredHistory]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filter, typeFilter, statusFilter, query]);
+
+  useEffect(() => {
+    if (currentPage > totalPages) setCurrentPage(totalPages);
+  }, [currentPage, totalPages]);
 
   const compareItems = useMemo(() => compareIds
     .map((id) => history.find((item) => String(item.candidateId) === String(id)))
@@ -192,7 +207,7 @@ function AnalysisHistoryPage() {
           </div>
         ) : (
           <div className="history-list">
-            {filteredHistory.map((item) => {
+            {paginatedHistory.map((item) => {
               const report = buildAnalysisReportViewModel({ analysis: item.analysis });
               return (
                 <article className={`history-card${item.favorite ? ' is-favorite' : ''}`} key={item.candidateId}>
@@ -222,6 +237,13 @@ function AnalysisHistoryPage() {
               );
             })}
           </div>
+        )}
+        {filteredHistory.length > PAGE_SIZE && (
+          <nav className="history-pagination" aria-label="분석 이력 페이지 이동">
+            <button type="button" onClick={() => setCurrentPage((page) => Math.max(1, page - 1))} disabled={currentPage === 1}>이전</button>
+            <span>{currentPage} / {totalPages}</span>
+            <button type="button" onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))} disabled={currentPage === totalPages}>다음</button>
+          </nav>
         )}
       </section>
     </Layout>
