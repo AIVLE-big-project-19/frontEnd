@@ -52,7 +52,7 @@ const LoginPage = () => {
   return (
     <div className="auth-page">
       <form className="auth-card" onSubmit={handleSubmit}>
-        <h1>SolarAivle</h1>
+        <h1><Link to="/" aria-label="SolarAivle 홈으로 이동">SolarAivle</Link></h1>
         {infoMessage && <p className="auth-info">{infoMessage}</p>}
         {!infoMessage && expiredMessage && <p className="auth-error">{expiredMessage}</p>}
         <div className="auth-field">

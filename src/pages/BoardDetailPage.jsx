@@ -27,6 +27,9 @@ function BoardDetailPage() {
         const loadBoard = async () => {
             if (isInitializing) return;
 
+            setBoard(null);
+            setLoading(true);
+
             try {
                 const response = await getBoard(boardId);
                 if (active) setBoard(response.data.data);
@@ -124,7 +127,9 @@ function BoardDetailPage() {
         }
     };
 
-    if (isInitializing || loading) {
+    const isLoadedBoard = board && String(board.boardId) === String(boardId);
+
+    if (isInitializing || loading || !isLoadedBoard) {
         return (
             <Layout>
                 <div className="board-page">
