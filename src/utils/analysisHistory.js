@@ -10,6 +10,7 @@ const storageKey = (loginId) => `${STORAGE_PREFIX}.${loginId || 'guest'}`;
 const toHistoryEntry = (candidate, analysis, previous = {}) => ({
   id: previous.id || `${candidate.id}`,
   candidateId: candidate.id,
+  analysisId: analysis?.analysisId ?? previous.analysisId ?? null,
   sourceId: candidate.sourceId || null,
   address: candidate.address || analysis?.address || '주소 미상 후보지',
   siteType: candidate.siteType || analysis?.siteType || 'LAND',

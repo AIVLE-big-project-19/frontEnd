@@ -2,7 +2,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
 import { useAuth } from '../context/AuthContext';
-import { downloadDashboardCandidateReport } from '../api/dashboardApi';
+import { downloadAnalysisSnapshotReport, downloadDashboardCandidateReport } from '../api/dashboardApi';
+import { deleteAnalysisHistory, fetchAnalysisHistory, updateAnalysisHistoryManagement } from '../api/analysisHistoryApi';
 import { buildAnalysisReportViewModel } from '../utils/analysisReportModel';
 import {
   ANALYSIS_HISTORY_STATUSES,
@@ -36,7 +37,21 @@ function AnalysisHistoryPage() {
   const [downloadingId, setDownloadingId] = useState(null);
 
   useEffect(() => {
-    setHistory(loadAnalysisHistory(loginId));
+    let active = true;
+    fetchAnalysisHistory()
+      .then((remoteHistory) => {
+        if (!active) return;
+        setHistory(remoteHistory.map((item) => ({
+          ...item,
+          siteType: item.siteType === 'BUILDING' ? 'ROOF' : item.siteType,
+          suitabilityScore: item.analysis?.suitabilityScore ?? null,
+          grade: item.analysis?.grade ?? null,
+        })));
+      })
+      .catch(() => {
+        if (active) setHistory(loadAnalysisHistory(loginId));
+      });
+    return () => { active = false; };
   }, [loginId]);
 
   const filteredHistory = useMemo(() => {
@@ -58,7 +73,15 @@ function AnalysisHistoryPage() {
     )), [compareIds, history]);
 
   const updateEntry = (candidateId, updates) => {
-    setHistory(updateAnalysisHistoryEntry(loginId, candidateId, updates));
+    const next = updateAnalysisHistoryEntry(loginId, candidateId, updates);
+    setHistory(next);
+    const remoteItem = history.find((item) => String(item.candidateId) === String(candidateId));
+    if (remoteItem?.analysisId) {
+      updateAnalysisHistoryManagement(remoteItem.analysisId, {
+        favorite: updates.favorite ?? remoteItem.favorite ?? false,
+        status: updates.status ?? remoteItem.status ?? 'REVIEWING',
+      }).catch(() => window.alert('분석 이력 변경에 실패했습니다.'));
+    }
   };
 
   const toggleCompare = (candidateId) => {
@@ -71,14 +94,20 @@ function AnalysisHistoryPage() {
 
   const deleteEntry = (candidateId) => {
     if (!window.confirm('이 분석 이력을 삭제하시겠습니까?')) return;
+    const remoteItem = history.find((item) => String(item.candidateId) === String(candidateId));
     setHistory(removeAnalysisHistoryEntry(loginId, candidateId));
     setCompareIds((current) => current.filter((id) => id !== candidateId));
+    if (remoteItem?.analysisId) {
+      deleteAnalysisHistory(remoteItem.analysisId).catch(() => window.alert('분석 이력 삭제에 실패했습니다.'));
+    }
   };
 
   const downloadReport = async (item) => {
     setDownloadingId(item.candidateId);
     try {
-      const blob = await downloadDashboardCandidateReport(item.candidateId);
+      const blob = item.analysisId
+        ? await downloadAnalysisSnapshotReport(item.analysisId)
+        : await downloadDashboardCandidateReport(item.candidateId);
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
