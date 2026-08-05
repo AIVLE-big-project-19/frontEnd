@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { getBoardCategoryKey } from "../constants/boardCategory";
+import dayjs from 'dayjs';
 
 function BoardCard({ board }) {
     const categoryKey = getBoardCategoryKey(board.category);
@@ -17,10 +18,16 @@ function BoardCard({ board }) {
                 </h3>
 
                 <div className="board-card-meta">
-                    {showWriter && (
+                    {categoryKey === "inquiry" && (
                     <span>
                         <span className="board-card-meta-label">작성자</span>
                         {board.writerName ?? board.writer}
+                    </span>
+                    )}
+                    {showWriter && (
+                    <span>
+                        <span className="board-card-meta-label">작성일</span>
+                    {dayjs(board.createdAt).format('YYYY년 MM월 DD일 HH시 MM분')}
                     </span>
                     )}
                     <span>
