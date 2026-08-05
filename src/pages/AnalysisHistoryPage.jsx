@@ -23,6 +23,7 @@ const formatDate = (value) => value
   ? new Intl.DateTimeFormat('ko-KR', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(value))
   : '-';
 const PAGE_SIZE = 10;
+const historyEntryKey = (item) => String(item.analysisId ?? item.id ?? `candidate-${item.candidateId}`);
 
 const statusLabel = (value) => ANALYSIS_HISTORY_STATUSES.find((item) => item.value === value)?.label || '검토 중';
 
@@ -43,12 +44,16 @@ function AnalysisHistoryPage() {
     fetchAnalysisHistory()
       .then((remoteHistory) => {
         if (!active) return;
-        setHistory(remoteHistory.map((item) => ({
+        const normalizedHistory = remoteHistory.map((item) => ({
           ...item,
           siteType: item.siteType === 'BUILDING' ? 'ROOF' : item.siteType,
           suitabilityScore: item.analysis?.suitabilityScore ?? null,
           grade: item.analysis?.grade ?? null,
-        })));
+        }));
+        const uniqueHistory = Array.from(
+          new Map(normalizedHistory.map((item) => [historyEntryKey(item), item])).values(),
+        );
+        setHistory(uniqueHistory);
       })
       .catch(() => {
         if (active) setHistory(loadAnalysisHistory(loginId));
@@ -81,18 +86,19 @@ function AnalysisHistoryPage() {
   }, [currentPage, totalPages]);
 
   const compareItems = useMemo(() => compareIds
-    .map((id) => history.find((item) => String(item.candidateId) === String(id)))
+    .map((id) => history.find((item) => historyEntryKey(item) === String(id)))
     .filter(Boolean)
     .sort((left, right) => (
       (Number(right.suitabilityScore) || 0) - (Number(left.suitabilityScore) || 0)
     )), [compareIds, history]);
 
-  const updateEntry = (candidateId, updates) => {
-    const next = updateAnalysisHistoryEntry(loginId, candidateId, updates);
-    const remoteItem = history.find((item) => String(item.candidateId) === String(candidateId));
+  const updateEntry = (item, updates) => {
+    const entryKey = historyEntryKey(item);
+    const next = updateAnalysisHistoryEntry(loginId, item.candidateId, updates);
+    const remoteItem = history.find((historyItem) => historyEntryKey(historyItem) === entryKey);
     if (remoteItem?.analysisId) {
       setHistory((current) => current.map((item) => (
-        String(item.analysisId) === String(remoteItem.analysisId) ? { ...item, ...updates } : item
+        historyEntryKey(item) === entryKey ? { ...item, ...updates } : item
       )));
       updateAnalysisHistoryManagement(remoteItem.analysisId, {
         favorite: updates.favorite ?? remoteItem.favorite ?? false,
@@ -103,30 +109,32 @@ function AnalysisHistoryPage() {
     }
   };
 
-  const toggleCompare = (candidateId) => {
+  const toggleCompare = (item) => {
+    const entryKey = historyEntryKey(item);
     setCompareIds((current) => {
-      if (current.includes(candidateId)) return current.filter((id) => id !== candidateId);
+      if (current.includes(entryKey)) return current.filter((id) => id !== entryKey);
       if (current.length >= 3) return current;
-      return [...current, candidateId];
+      return [...current, entryKey];
     });
   };
 
-  const deleteEntry = (candidateId) => {
+  const deleteEntry = (item) => {
     if (!window.confirm('이 분석 이력을 삭제하시겠습니까?')) return;
-    const remoteItem = history.find((item) => String(item.candidateId) === String(candidateId));
+    const entryKey = historyEntryKey(item);
+    const remoteItem = history.find((historyItem) => historyEntryKey(historyItem) === entryKey);
     if (remoteItem?.analysisId) {
-      setHistory((current) => current.filter((item) => item.analysisId !== remoteItem.analysisId));
+      setHistory((current) => current.filter((historyItem) => historyEntryKey(historyItem) !== entryKey));
     } else {
-      setHistory(removeAnalysisHistoryEntry(loginId, candidateId));
+      setHistory(removeAnalysisHistoryEntry(loginId, item.candidateId));
     }
-    setCompareIds((current) => current.filter((id) => id !== candidateId));
+    setCompareIds((current) => current.filter((id) => id !== entryKey));
     if (remoteItem?.analysisId) {
       deleteAnalysisHistory(remoteItem.analysisId).catch(() => window.alert('분석 이력 삭제에 실패했습니다.'));
     }
   };
 
   const downloadReport = async (item) => {
-    setDownloadingId(item.candidateId);
+    setDownloadingId(historyEntryKey(item));
     try {
       const blob = item.analysisId
         ? await downloadAnalysisSnapshotReport(item.analysisId)
@@ -184,13 +192,13 @@ function AnalysisHistoryPage() {
             ) : (
               <div className="history-compare-table-wrap">
                 <table className="history-compare-table">
-                  <thead><tr><th>지표</th>{compareItems.map((item, index) => <th key={item.candidateId}><span className="history-compare-rank">{index + 1}위</span>{item.address}</th>)}</tr></thead>
+                  <thead><tr><th>지표</th>{compareItems.map((item, index) => <th key={historyEntryKey(item)}><span className="history-compare-rank">{index + 1}위</span>{item.address}</th>)}</tr></thead>
                   <tbody>
-                    <tr><th>적합도</th>{compareItems.map((item) => <td key={item.candidateId}>{formatNumber(item.suitabilityScore, '점')}</td>)}</tr>
-                    <tr><th>설치 유형</th>{compareItems.map((item) => <td key={item.candidateId}>{item.siteType === 'ROOF' ? '지붕/옥상' : '토지'}</td>)}</tr>
-                    <tr><th>예상 발전량</th>{compareItems.map((item) => <td key={item.candidateId}>{formatNumber(buildAnalysisReportViewModel({ analysis: item.analysis }).economics.annualGenerationKwh, ' kWh')}</td>)}</tr>
-                    <tr><th>연간 예상 수익</th>{compareItems.map((item) => <td key={item.candidateId}>{formatNumber(buildAnalysisReportViewModel({ analysis: item.analysis }).economics.annualRevenue, '원')}</td>)}</tr>
-                    <tr><th>회수 기간</th>{compareItems.map((item) => <td key={item.candidateId}>{formatNumber(buildAnalysisReportViewModel({ analysis: item.analysis }).economics.paybackYears, '년')}</td>)}</tr>
+                    <tr><th>적합도</th>{compareItems.map((item) => <td key={historyEntryKey(item)}>{formatNumber(item.suitabilityScore, '점')}</td>)}</tr>
+                    <tr><th>설치 유형</th>{compareItems.map((item) => <td key={historyEntryKey(item)}>{item.siteType === 'ROOF' ? '지붕/옥상' : '토지'}</td>)}</tr>
+                    <tr><th>예상 발전량</th>{compareItems.map((item) => <td key={historyEntryKey(item)}>{formatNumber(buildAnalysisReportViewModel({ analysis: item.analysis }).economics.annualGenerationKwh, ' kWh')}</td>)}</tr>
+                    <tr><th>연간 예상 수익</th>{compareItems.map((item) => <td key={historyEntryKey(item)}>{formatNumber(buildAnalysisReportViewModel({ analysis: item.analysis }).economics.annualRevenue, '원')}</td>)}</tr>
+                    <tr><th>회수 기간</th>{compareItems.map((item) => <td key={historyEntryKey(item)}>{formatNumber(buildAnalysisReportViewModel({ analysis: item.analysis }).economics.paybackYears, '년')}</td>)}</tr>
                   </tbody>
                 </table>
               </div>
@@ -210,7 +218,7 @@ function AnalysisHistoryPage() {
             {paginatedHistory.map((item) => {
               const report = buildAnalysisReportViewModel({ analysis: item.analysis });
               return (
-                <article className={`history-card${item.favorite ? ' is-favorite' : ''}`} key={item.candidateId}>
+                <article className={`history-card${item.favorite ? ' is-favorite' : ''}`} key={historyEntryKey(item)}>
                   <div className="history-card-main">
                     <div className="history-card-topline">
                       <span className={`history-site-type ${item.siteType === 'ROOF' ? 'roof' : 'land'}`}>{item.siteType === 'ROOF' ? '지붕/옥상' : '토지'}</span>
@@ -224,12 +232,12 @@ function AnalysisHistoryPage() {
                     </div>
                   </div>
                   <div className="history-card-actions">
-                    <button type="button" className={`history-favorite-button${item.favorite ? ' active' : ''}`} onClick={() => updateEntry(item.candidateId, { favorite: !item.favorite })} aria-label={item.favorite ? '즐겨찾기 해제' : '즐겨찾기 추가'}>{item.favorite ? '★' : '☆'}</button>
-                    <label className="history-status-select"><span>상태</span><select value={item.status} onChange={(event) => updateEntry(item.candidateId, { status: event.target.value })}>{ANALYSIS_HISTORY_STATUSES.map((status) => <option key={status.value} value={status.value}>{status.label}</option>)}</select></label>
+                    <button type="button" className={`history-favorite-button${item.favorite ? ' active' : ''}`} onClick={() => updateEntry(item, { favorite: !item.favorite })} aria-label={item.favorite ? '즐겨찾기 해제' : '즐겨찾기 추가'}>{item.favorite ? '★' : '☆'}</button>
+                    <label className="history-status-select"><span>상태</span><select value={item.status} onChange={(event) => updateEntry(item, { status: event.target.value })}>{ANALYSIS_HISTORY_STATUSES.map((status) => <option key={status.value} value={status.value}>{status.label}</option>)}</select></label>
                     <div className="history-buttons">
-                      <button type="button" onClick={() => toggleCompare(item.candidateId)} className={compareIds.includes(item.candidateId) ? 'selected' : ''}>{compareIds.includes(item.candidateId) ? '비교 선택됨' : '비교 선택'}</button>
-                      <button type="button" onClick={() => downloadReport(item)} disabled={downloadingId === item.candidateId}>{downloadingId === item.candidateId ? '생성 중...' : 'PDF 다운로드'}</button>
-                      <button type="button" className="danger" onClick={() => deleteEntry(item.candidateId)}>삭제</button>
+                      <button type="button" onClick={() => toggleCompare(item)} className={compareIds.includes(historyEntryKey(item)) ? 'selected' : ''}>{compareIds.includes(historyEntryKey(item)) ? '비교 선택됨' : '비교 선택'}</button>
+                      <button type="button" onClick={() => downloadReport(item)} disabled={downloadingId === historyEntryKey(item)}>{downloadingId === historyEntryKey(item) ? '생성 중...' : 'PDF 다운로드'}</button>
+                      <button type="button" className="danger" onClick={() => deleteEntry(item)}>삭제</button>
                     </div>
                     <small className={`history-status status-${item.status}`}>{statusLabel(item.status)}</small>
                   </div>

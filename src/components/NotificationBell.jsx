@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { deleteAllNotifications, deleteNotification, fetchNotifications, markAllNotificationsRead, markNotificationRead } from '../api/notificationApi';
@@ -15,6 +15,7 @@ const NotificationBell = () => {
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [selectedIds, setSelectedIds] = useState([]);
+  const bellWrapRef = useRef(null);
 
   const load = async () => {
     try {
@@ -32,6 +33,19 @@ const NotificationBell = () => {
     const timer = window.setInterval(load, 30000);
     return () => window.clearInterval(timer);
   }, [isLoggedIn]);
+
+  useEffect(() => {
+    if (!open) return undefined;
+
+    const handleOutsidePointerDown = (event) => {
+      if (!bellWrapRef.current?.contains(event.target)) {
+        setOpen(false);
+      }
+    };
+
+    document.addEventListener('pointerdown', handleOutsidePointerDown);
+    return () => document.removeEventListener('pointerdown', handleOutsidePointerDown);
+  }, [open]);
 
   const handleNotificationClick = async (notification) => {
     if (!notification.read) {
@@ -73,7 +87,7 @@ const NotificationBell = () => {
   if (!isLoggedIn) return null;
 
   return (
-    <div className="notification-bell-wrap">
+    <div ref={bellWrapRef} className="notification-bell-wrap">
       <button type="button" className="notification-bell" aria-label={`알림${unreadCount ? ` ${unreadCount}개 읽지 않음` : ''}`} aria-expanded={open} onClick={() => setOpen((value) => !value)}>
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4" /></svg>
         {unreadCount > 0 && <span className="notification-badge">{unreadCount > 99 ? '99+' : unreadCount}</span>}
