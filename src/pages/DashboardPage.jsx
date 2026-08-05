@@ -154,9 +154,7 @@ const DashboardPage = () => {
     setSelectedAssetType(assetType);
     setCurrentPage(0);
     setSelectedCandidate(null);
-    setAnalyzedCandidate(null);
     setCoordinates(null);
-    setAnalysis(null);
     if (candidatePage) {
       const count = candidatePage.content.filter((candidate) => (
         assetType === 'ALL'

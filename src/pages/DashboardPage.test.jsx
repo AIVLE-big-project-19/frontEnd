@@ -81,6 +81,16 @@ test('후보 클릭은 지도만 이동하고 분석 버튼을 눌렀을 때 상
             suitabilityScore: 85,
             grade: 'A',
           },
+          {
+            id: 9,
+            sourceId: 'SOLAR-9',
+            address: 'Roof candidate',
+            siteType: 'ROOF',
+            latitude: 36.8,
+            longitude: 127.5,
+            suitabilityScore: 82,
+            grade: 'B',
+          },
         ],
       },
     }]}
@@ -103,6 +113,11 @@ test('후보 클릭은 지도만 이동하고 분석 버튼을 눌렀을 때 상
   await user.click(screen.getByRole('button', { name: /충청남도 두 번째 후보지/ }));
 
   expect(fetchAnalysisMock).toHaveBeenCalledTimes(1);
-  expect(screen.getByTestId('analysis-report')).toHaveTextContent('충청남도 테스트 후보지');
   expect(screen.getByRole('button', { name: 'AI 분석 실행' })).toBeEnabled();
+
+  await user.click(screen.getByRole('button', { name: '지붕/옥상' }));
+
+  expect(fetchAnalysisMock).toHaveBeenCalledTimes(1);
+  expect(screen.getByTestId('analysis-report')).toHaveTextContent('충청남도 테스트 후보지');
+  expect(screen.getByRole('button', { name: 'AI 분석 실행' })).toBeDisabled();
 });
