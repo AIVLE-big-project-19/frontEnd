@@ -204,15 +204,11 @@ const DashboardPage = () => {
         ? fromLonLat([candidate.longitude, candidate.latitude])
         : null,
     );
-    if (hasTransferredCandidates) {
-      analyzeCandidate(candidate);
-    } else {
-      setStatus({
-        type: 'success',
-        text: '후보지를 선택했습니다. 지도 위치를 확인한 뒤 AI 분석 실행을 눌러주세요.',
-      });
-      setActiveMobilePanel('map');
-    }
+    setStatus({
+      type: 'success',
+      text: '후보지를 선택했습니다. 지도 위치를 확인한 뒤 AI 분석 실행을 눌러주세요.',
+    });
+    setActiveMobilePanel('map');
   };
 
   const handleAnalyze = async () => {
@@ -378,7 +374,7 @@ const DashboardPage = () => {
                 onClick={handleAnalyze}
                 disabled={!selectedCandidate || analysisLoading}
               >
-                {analysisLoading ? 'AI 분석 중...' : hasTransferredCandidates ? '상세 분석 다시 불러오기' : 'AI 분석 실행'}
+                {analysisLoading ? 'AI 분석 중...' : analysis ? 'AI 분석 다시 실행' : 'AI 분석 실행'}
               </button>
             </section>
 
