@@ -5,6 +5,7 @@ import dayjs from 'dayjs';
 function BoardCard({ board }) {
     const categoryKey = getBoardCategoryKey(board.category);
     const showWriter = categoryKey !== "faq";
+    const isNewNotice = categoryKey === "notice" && dayjs().diff(dayjs(board.createdAt), "day") < 3;
 
     return (
         <Link className={`board-card category-${categoryKey}`} to={`/boards/${board.boardId}`}>
@@ -14,6 +15,7 @@ function BoardCard({ board }) {
 
             <div className="board-card-body">
                 <h3 className="board-card-title">
+                    {isNewNotice && <span className="board-new-badge">NEW</span>}
                     {board.title}
                 </h3>
 
@@ -27,7 +29,7 @@ function BoardCard({ board }) {
                     {showWriter && (
                     <span>
                         <span className="board-card-meta-label">작성일</span>
-                    {dayjs(board.createdAt).format('YYYY년 MM월 DD일 HH시 MM분')}
+                    {dayjs(board.createdAt).format('YYYY. M. D. HH:MM')}
                     </span>
                     )}
                     <span>
