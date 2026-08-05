@@ -250,7 +250,7 @@ const AnalysisReportDashboard = ({ report, onDownload }) => {
     <div className="decision-detail-grid">
       <article className="decision-panel">
         <div className="decision-panel-heading">
-          <div><span>판단 근거</span><h3>사업 추진 조건</h3></div>
+          <div><h3>사업 추진 조건</h3></div>
           <b>{report.scores.length}개 지표</b>
         </div>
         <div className="decision-score-list">
@@ -283,7 +283,7 @@ const AnalysisReportDashboard = ({ report, onDownload }) => {
 
       <article className="decision-panel">
         <div className="decision-panel-heading">
-          <div><span>위험 확인</span><h3>추진 전 확인사항</h3></div>
+          <div><h3>추진 전 확인사항</h3></div>
           <b>{report.risks.length}개 항목</b>
         </div>
         <div className="decision-risk-list">
@@ -306,7 +306,7 @@ const AnalysisReportDashboard = ({ report, onDownload }) => {
 
     <article className="next-action-panel">
       <div className="decision-panel-heading">
-        <div><span>다음 행동</span><h3>사업 검토를 이어가기 위해 필요한 작업</h3></div>
+        <div><h3>사업 검토를 이어가기 위해 필요한 작업</h3></div>
       </div>
       <ol>
         {report.actions.length === 0 && <li><div><strong>체크리스트 없음</strong><p>API에서 제공된 현장 점검 항목이 없습니다.</p></div></li>}
