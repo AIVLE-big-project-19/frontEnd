@@ -56,6 +56,7 @@ test('의사결정에 필요한 핵심 지표와 다음 행동을 보여준다',
   expect(screen.getByText('max(3kW, 반올림(750㎡ ÷ 7.5㎡/kW))')).toBeInTheDocument();
   expect(screen.getByText(/등록 유형 건물 지붕형을 계산 기준으로 적용했습니다/)).toBeInTheDocument();
   expect(screen.getByText(/7㎡\/kW를 적용하면 용량이 약 7.1% 증가하지만/)).toBeInTheDocument();
+  expect(screen.getByText('등록 유형 건물 지붕형을 계산 기준으로 적용했습니다. 7.5㎡당 1kW, 최소 3kW를 가정한 초기 검토값입니다. 7.5㎡/kW는 약 5㎡/kW의 모듈 면적에 점검 통로·가장자리 이격·장애물 여유를 더한 보수적 초기 배치 가정입니다. 7㎡/kW를 적용하면 용량이 약 7.1% 증가하지만, 현재 AI 가용면적의 검증 한계를 고려해 7.5㎡/kW를 적용합니다. Vision AI 참고 유형은 토지형입니다. 실제 용량은 패널 규격, 이격거리, 통로, 장애물과 구조하중에 따라 달라집니다.')).toBeInTheDocument();
   expect(screen.getByText('미 에너지부 태양광 모듈 규격·효율 사례').closest('a'))
     .toHaveAttribute('href', 'https://www.energy.gov/cmei/systems/solar-photovoltaic-system-cost-benchmarks');
   expect(screen.getByText(/Vision AI 참고 유형은 토지형입니다/)).toBeInTheDocument();
