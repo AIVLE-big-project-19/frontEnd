@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { consumeAuthExpiredMessage } from '../auth/tokenStorage';
 import { buildGoogleAuthUrl } from '../auth/googleOAuth';
 import TermsModal from '../components/TermsModal';
+import solarAivleLogo from '../assets/solar-aivle-logo.png';
 import '../styles/AuthPage.css';
 
 const LoginPage = () => {
@@ -52,7 +53,10 @@ const LoginPage = () => {
   return (
     <div className="auth-page">
       <form className="auth-card" onSubmit={handleSubmit}>
-        <h1><Link to="/" aria-label="SolarAivle 홈으로 이동">SolarAivle</Link></h1>
+        <Link className="auth-logo-link" to="/" aria-label="SolarAivle 홈으로 이동">
+          <span className="auth-logo-mark"><img src={solarAivleLogo} alt="" /></span>
+          <span className="auth-logo-word"><span>Solar</span><b>Aivle</b></span>
+        </Link>
         {infoMessage && <p className="auth-info">{infoMessage}</p>}
         {!infoMessage && expiredMessage && <p className="auth-error">{expiredMessage}</p>}
         <div className="auth-field">

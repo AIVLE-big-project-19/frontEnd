@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import * as authApi from '../api/authApi';
 import { isValidPassword, PASSWORD_RULE_MESSAGE } from '../utils/passwordRules';
 import TermsModal from '../components/TermsModal';
+import solarAivleLogo from '../assets/solar-aivle-logo.png';
 import '../styles/AuthPage.css';
 
 const SignupPage = () => {
@@ -128,7 +129,10 @@ const SignupPage = () => {
   return (
     <div className="auth-page">
       <form className="auth-card" onSubmit={handleSubmit}>
-        <h1>SolarAivle에 오신 것을 환영합니다</h1>
+        <Link className="auth-logo-link" to="/" aria-label="SolarAivle 홈으로 이동">
+          <span className="auth-logo-mark"><img src={solarAivleLogo} alt="" /></span>
+          <span className="auth-logo-word"><span>Solar</span><b>Aivle</b></span>
+        </Link>
 
         <div className="auth-field">
           <label htmlFor="signup-loginId">아이디</label>
