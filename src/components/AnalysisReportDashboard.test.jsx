@@ -17,6 +17,14 @@ test('의사결정에 필요한 핵심 지표와 다음 행동을 보여준다',
         formula: 'max(3, round(availableAreaM2 / areaPerKwM2))',
         source: 'REGISTERED_TYPE_AREA',
       },
+      economicAssumptions: {
+        registeredType: 'ROOF',
+        installationCostPerKw: 1300000,
+        estimatedInstallationCost: 130000000,
+        annualOmRatePercent: 1.5,
+        estimatedAnnualOmCost: 1950000,
+        estimatedAnnualNetIncome: 22050000,
+      },
       annualGenerationKwh: 135000,
       estimatedAnnualRevenue: 24000000,
       paybackPeriodYears: 6.5,
@@ -47,9 +55,14 @@ test('의사결정에 필요한 핵심 지표와 다음 행동을 보여준다',
   expect(screen.getByText('건물 지붕형·7.5㎡/kW 가정')).toBeInTheDocument();
   expect(screen.getByText('max(3kW, 반올림(750㎡ ÷ 7.5㎡/kW))')).toBeInTheDocument();
   expect(screen.getByText(/등록 유형 건물 지붕형을 계산 기준으로 적용했습니다/)).toBeInTheDocument();
+  expect(screen.getByText(/7㎡\/kW를 적용하면 용량이 약 7.1% 증가하지만/)).toBeInTheDocument();
+  expect(screen.getByText('미 에너지부 태양광 모듈 규격·효율 사례').closest('a'))
+    .toHaveAttribute('href', 'https://www.energy.gov/cmei/systems/solar-photovoltaic-system-cost-benchmarks');
   expect(screen.getByText(/Vision AI 참고 유형은 토지형입니다/)).toBeInTheDocument();
   expect(screen.getByRole('heading', { name: '단순 예상 회수 시점' })).toBeInTheDocument();
   expect(screen.getByRole('button', { name: '기본 가정 기준 연간 예상 매출 산정 기준과 출처 보기' })).toBeInTheDocument();
+  expect(screen.getByText(/건물 지붕형 설치비 1,300,000원\/kW와 연간 O&M 1.5%/)).toBeInTheDocument();
+  expect(screen.getAllByText(/O&M 차감 예상 ROI/).length).toBeGreaterThan(0);
   expect(screen.getByRole('button', { name: '위치 기반 예상 발전량 산정 기준과 출처 보기' })).toBeInTheDocument();
   expect(screen.getByText('PVGIS 5.3 / ERA5·경사 30°·손실 14%')).toBeInTheDocument();
   expect(screen.getByText('구조안전진단')).toBeInTheDocument();
@@ -75,4 +88,34 @@ test('경제성 값이 없으면 확정적인 설치 및 회수 표현을 숨긴
     .toHaveAttribute('href', 'https://research-hub.nlr.gov/en/publications/land-use-requirements-for-solar-power-plants-in-the-united-states/');
   expect(screen.queryByText(/AI 추정 부지 활용률/)).not.toBeInTheDocument();
   expect(screen.queryByText('고정 단가와 초기 설치비만 반영한 개략값입니다. 실제 투자 판단에는 운영비와 금융조건 확인이 필요합니다.')).not.toBeInTheDocument();
+});
+
+test('PVGIS 대체 계산은 후보지별 pvout 산정식과 원단위를 표시한다', () => {
+  const report = buildAnalysisReportViewModel({
+    analysis: {
+      siteType: 'LAND',
+      suitabilityScore: 90,
+      capacityKw: 100,
+      annualGenerationKwh: 146000,
+      estimatedAnnualRevenue: 23360000,
+      roiPercent: 18,
+      paybackPeriodYears: 5.6,
+      generationForecast: {
+        source: '후보지 pvout_avg_daily',
+        method: 'PVOUT_DAILY_SPECIFIC_YIELD',
+        fallback: true,
+        pvoutAvgDaily: 4,
+        specificYieldKwhPerKwpYear: 1460,
+        monthly: Array.from({ length: 12 }, () => ({ generationKwh: 12167 })),
+      },
+    },
+    address: 'pvout 후보지',
+  });
+
+  render(<AnalysisReportDashboard report={report} onDownload={vi.fn()} />);
+
+  expect(screen.getAllByText('후보지 발전원단위 기반 예상 발전량')).toHaveLength(2);
+  expect(screen.getByText('설치용량(kWp) × pvout_avg_daily(kWh/kWp·일) × 365일')).toBeInTheDocument();
+  expect(screen.getByText('pvout 4kWh/kWp·일 · 연간 1,460kWh/kWp')).toBeInTheDocument();
+  expect(screen.getByText('후보지 pvout_avg_daily')).toBeInTheDocument();
 });

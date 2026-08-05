@@ -52,6 +52,7 @@ export const buildAnalysisReportViewModel = ({
   const roofSource = source.roofAnalysis || source.visionAnalysis || {};
   const generationForecast = source.generationForecast || null;
   const capacityEstimate = source.capacityEstimate || null;
+  const economicAssumptions = source.economicAssumptions || null;
   const score = toNumberOrNull(source.suitabilityScore);
   const paybackYears = toNumberOrNull(source.paybackPeriodYears);
   const annualRevenue = toNumberOrNull(source.estimatedAnnualRevenue);
@@ -120,6 +121,14 @@ export const buildAnalysisReportViewModel = ({
         formula: capacityEstimate.formula || null,
         source: capacityEstimate.source || null,
       } : null,
+      economicAssumptions: economicAssumptions ? {
+        registeredType: economicAssumptions.registeredType || siteType,
+        installationCostPerKw: toNumberOrNull(economicAssumptions.installationCostPerKw),
+        estimatedInstallationCost: toNumberOrNull(economicAssumptions.estimatedInstallationCost),
+        annualOmRatePercent: toNumberOrNull(economicAssumptions.annualOmRatePercent),
+        estimatedAnnualOmCost: toNumberOrNull(economicAssumptions.estimatedAnnualOmCost),
+        estimatedAnnualNetIncome: toNumberOrNull(economicAssumptions.estimatedAnnualNetIncome),
+      } : null,
       annualGenerationKwh,
       annualRevenue,
       roiPercent,
@@ -135,6 +144,8 @@ export const buildAnalysisReportViewModel = ({
         tiltDegrees: toNumberOrNull(generationForecast.tiltDegrees),
         azimuthDegrees: toNumberOrNull(generationForecast.azimuthDegrees),
         systemLossPercent: toNumberOrNull(generationForecast.systemLossPercent),
+        pvoutAvgDaily: toNumberOrNull(generationForecast.pvoutAvgDaily),
+        specificYieldKwhPerKwpYear: toNumberOrNull(generationForecast.specificYieldKwhPerKwpYear),
       } : null,
       paybackScaleYears: paybackYears === null ? 10 : Math.max(10, Math.ceil(paybackYears / 5) * 5),
       paybackMarkerPercent: paybackYears === null

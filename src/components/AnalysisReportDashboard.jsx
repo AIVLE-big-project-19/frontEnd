@@ -50,8 +50,12 @@ const KpiHelp = ({ label, formula, description, checks, sources }) => (
 const AnalysisReportDashboard = ({ report, onDownload }) => {
   const forecast = report.visuals.generationForecast;
   const capacityEstimate = report.economics.capacityEstimate;
+  const economicAssumptions = report.economics.economicAssumptions;
   const registeredType = capacityEstimate?.registeredType || report.site.type;
   const capacityTypeLabel = getSiteTypeLabel(registeredType);
+  const installationCostPerKw = economicAssumptions?.installationCostPerKw
+    ?? (registeredType === 'PARKING_LOT' ? 1500000 : registeredType === 'ROOF' ? 1300000 : 1200000);
+  const annualOmRatePercent = economicAssumptions?.annualOmRatePercent ?? 1.5;
   const visionTypeLabel = getSiteTypeLabel(capacityEstimate?.visionType);
   const areaPerKwM2 = capacityEstimate?.areaPerKwM2
     ?? (registeredType === 'ROOF' ? 7.5 : 10);
@@ -62,13 +66,21 @@ const AnalysisReportDashboard = ({ report, onDownload }) => {
   const visionReference = capacityEstimate?.visionType
     ? ` Vision AI 참고 유형은 ${visionTypeLabel}입니다.`
     : ' Vision AI 유형 정보는 제공되지 않았습니다.';
+  const capacityCoefficientRationale = registeredType === 'ROOF'
+    ? ' 7.5㎡/kW는 법정·공식 고정 기준이 아니라, 약 5㎡/kW의 모듈 면적에 점검 통로·가장자리 이격·장애물 여유를 더한 보수적 초기 배치 가정입니다. 7㎡/kW를 적용하면 용량이 약 7.1% 증가하지만, 현재 AI 가용면적의 검증 한계를 고려해 7.5㎡/kW를 적용합니다.'
+    : '';
   const hasLocationForecast = forecast?.method === 'LOCATION_BASED_PV_SIMULATION' && !forecast.fallback;
+  const usesPvoutForecast = forecast?.method === 'PVOUT_DAILY_SPECIFIC_YIELD';
   const generationLabel = hasLocationForecast
     ? '위치 기반 예상 발전량'
-    : '평균 발전계수 기반 예상 발전량';
+    : usesPvoutForecast
+    ? '후보지 발전원단위 기반 예상 발전량'
+    : '고정 발전원단위 기반 예상 발전량';
   const generationBasis = hasLocationForecast
     ? `${forecast.source}·경사 ${formatNumber(forecast.tiltDegrees, '°')}·손실 ${formatNumber(forecast.systemLossPercent, '%')}`
-    : '1,300kWh/kW·년 가정';
+    : usesPvoutForecast
+    ? `pvout ${formatNumber(forecast.pvoutAvgDaily, 'kWh/kWp·일')} · 연간 ${formatNumber(forecast.specificYieldKwhPerKwpYear, 'kWh/kWp')}`
+    : `${formatNumber(forecast?.specificYieldKwhPerKwpYear ?? 1300, 'kWh/kWp·년')} 고정 가정`;
 
   return (
   <section className="decision-report" aria-labelledby="decision-report-title">
@@ -147,10 +159,11 @@ const AnalysisReportDashboard = ({ report, onDownload }) => {
           <KpiHelp
             label="면적 기반 개략 용량"
             formula={capacityFormula}
-            description={`등록 유형 ${capacityTypeLabel}을 계산 기준으로 적용했습니다. ${formatNumber(areaPerKwM2, '㎡')}당 1kW, 최소 3kW를 가정한 초기 검토값입니다.${visionReference} 실제 용량은 패널 규격, 이격거리, 통로, 장애물과 구조하중에 따라 달라집니다.`}
+            description={`등록 유형 ${capacityTypeLabel}을 계산 기준으로 적용했습니다. ${formatNumber(areaPerKwM2, '㎡')}당 1kW, 최소 3kW를 가정한 초기 검토값입니다.${capacityCoefficientRationale}${visionReference} 실제 용량은 패널 규격, 이격거리, 통로, 장애물과 구조하중에 따라 달라집니다.`}
             checks="시공사의 패널 배치도와 구조안전 검토를 통해 최종 설치용량을 확인하세요."
             sources={registeredType === 'ROOF' ? [
               { label: 'PVGIS 설비용량·모듈 효율 공식 설명', href: 'https://joint-research-centre.ec.europa.eu/photovoltaic-geographical-information-system-pvgis/getting-started-pvgis/using-pvgis-frequently-asked-questions_en' },
+              { label: '미 에너지부 태양광 모듈 규격·효율 사례', href: 'https://www.energy.gov/cmei/systems/solar-photovoltaic-system-cost-benchmarks' },
               { label: '정부24 건축물대장 열람', href: 'https://www.gov.kr/mw/AA020InfoCappView.do?CappBizCD=15000000098&tp_seq=03' },
             ] : [
               { label: 'PVGIS 설비용량·모듈 효율 공식 설명', href: 'https://joint-research-centre.ec.europa.eu/photovoltaic-geographical-information-system-pvgis/getting-started-pvgis/using-pvgis-frequently-asked-questions_en' },
@@ -169,14 +182,21 @@ const AnalysisReportDashboard = ({ report, onDownload }) => {
             label={generationLabel}
             formula={hasLocationForecast
               ? '후보지 좌표 + 설치용량 + 경사·방향 + 시스템 손실률'
+              : usesPvoutForecast
+              ? '설치용량(kWp) × pvout_avg_daily(kWh/kWp·일) × 365일'
               : '개략 용량 × 1,300kWh/kW·년'}
             description={hasLocationForecast
               ? `${forecast.source}의 위치별 일사량 자료로 12개월 발전량을 계산하고 그 합계를 연간 발전량으로 사용했습니다. 현장 음영과 계통 출력제어는 별도 확인이 필요합니다.`
+              : usesPvoutForecast
+              ? 'PVGIS 호출이 실패했을 때 후보지별 1kWp당 일평균 예상 발전량인 pvout_avg_daily를 365일로 환산해 사용합니다. 월별 값은 연간 발전량을 내부 계절 가중치로 배분한 추정치입니다.'
               : '외부 위치 기반 계산을 사용할 수 없어 전국 공통 연간 발전계수와 내부 계절 가중치를 적용한 참고값입니다.'}
             checks="지역 기상자료와 설계 경사·방위·음영을 반영한 발전량 시뮬레이션을 확인하세요."
             sources={hasLocationForecast ? [
               { label: 'EU JRC PVGIS 공식 설명', href: 'https://joint-research-centre.ec.europa.eu/photovoltaic-geographical-information-system-pvgis_en' },
               { label: 'PVGIS API 산정 항목', href: 'https://joint-research-centre.ec.europa.eu/photovoltaic-geographical-information-system-pvgis/using-pvgis-5/api-non-interactive-service_en' },
+            ] : usesPvoutForecast ? [
+              { label: 'PVGIS 설비용량·발전량 원단위 설명', href: 'https://joint-research-centre.ec.europa.eu/photovoltaic-geographical-information-system-pvgis/getting-started-pvgis/using-pvgis-frequently-asked-questions_en' },
+              { label: '한국에너지공단 재생에너지 클라우드', href: 'https://recloud.energy.or.kr/main/main.do' },
             ] : [
               { label: '한국에너지공단 공공 태양광 사례', href: 'https://www.energy.or.kr/energy_issue/mail_vol269/pdf/issue_372_03_all.pdf' },
               { label: '한국에너지공단 재생에너지 클라우드', href: 'https://recloud.energy.or.kr/main/main.do' },
@@ -192,8 +212,8 @@ const AnalysisReportDashboard = ({ report, onDownload }) => {
           기본 가정 기준 연간 예상 매출
           <KpiHelp
             label="기본 가정 기준 연간 예상 매출"
-            formula="예상 발전량 × 160원/kWh"
-            description="160원/kWh의 단일 판매단가를 적용한 매출 추정치입니다. 실제 수익은 SMP, REC 가격·가중치, 고정가격계약 및 자가소비 여부에 따라 달라집니다."
+            formula={`매출 = 예상 발전량 × 160원/kWh · 순수익 = 매출 - (설비용량 × ${formatNumber(installationCostPerKw, '원/kW')} × ${formatNumber(annualOmRatePercent, '%')})`}
+            description={`${capacityTypeLabel} 설치비 ${formatNumber(installationCostPerKw, '원/kW')}와 연간 O&M ${formatNumber(annualOmRatePercent, '%')}를 적용합니다. ROI와 회수기간은 O&M 차감 후 연간 순수익 기준입니다. 실제 수익은 SMP, REC, 계약조건과 추가 비용에 따라 달라집니다.`}
             checks="계약 방식과 최신 SMP·REC 가격을 확인하고 유지보수비, 보험료, 임대료, 세금, 금융비용을 별도로 반영하세요."
             sources={[
               { label: '전력거래소 SMP·REC 시장정보', href: 'https://new.kpx.or.kr/?bbsNo=12&key=17' },
@@ -203,14 +223,14 @@ const AnalysisReportDashboard = ({ report, onDownload }) => {
           />
         </dt>
         <dd>{formatNumber(report.economics.annualRevenue == null ? null : report.economics.annualRevenue / 100000000, ' 억')}</dd>
-        <small>단순 예상 수익률 {formatNumber(report.economics.roiPercent, '%')} · 단순 회수 {formatNumber(report.economics.paybackYears, '년')}</small>
+        <small>O&M 차감 예상 ROI {formatNumber(report.economics.roiPercent, '%')} · 단순 회수 {formatNumber(report.economics.paybackYears, '년')}</small>
       </div>
     </dl>
 
     <section className="decision-visuals" aria-label="발전량과 투자 회수 시각화">
       <article className="generation-chart-card">
         <div className="chart-heading">
-          <div><span>{hasLocationForecast ? forecast.source : '계절 가중치 참고값'}</span><h3>월별 예상 발전량</h3></div>
+          <div><span>{forecast?.source || '발전량 산정 대기'}</span><h3>월별 예상 발전량</h3></div>
           <strong>{formatNumber(report.economics.annualGenerationKwh, ' kWh / 년')}</strong>
         </div>
         {report.economics.annualGenerationKwh == null ? (
@@ -236,12 +256,12 @@ const AnalysisReportDashboard = ({ report, onDownload }) => {
           <p className="decision-chart-empty">투자비와 예상 수익이 산정된 뒤 회수 시점을 확인할 수 있습니다.</p>
         ) : (
           <>
-            <div className="roi-value"><strong>{formatNumber(report.economics.roiPercent, '%')}</strong><span>연간 단순 예상 수익률</span></div>
+            <div className="roi-value"><strong>{formatNumber(report.economics.roiPercent, '%')}</strong><span>O&M 차감 예상 ROI</span></div>
             <div className="payback-visual">
               <div className="payback-track"><i style={{ width: `${report.visuals.paybackMarkerPercent}%` }} /><b style={{ left: `${report.visuals.paybackMarkerPercent}%` }} /></div>
               <div className="payback-labels"><span>투자 시작</span><strong>{formatNumber(report.economics.paybackYears, '년')}</strong><span>{report.visuals.paybackScaleYears}년</span></div>
             </div>
-            <p>고정 단가와 초기 설치비만 반영한 개략값입니다. 실제 투자 판단에는 운영비와 금융조건 확인이 필요합니다.</p>
+            <p>유형별 초기 설치비와 연간 O&M 1.5%를 반영한 개략값입니다. 실제 투자 판단에는 토지비, 계통연계비, 세금과 금융조건 확인이 필요합니다.</p>
           </>
         )}
       </article>
