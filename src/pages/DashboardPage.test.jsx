@@ -31,6 +31,7 @@ vi.mock('../components/AnalysisReportDashboard', () => ({
 vi.mock('../api/dashboardApi', () => ({
   fetchDashboardCandidateAnalysis: fetchAnalysisMock,
   fetchDashboardCandidatesByRegion: vi.fn(),
+  downloadAnalysisSnapshotReport: vi.fn(),
   downloadDashboardCandidateReport: vi.fn(),
 }));
 

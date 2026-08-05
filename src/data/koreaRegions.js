@@ -51,3 +51,6 @@ export const KOREA_REGIONS = {
 };
 
 export const SIDO_LIST = Object.keys(KOREA_REGIONS);
+
+// 유휴부지 후보지 데이터가 있는 지역만 검색 가능하도록 제한.
+export const SUPPORTED_SIDO_LIST = ['대전광역시', '충청북도', '충청남도', '세종특별자치시'];

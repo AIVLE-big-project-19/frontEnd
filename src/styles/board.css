@@ -51,6 +51,11 @@
   border-radius: 999px;
 }
 
+.board-card.category-faq .board-card-meta > span:first-child,
+.board-detail-meta.category-faq > span:nth-child(2) {
+  display: none;
+}
+
 .board-actions {
   display: flex;
   align-items: center;
