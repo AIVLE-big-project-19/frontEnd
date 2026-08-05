@@ -67,7 +67,7 @@ const AnalysisReportDashboard = ({ report, onDownload }) => {
     ? ` Vision AI 참고 유형은 ${visionTypeLabel}입니다.`
     : ' Vision AI 유형 정보는 제공되지 않았습니다.';
   const capacityCoefficientRationale = registeredType === 'ROOF'
-    ? ' 7.5㎡/kW는 법정·공식 고정 기준이 아니라, 약 5㎡/kW의 모듈 면적에 점검 통로·가장자리 이격·장애물 여유를 더한 보수적 초기 배치 가정입니다. 7㎡/kW를 적용하면 용량이 약 7.1% 증가하지만, 현재 AI 가용면적의 검증 한계를 고려해 7.5㎡/kW를 적용합니다.'
+    ? ' 7.5㎡/kW는 약 5㎡/kW의 모듈 면적에 점검 통로·가장자리 이격·장애물 여유를 더한 보수적 초기 배치 가정입니다. 7㎡/kW를 적용하면 용량이 약 7.1% 증가하지만, 현재 AI 가용면적의 검증 한계를 고려해 7.5㎡/kW를 적용합니다.'
     : '';
   const hasLocationForecast = forecast?.method === 'LOCATION_BASED_PV_SIMULATION' && !forecast.fallback;
   const usesPvoutForecast = forecast?.method === 'PVOUT_DAILY_SPECIFIC_YIELD';
