@@ -1,6 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import instance from '../api/axiosInstance';
+import NotificationBell from './NotificationBell';
 
 const AuthNav = () => {
   const { isLoggedIn, loginId, isAdmin, login, logout } = useAuth();
@@ -27,6 +28,7 @@ const handleAdminTestLogin = async () => {
   if (isLoggedIn) {
     return (
       <nav className="nav-menu auth-nav">
+        <NotificationBell />
         <Link to="/mypage" className="auth-user">{loginId}님</Link>
         {isAdmin && <Link to="/admin/users">회원 관리</Link>}
         {isAdmin && <Link to="/admin/idle-lands">유휴부지 관리</Link>}
