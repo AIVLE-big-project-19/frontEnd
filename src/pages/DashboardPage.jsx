@@ -7,6 +7,7 @@ import MapView from '../components/MapView';
 import AnalysisReportDashboard from '../components/AnalysisReportDashboard';
 import {
   downloadDashboardCandidateReport,
+  downloadAnalysisSnapshotReport,
   fetchDashboardCandidateAnalysis,
   fetchDashboardCandidatesByRegion,
 } from '../api/dashboardApi';
@@ -226,7 +227,9 @@ const DashboardPage = () => {
   const downloadReport = async (targetType) => {
     if (!selectedCandidate) return;
     try {
-      const reportBlob = await downloadDashboardCandidateReport(selectedCandidate.id);
+      const reportBlob = analysis?.analysisId
+        ? await downloadAnalysisSnapshotReport(analysis.analysisId)
+        : await downloadDashboardCandidateReport(selectedCandidate.id);
       const url = URL.createObjectURL(reportBlob);
       const link = document.createElement('a');
       link.href = url;
