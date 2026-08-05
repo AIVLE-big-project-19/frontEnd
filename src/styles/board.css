@@ -789,6 +789,20 @@ select.board-input {
   margin-bottom: 9px;
 }
 
+.comment-meta {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  min-width: 0;
+}
+
+.comment-header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: auto;
+}
+
 .comment-writer {
   display: inline-flex;
   align-items: center;
@@ -796,6 +810,7 @@ select.board-input {
   color: var(--navy-900);
   font-size: 14px;
   font-weight: 800;
+  white-space: nowrap;
 }
 
 .comment-writer::before {
@@ -805,6 +820,13 @@ select.board-input {
   background: var(--teal-600);
   border-radius: 50%;
   box-shadow: 0 0 0 3px var(--teal-100);
+}
+
+.comment-created-at {
+  color: var(--slate-500);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
 }
 
 .comment-content {
@@ -894,7 +916,6 @@ select.board-input {
 }
 
 .comment-secret-badge {
-  margin-right: auto;
   padding: 3px 8px;
   color: #6d28d9;
   background: #f3e8ff;
@@ -995,6 +1016,12 @@ select.board-input {
   .comment-item-header {
     align-items: flex-start;
     flex-direction: column;
+    gap: 8px;
+  }
+
+  .comment-header-right {
+    width: 100%;
+    margin-left: 0;
   }
 
   .comment-actions {

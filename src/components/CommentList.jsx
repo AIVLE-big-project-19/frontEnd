@@ -3,6 +3,7 @@ import { deleteComment, getComments, updateComment } from "../api/commentApi";
 import { useAuth } from "../context/AuthContext";
 import CommentForm from "./CommentForm";
 import { FREE_CATEGORY, INQUIRY_CATEGORY } from "../constants/boardCategory";
+import dayjs from "dayjs";
 
 function CommentList({ boardId, boardCategory }) {
     const { loginId, isAdmin } = useAuth();
@@ -90,10 +91,16 @@ function CommentList({ boardId, boardCategory }) {
                         return (
                             <div key={comment.commentId} className="comment-item">
                                 <div className="comment-item-header">
-                                    {boardCategory !== INQUIRY_CATEGORY && (
-                                        <span className="comment-writer">{comment.writerName ?? comment.writer}</span>
-                                    )}
+                                    <div className="comment-meta">
+                                        <span className="comment-writer">
+                                            {boardCategory === INQUIRY_CATEGORY ? "관리자" : (comment.writerName ?? comment.writer)}
+                                        </span>
+                                        <span className="comment-created-at">
+                                            {dayjs(comment.createdAt).format('YYYY. M. D. HH:mm')}
+                                        </span>
+                                    </div>
 
+                                    <div className="comment-header-right">
                                     {comment.secret && (
                                         <span className="comment-secret-badge">비밀{responseLabel}</span>
                                     )}
@@ -113,6 +120,7 @@ function CommentList({ boardId, boardCategory }) {
                                             )}
                                         </div>
                                     )}
+                                    </div>
                                 </div>
 
                                 {isEditing ? (
