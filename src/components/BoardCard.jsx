@@ -29,7 +29,7 @@ function BoardCard({ board }) {
                     {showWriter && (
                     <span>
                         <span className="board-card-meta-label">작성일</span>
-                    {dayjs(board.createdAt).format('YYYY. M. D. HH:MM')}
+                    {dayjs(board.createdAt).format('YYYY. M. D. HH:mm')}
                     </span>
                     )}
                     <span>

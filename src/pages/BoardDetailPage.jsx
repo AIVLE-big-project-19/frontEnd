@@ -205,7 +205,7 @@ function BoardDetailPage() {
     {getBoardCategoryKey(board.category) === "inquiry" && (
         <span>작성자: {board.writerName ?? board.writer}</span>
     )}
-    <span>작성일: {dayjs(board.createdAt).format('YYYY. M. D. HH:MM')}</span>
+    <span>작성일: {dayjs(board.createdAt).format('YYYY. M. D. HH:mm')}</span>
     <span>조회수: {board.viewCount}</span>
 </div>
 
