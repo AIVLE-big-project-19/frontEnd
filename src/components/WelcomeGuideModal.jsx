@@ -1,14 +1,19 @@
 import { useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import '../styles/AuthPage.css';
 
 const HIDE_UNTIL_KEY = 'welcome-guide-hide-date';
+const VISIBLE_PATHS = ['/analysis', '/dashboard', '/analysis-history'];
 
 const todayKey = () => new Date().toDateString();
 
 const shouldAutoShow = () => localStorage.getItem(HIDE_UNTIL_KEY) !== todayKey();
 
 const WelcomeGuideModal = () => {
+  const { pathname } = useLocation();
   const [open, setOpen] = useState(shouldAutoShow);
+
+  if (!VISIBLE_PATHS.includes(pathname)) return null;
 
   const handleClose = () => {
     setOpen(false);
