@@ -999,7 +999,7 @@
   display: grid;
   flex: 1;
   grid-template-columns: 38px minmax(0, 1fr);
-  gap: 6px;
+  gap: 8px;
   margin-top: 10px;
 }
 
