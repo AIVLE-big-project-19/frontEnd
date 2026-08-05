@@ -161,7 +161,6 @@ function AnalysisHistoryPage() {
             <h1>분석 이력 관리</h1>
             <p>분석한 후보지를 저장하고 검토 상태와 비교 결과를 관리하세요.</p>
           </div>
-          <div className="analysis-history-count"><strong>{history.length}</strong><span>저장된 분석</span></div>
         </div>
 
         <div className="analysis-history-toolbar">
