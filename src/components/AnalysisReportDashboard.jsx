@@ -9,11 +9,13 @@ const getMonthlyExtremes = (monthlyGeneration) => {
   const values = monthlyGeneration.map((item) => Number(item.value) || 0);
   const maxValue = Math.max(...values, 0);
   const minValue = Math.min(...values);
+  const yAxisMax = Math.max(10000, Math.ceil(maxValue / 10000) * 10000);
 
   return {
     maxIndex: values.indexOf(maxValue),
     minIndex: minValue === maxValue ? values.length - 1 : values.indexOf(minValue),
-    yAxisTicks: [maxValue, maxValue / 2, 0],
+    yAxisMax,
+    yAxisTicks: [yAxisMax, yAxisMax / 2, 0],
   };
 };
 
@@ -264,7 +266,9 @@ const AnalysisReportDashboard = ({ report, onDownload }) => {
                 aria-label={`${item.month}월 ${formatNumber(item.value, ' kWh')}`}
               >
                 <span>{formatNumber(item.value / 1000, 'k')}</span>
-                <i style={{ '--generation-height': `${item.heightPercent}%` }} />
+                <i style={{
+                  '--generation-height': `${Math.max(8, Math.round(item.value / monthlyExtremes.yAxisMax * 100))}%`,
+                }} />
                 <b>{item.month}월</b>
               </div>
             ))}
