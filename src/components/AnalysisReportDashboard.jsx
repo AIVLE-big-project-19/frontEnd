@@ -5,6 +5,18 @@ const formatNumber = (value, suffix = '') => {
   return `${Number(value).toLocaleString('ko-KR', { maximumFractionDigits: 1 })}${suffix}`;
 };
 
+const getMonthlyExtremes = (monthlyGeneration) => {
+  const values = monthlyGeneration.map((item) => Number(item.value) || 0);
+  const maxValue = Math.max(...values, 0);
+  const minValue = Math.min(...values);
+
+  return {
+    maxIndex: values.indexOf(maxValue),
+    minIndex: minValue === maxValue ? values.length - 1 : values.indexOf(minValue),
+    yAxisTicks: [maxValue, maxValue / 2, 0],
+  };
+};
+
 const getScoreState = (value) => {
   if (value == null) return { label: '미산정', className: 'unavailable' };
   if (value >= 80) return { label: '양호', className: 'good' };
@@ -81,6 +93,8 @@ const AnalysisReportDashboard = ({ report, onDownload }) => {
     : usesPvoutForecast
     ? `pvout ${formatNumber(forecast.pvoutAvgDaily, 'kWh/kWp·일')} · 연간 ${formatNumber(forecast.specificYieldKwhPerKwpYear, 'kWh/kWp')}`
     : `${formatNumber(forecast?.specificYieldKwhPerKwpYear ?? 1300, 'kWh/kWp·년')} 고정 가정`;
+
+  const monthlyExtremes = getMonthlyExtremes(report.visuals.monthlyGeneration);
 
   return (
   <section className="decision-report" aria-labelledby="decision-report-title">
@@ -236,14 +250,25 @@ const AnalysisReportDashboard = ({ report, onDownload }) => {
         {report.economics.annualGenerationKwh == null ? (
           <p className="decision-chart-empty">발전량 산정에 필요한 데이터가 없습니다.</p>
         ) : (
-          <div className="generation-chart" role="img" aria-label="1월부터 12월까지 월별 예상 발전량 막대 그래프">
-            {report.visuals.monthlyGeneration.map((item) => (
-              <div className="generation-bar-column" key={item.month} aria-label={`${item.month}월 ${formatNumber(item.value, ' kWh')}`}>
+          <div className="generation-chart-layout" role="img" aria-label="1월부터 12월까지 월별 예상 발전량 막대 그래프">
+            <div className="generation-y-axis" aria-hidden="true">
+              {monthlyExtremes.yAxisTicks.map((tick, index) => (
+                <span key={`${tick}-${index}`}>{formatNumber(tick / 1000, 'k')}</span>
+              ))}
+            </div>
+            <div className="generation-chart">
+            {report.visuals.monthlyGeneration.map((item, index) => (
+              <div
+                className={`generation-bar-column ${index === monthlyExtremes.maxIndex ? 'maximum' : index === monthlyExtremes.minIndex ? 'minimum' : ''}`}
+                key={item.month}
+                aria-label={`${item.month}월 ${formatNumber(item.value, ' kWh')}`}
+              >
                 <span>{formatNumber(item.value / 1000, 'k')}</span>
                 <i style={{ '--generation-height': `${item.heightPercent}%` }} />
                 <b>{item.month}월</b>
               </div>
             ))}
+            </div>
           </div>
         )}
       </article>

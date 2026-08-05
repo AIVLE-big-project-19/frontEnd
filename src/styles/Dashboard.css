@@ -995,24 +995,56 @@
   white-space: nowrap;
 }
 
-.generation-chart {
+.generation-chart-layout {
   display: grid;
   flex: 1;
+  grid-template-columns: 38px minmax(0, 1fr);
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.generation-y-axis {
+  display: flex;
+  height: 132px;
+  padding: 22px 0 19px;
+  box-sizing: border-box;
+  flex-direction: column;
+  justify-content: space-between;
+  color: #8a98a6;
+  font-size: 8px;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.generation-chart {
+  position: relative;
+  display: grid;
   grid-template-columns: repeat(12, minmax(16px, 1fr));
   height: 132px;
   align-items: end;
   gap: clamp(3px, .6vw, 8px);
-  margin-top: 10px;
-  padding-top: 7px;
+}
+
+.generation-chart::before {
+  position: absolute;
+  z-index: 0;
+  top: 22px;
+  right: 0;
+  bottom: 19px;
+  left: 0;
   border-bottom: 1px solid #cbd5df;
-  background: repeating-linear-gradient(to bottom, #fff 0, #fff 32px, #edf1f4 33px);
+  background: linear-gradient(to bottom, #e7edf1 1px, transparent 1px, transparent 49%, #edf1f4 50%, transparent calc(50% + 1px));
+  content: '';
+  pointer-events: none;
 }
 
 .generation-bar-column {
+  position: relative;
+  z-index: 1;
   display: grid;
   min-width: 0;
   height: 100%;
-  grid-template-rows: 16px minmax(0, 1fr) 19px;
+  grid-template-rows: 22px minmax(0, 1fr) 19px;
   align-items: end;
   justify-items: center;
 }
@@ -1020,6 +1052,9 @@
 .generation-bar-column > span {
   color: transparent;
   font-size: 8px;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  white-space: nowrap;
   transition: color .15s;
 }
 
@@ -1034,6 +1069,35 @@
   min-height: 6px;
   background: #4a9c95;
   border-radius: 2px 2px 0 0;
+  transition: background-color .15s, opacity .15s;
+}
+
+.generation-bar-column:not(.minimum):not(.maximum) i {
+  opacity: .78;
+}
+
+.generation-bar-column.minimum > span,
+.generation-bar-column.maximum > span {
+  color: #526577;
+  font-weight: 750;
+}
+
+.generation-bar-column.minimum i {
+  background: #4f7fa7;
+}
+
+.generation-bar-column.maximum i {
+  background: #e08a45;
+}
+
+.generation-bar-column.minimum b {
+  color: #3f7098;
+  font-weight: 750;
+}
+
+.generation-bar-column.maximum b {
+  color: #c66f2f;
+  font-weight: 750;
 }
 
 .generation-bar-column b {
