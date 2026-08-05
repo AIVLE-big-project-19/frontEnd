@@ -65,12 +65,7 @@ const AnalysisPage = () => {
       return !holes.some((hole) => isPointInRing(lon, lat, hole));
     });
 
-  // 검색 결과 좌표와 매칭되는 필지 폴리곤을 찾는다.
-  // 주소 문자열은 인코딩이 깨져 있어 신뢰할 수 없으므로 좌표로 매칭한다.
-  // "가장 가까운 필지"로 대체하는 방식은 밀집 지역에서 엉뚱한 옆 필지(도로/구거 등)를
-  // 잘못 그리는 원인이 되므로 쓰지 않고, 점이 실제로 폴리곤 내부에 있을 때만 매칭한다.
-  // 로컬 GeoJSON에는 지적도 조회에 성공한 후보지만 들어있으므로, 이 파일에 없는
-  // 주소를 클릭하면 매칭되는 필지가 없어 아무 것도 그려지지 않는 것이 정상 동작이다.
+
   const findParcelGeometry = (lon, lat) => {
     const numLon = Number(lon);
     const numLat = Number(lat);
@@ -110,47 +105,6 @@ const AnalysisPage = () => {
     }
   }, [map, apiKey]);
 
-  const handleDownloadPdf = async () => {
-    if (currentAddress.includes("지도를") || currentAddress.includes("오류")) {
-      alert("유효한 주소를 선택해주세요.");
-      return;
-    }
-
-    try {
-      const response = await instance.post(
-        '/pdf/generate',
-        { address: currentAddress },
-        { responseType: 'blob' },
-      );
-
-      const url = window.URL.createObjectURL(response.data);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'SolarAivle_Report.pdf';
-      a.click();
-    } catch (error) {
-      console.error("PDF 다운로드 에러:", error);
-      alert("보고서 생성 중 오류가 발생했습니다.");
-    }
-  };
-
-  const handleDownloadSamplePdf = async (targetType) => {
-    try {
-      const response = await instance.get('/pdf/generate/sample', {
-        params: { type: targetType },
-        responseType: 'blob',
-      });
-
-      const url = window.URL.createObjectURL(response.data);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `SolarAivle_Sample_${targetType}.pdf`;
-      a.click();
-    } catch (error) {
-      console.error("예제 PDF 다운로드 에러:", error);
-      alert("예제 보고서 생성 중 오류가 발생했습니다.");
-    }
-  };
 
   const handleItemClick = (item) => {
     setSelectedCoordinates([parseFloat(item.point.x), parseFloat(item.point.y)]);
@@ -203,23 +157,6 @@ const AnalysisPage = () => {
     navigate('/dashboard', { state: { selectedCandidates: candidates } });
   };
 
-  const handleIdleLandReportDownload = async (item) => {
-    if (downloadingId !== null) return;
-    setDownloadingId(item.id);
-    try {
-      const blob = await downloadIdleLandReport(item.id);
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `SolarAivle_${item.sourceId || item.id}_Report.pdf`;
-      a.click();
-      window.URL.revokeObjectURL(url);
-    } catch (error) {
-      alert('보고서 생성 중 오류가 발생했습니다.');
-    } finally {
-      setDownloadingId(null);
-    }
-  };
 
   return (
     <Layout>
@@ -274,14 +211,6 @@ const AnalysisPage = () => {
                             </div>
                           </div>
                         </div>
-                        <button
-                          type="button"
-                          className="idle-land-download-btn"
-                          disabled={downloadingId !== null}
-                          onClick={() => handleIdleLandReportDownload(item)}
-                        >
-                          {downloadingId === item.id ? '생성 중...' : '보고서 다운로드'}
-                        </button>
                       </li>
                     ))}
                   </ul>
