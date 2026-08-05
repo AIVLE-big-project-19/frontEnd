@@ -74,13 +74,17 @@ function AnalysisHistoryPage() {
 
   const updateEntry = (candidateId, updates) => {
     const next = updateAnalysisHistoryEntry(loginId, candidateId, updates);
-    setHistory(next);
     const remoteItem = history.find((item) => String(item.candidateId) === String(candidateId));
     if (remoteItem?.analysisId) {
+      setHistory((current) => current.map((item) => (
+        String(item.analysisId) === String(remoteItem.analysisId) ? { ...item, ...updates } : item
+      )));
       updateAnalysisHistoryManagement(remoteItem.analysisId, {
         favorite: updates.favorite ?? remoteItem.favorite ?? false,
         status: updates.status ?? remoteItem.status ?? 'REVIEWING',
       }).catch(() => window.alert('분석 이력 변경에 실패했습니다.'));
+    } else {
+      setHistory(next);
     }
   };
 
@@ -95,7 +99,11 @@ function AnalysisHistoryPage() {
   const deleteEntry = (candidateId) => {
     if (!window.confirm('이 분석 이력을 삭제하시겠습니까?')) return;
     const remoteItem = history.find((item) => String(item.candidateId) === String(candidateId));
-    setHistory(removeAnalysisHistoryEntry(loginId, candidateId));
+    if (remoteItem?.analysisId) {
+      setHistory((current) => current.filter((item) => item.analysisId !== remoteItem.analysisId));
+    } else {
+      setHistory(removeAnalysisHistoryEntry(loginId, candidateId));
+    }
     setCompareIds((current) => current.filter((id) => id !== candidateId));
     if (remoteItem?.analysisId) {
       deleteAnalysisHistory(remoteItem.analysisId).catch(() => window.alert('분석 이력 삭제에 실패했습니다.'));
