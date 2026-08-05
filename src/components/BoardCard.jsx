@@ -15,8 +15,8 @@ function BoardCard({ board }) {
 
             <div className="board-card-body">
                 <h3 className="board-card-title">
-                    {isNewNotice && <span className="board-new-badge">NEW</span>}
                     {board.title}
+                                        {isNewNotice && <span className="board-new-badge">NEW</span>}
                 </h3>
 
                 <div className="board-card-meta">
