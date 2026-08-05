@@ -4,7 +4,7 @@ import { deleteBoard, getBoard, getBoardAttachment } from "../api/boardApi";
 import { useAuth } from "../context/AuthContext";
 import CommentList from "../components/CommentList";
 import Layout from "../components/Layout";
-import { allowsComments, INQUIRY_CATEGORY, isAdminOnlyCategory } from "../constants/boardCategory";
+import { allowsComments, getBoardCategoryKey, INQUIRY_CATEGORY, isAdminOnlyCategory } from "../constants/boardCategory";
 import "../styles/board.css";
 
 function BoardDetailPage() {
@@ -190,7 +190,7 @@ function BoardDetailPage() {
                 <div className="board-detail-card">
                     <h2 className="board-detail-title">{board.title}</h2>
 
-                    <div className="board-detail-meta">
+                    <div className={`board-detail-meta category-${getBoardCategoryKey(board.category)}`}>
                         <span className="board-badge">{board.category}</span>
                         <span>작성자: {board.writerName ?? board.writer}</span>
                         <span>조회수: {board.viewCount}</span>

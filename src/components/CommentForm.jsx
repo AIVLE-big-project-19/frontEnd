@@ -3,7 +3,7 @@ import { createComment } from "../api/commentApi";
 import { useAuth } from "../context/AuthContext";
 import { getMyProfile } from "../api/myPageApi";
 
-function CommentForm({ boardId, onCommentCreated, allowSecret = false, responseLabel = "댓글" }) {
+function CommentForm({ boardId, onCommentCreated, allowSecret = false, responseLabel = "댓글", showWriter = true }) {
     const { isLoggedIn, loginId } = useAuth();
     const [content, setContent] = useState("");
     const [secret, setSecret] = useState(false);
@@ -46,7 +46,7 @@ function CommentForm({ boardId, onCommentCreated, allowSecret = false, responseL
     return (
         <div className="comment-form">
             <h4>{responseLabel} 작성</h4>
-            <div className="comment-current-writer">작성자: {writerName}</div>
+            {showWriter && <div className="comment-current-writer">작성자: {writerName}</div>}
             <textarea
                 placeholder={`${responseLabel}을(를) 입력하세요.`}
                 value={content}
