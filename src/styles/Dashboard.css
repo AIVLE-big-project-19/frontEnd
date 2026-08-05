@@ -56,30 +56,6 @@
   line-height: 1.45;
 }
 
-.hero-actions {
-  display: flex;
-  align-items: center;
-}
-
-.demo-count {
-  display: flex;
-  min-height: 40px;
-  align-items: baseline;
-  gap: 7px;
-  padding: 8px 12px;
-  color: #475569;
-  background: #fff;
-  border: 1px solid #d7dee5;
-  border-radius: 6px;
-  font-size: 12px;
-}
-
-.demo-count b {
-  color: #087f78;
-  font-size: 18px;
-  font-weight: 800;
-}
-
 .dashboard-status {
   display: flex;
   min-height: 38px;
@@ -376,9 +352,14 @@
   text-align: left;
 }
 
-.candidate-row > button:first-child:hover {
+.candidate-row > button:first-child:hover:not(:disabled) {
   background: #f8fafb;
   border-color: #b7c4ce;
+}
+
+.candidate-row > button:first-child:disabled {
+  cursor: not-allowed;
+  opacity: .55;
 }
 
 .candidate-row > button:first-child.active {
@@ -1489,14 +1470,6 @@
 
   .dashboard-hero h1 {
     font-size: 26px;
-  }
-
-  .hero-actions {
-    width: 100%;
-  }
-
-  .demo-count {
-    min-height: 36px;
   }
 
   .dashboard-mobile-nav {
