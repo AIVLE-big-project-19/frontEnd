@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { fromLonLat } from 'ol/proj';
@@ -50,6 +50,7 @@ const DashboardPage = () => {
   const [analysis, setAnalysis] = useState(null);
   const [candidateLoading, setCandidateLoading] = useState(false);
   const [analysisLoading, setAnalysisLoading] = useState(false);
+  const analysisLoadingRef = useRef(false);
   const [activeMobilePanel, setActiveMobilePanel] = useState('site');
   const [status, setStatus] = useState({
     type: hasTransferredCandidates ? 'success' : 'info',
@@ -162,6 +163,9 @@ const DashboardPage = () => {
   };
 
   const analyzeCandidate = async (candidate) => {
+    if (analysisLoadingRef.current) return;
+
+    analysisLoadingRef.current = true;
     setAnalysisLoading(true);
     setStatus({ type: 'loading', text: '선택 후보지의 ML·SHAP 상세 결과를 불러오고 있습니다.' });
     try {
@@ -184,11 +188,14 @@ const DashboardPage = () => {
         text: error.response?.data?.message || '후보지 상세 분석을 불러오지 못했습니다.',
       });
     } finally {
+      analysisLoadingRef.current = false;
       setAnalysisLoading(false);
     }
   };
 
   const selectCandidate = (candidate) => {
+    if (analysisLoadingRef.current) return;
+
     setSelectedCandidate(candidate);
     setAnalysis(null);
     setCoordinates(
@@ -243,12 +250,6 @@ const DashboardPage = () => {
                 ? '선택한 후보지를 비교하고 상세 사업성을 확인하세요.'
                 : '지역별 태양광 후보지를 조회하고 AI 분석 결과를 확인하세요.'}
             </span>
-          </div>
-          <div className="hero-actions">
-            <div className="demo-count">
-              <b>{candidatePage ? filteredCandidates.length : '-'}</b>
-              <span>{hasTransferredCandidates ? '선택 후보지' : '지역 후보지'}</span>
-            </div>
           </div>
         </div>
 
@@ -339,6 +340,7 @@ const DashboardPage = () => {
                           type="button"
                           className={selectedCandidate?.id === item.id ? 'active' : ''}
                           onClick={() => selectCandidate(item)}
+                          disabled={analysisLoading}
                           aria-pressed={selectedCandidate?.id === item.id}
                         >
                           <span className={`candidate-score ${item.suitabilityScore >= 80 ? 'high' : item.suitabilityScore >= 70 ? 'medium' : ''}`}>
