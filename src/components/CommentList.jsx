@@ -90,7 +90,9 @@ function CommentList({ boardId, boardCategory }) {
                         return (
                             <div key={comment.commentId} className="comment-item">
                                 <div className="comment-item-header">
-                                    <span className="comment-writer">{comment.writerName ?? comment.writer}</span>
+                                    {boardCategory !== INQUIRY_CATEGORY && (
+                                        <span className="comment-writer">{comment.writerName ?? comment.writer}</span>
+                                    )}
 
                                     {comment.secret && (
                                         <span className="comment-secret-badge">비밀{responseLabel}</span>
@@ -134,6 +136,7 @@ function CommentList({ boardId, boardCategory }) {
                     onCommentCreated={loadComments}
                     allowSecret={boardCategory === FREE_CATEGORY}
                     responseLabel={responseLabel}
+                    showWriter={boardCategory !== INQUIRY_CATEGORY}
                 />
             )}
         </div>

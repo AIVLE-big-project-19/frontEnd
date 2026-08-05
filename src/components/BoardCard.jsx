@@ -3,6 +3,7 @@ import { getBoardCategoryKey } from "../constants/boardCategory";
 
 function BoardCard({ board }) {
     const categoryKey = getBoardCategoryKey(board.category);
+    const showWriter = categoryKey !== "faq";
 
     return (
         <div className={`board-card category-${categoryKey}`}>
@@ -18,10 +19,12 @@ function BoardCard({ board }) {
                 </h3>
 
                 <div className="board-card-meta">
+                    {showWriter && (
                     <span>
                         <span className="board-card-meta-label">작성자</span>
                         {board.writerName ?? board.writer}
                     </span>
+                    )}
                     <span>
                         <span className="board-card-meta-label">조회수</span>
                         {board.viewCount}
