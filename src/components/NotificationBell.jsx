@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { Fragment, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { deleteAllNotifications, deleteNotification, fetchNotifications, markAllNotificationsRead, markNotificationRead } from '../api/notificationApi';
@@ -84,6 +84,10 @@ const NotificationBell = () => {
       : [...current, notificationId]);
   };
 
+  const orderedNotifications = [...notifications].sort((left, right) => (
+    Number(left.read) - Number(right.read)
+  ));
+
   if (!isLoggedIn) return null;
 
   return (
@@ -103,13 +107,16 @@ const NotificationBell = () => {
           </div>
           {notifications.length === 0 ? <p className="notification-empty">새로운 알림이 없습니다.</p> : (
             <div className="notification-list">
-              {notifications.map((notification) => (
+              {orderedNotifications.map((notification, index) => (
+                <Fragment key={notification.id}>
+                {notification.read && !orderedNotifications[index - 1]?.read && <div className="notification-read-divider" aria-hidden="true"><span>읽은 알림</span></div>}
                 <div key={notification.id} className={`notification-item${notification.read ? '' : ' unread'}`}>
                   <button type="button" className="notification-item-content" onClick={() => handleNotificationClick(notification)}>
-                    <strong>{notification.title}</strong><span>{notification.message}</span><small>{formatDate(notification.createdAt)}</small>
+                    <strong><span className={`notification-status-dot${notification.read ? ' read' : ''}`} aria-label={notification.read ? '읽은 알림' : '읽지 않은 알림'} />{notification.title}</strong><span>{notification.message}</span><small>{formatDate(notification.createdAt)}</small>
                   </button>
                   <input type="checkbox" checked={selectedIds.includes(notification.id)} onChange={() => toggleSelected(notification.id)} aria-label={`${notification.title} 선택`} />
                 </div>
+                </Fragment>
               ))}
             </div>
           )}
