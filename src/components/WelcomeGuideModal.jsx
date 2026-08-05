@@ -41,13 +41,12 @@ const WelcomeGuideModal = () => {
           border: 'none',
           background: '#14b8a6',
           color: '#fff',
-          fontSize: 15,
-          fontWeight: 700,
+          fontSize: 24,
           cursor: 'pointer',
           boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
         }}
       >
-        사용법
+        📢
       </button>
 
       {open && (
