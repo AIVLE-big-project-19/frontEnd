@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import Layout from '../components/Layout';
 import { getTerms } from '../api/termsApi';
 import '../styles/AuthPage.css';
@@ -50,7 +51,7 @@ const TermsPage = () => {
             <>
               <p className="terms-version">버전 {state.data.version}</p>
               <div className="terms-content">
-                <ReactMarkdown>{state.data.content}</ReactMarkdown>
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>{state.data.content}</ReactMarkdown>
               </div>
             </>
           )}

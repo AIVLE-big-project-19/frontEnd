@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { getTerms } from '../api/termsApi';
 import '../styles/AuthPage.css';
 
@@ -32,7 +33,7 @@ const TermsModal = ({ type, onClose }) => {
           <>
             <p className="terms-version">버전 {state.data.version}</p>
             <div className="terms-content">
-              <ReactMarkdown>{state.data.content}</ReactMarkdown>
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>{state.data.content}</ReactMarkdown>
             </div>
           </>
         )}
