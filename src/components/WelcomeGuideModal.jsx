@@ -4,6 +4,10 @@ import '../styles/AuthPage.css';
 
 const BUTTON_SIZE = 52;
 const DRAG_THRESHOLD = 5;
+const DISMISS_KEY_PREFIX = 'welcomeGuideDismissed:';
+
+const isDismissed = (pathname) => localStorage.getItem(DISMISS_KEY_PREFIX + pathname) === '1';
+const dismiss = (pathname) => localStorage.setItem(DISMISS_KEY_PREFIX + pathname, '1');
 
 const GUIDE_CONTENT = {
   '/analysis': {
@@ -34,7 +38,8 @@ const GUIDE_CONTENT = {
 
 const WelcomeGuideModal = () => {
   const { pathname } = useLocation();
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(() => !isDismissed(pathname));
+  const [dontShowAgain, setDontShowAgain] = useState(false);
   const [position, setPosition] = useState(() => ({
     left: 24,
     top: window.innerHeight - BUTTON_SIZE - 24,
@@ -46,14 +51,20 @@ const WelcomeGuideModal = () => {
 
   if (pathname !== lastPathname) {
     setLastPathname(pathname);
-    if (guide && !open) {
+    setDontShowAgain(false);
+    if (guide && !isDismissed(pathname)) {
       setOpen(true);
+    } else {
+      setOpen(false);
     }
   }
 
   if (!guide) return null;
 
   const handleClose = () => {
+    if (dontShowAgain) {
+      dismiss(pathname);
+    }
     setOpen(false);
   };
 
@@ -146,6 +157,14 @@ const WelcomeGuideModal = () => {
                 <p key={item.title}><strong>{item.title}</strong><br />{item.desc}</p>
               ))}
             </div>
+            <label style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 12, cursor: 'pointer', fontSize: 14, color: '#667085' }}>
+              <input
+                type="checkbox"
+                checked={dontShowAgain}
+                onChange={(e) => setDontShowAgain(e.target.checked)}
+              />
+              다시 보지 않기
+            </label>
           </div>
         </div>
       )}
