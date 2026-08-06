@@ -3,9 +3,35 @@ import { useLocation } from 'react-router-dom';
 import '../styles/AuthPage.css';
 
 const HIDE_UNTIL_KEY = 'welcome-guide-hide-date';
-const VISIBLE_PATHS = ['/analysis', '/dashboard', '/analysis-history'];
 const BUTTON_SIZE = 52;
 const DRAG_THRESHOLD = 5;
+
+const GUIDE_CONTENT = {
+  '/analysis': {
+    title: '유휴부지 분석 사용법',
+    items: [
+      { title: '지역 탐색', desc: '주소를 검색하거나 지도를 움직여 원하는 지역을 찾아보세요.' },
+      { title: '유휴부지 검색', desc: '키워드로 검색하면 AI가 분석한 적합도 등급(A/B/C)과 함께 후보지 목록이 나타납니다.' },
+      { title: '대시보드로 보내기', desc: '관심 있는 후보지를 체크박스로 여러 개 선택한 뒤 "대시보드 분석" 버튼을 누르면 통합 대시보드로 바로 넘어갑니다.' },
+    ],
+  },
+  '/dashboard': {
+    title: '통합 대시보드 사용법',
+    items: [
+      { title: '후보지 조회', desc: '시/도·시/군/구를 선택해 후보지를 조회하거나, 유휴부지 분석에서 선택해 온 후보지를 바로 확인할 수 있습니다.' },
+      { title: '유형별 필터링', desc: '전체·토지·지붕/옥상 탭으로 원하는 유형만 좁혀볼 수 있습니다.' },
+      { title: 'AI 분석 실행', desc: '후보지를 선택하고 "AI 분석 실행"을 누르면 적합도·발전량·수익성 등 상세 분석 결과와 PDF 다운로드가 제공됩니다.' },
+    ],
+  },
+  '/analysis-history': {
+    title: '분석 이력 관리 사용법',
+    items: [
+      { title: '자동 저장', desc: '통합 대시보드에서 AI 분석을 실행하면 결과가 이곳에 자동으로 저장됩니다.' },
+      { title: '필터·검색', desc: '즐겨찾기, 부지 유형, 검토 상태, 주소 검색으로 원하는 이력을 빠르게 찾을 수 있습니다.' },
+      { title: '비교·관리', desc: '최대 3개까지 선택해 지표를 나란히 비교하고, 상태 변경·PDF 재다운로드·삭제도 가능합니다.' },
+    ],
+  },
+};
 
 const todayKey = () => new Date().toDateString();
 
@@ -20,8 +46,9 @@ const WelcomeGuideModal = () => {
   }));
   const dragRef = useRef(null);
   const draggedRef = useRef(false);
+  const guide = GUIDE_CONTENT[pathname];
 
-  if (!VISIBLE_PATHS.includes(pathname)) return null;
+  if (!guide) return null;
 
   const handleClose = () => {
     setOpen(false);
@@ -115,12 +142,11 @@ const WelcomeGuideModal = () => {
             >
               ×
             </button>
-            <h2>SolarAivle 사용 가이드</h2>
+            <h2>{guide.title}</h2>
             <div className="terms-content">
-              <p><strong>유휴부지 분석</strong><br />주소나 지도를 통해 유휴부지를 검색하면 AI가 태양광 설치 적합도와 예상 발전량을 분석해드립니다.</p>
-              <p><strong>통합 대시보드</strong><br />분석한 후보지들의 적합도, 예상 수익성, 회수 기간 등을 한눈에 비교할 수 있습니다.</p>
-              <p><strong>분석 이력 관리</strong><br />저장한 후보지를 다시 조회하거나 분석 리포트를 PDF로 다운로드할 수 있습니다.</p>
-              <p><strong>커뮤니티</strong><br />공지사항·FAQ를 확인하거나, 1:1문의로 궁금한 점을 남기면 이메일로 답변 알림을 받아보실 수 있습니다.</p>
+              {guide.items.map((item) => (
+                <p key={item.title}><strong>{item.title}</strong><br />{item.desc}</p>
+              ))}
             </div>
             <button type="button" className="auth-submit auth-submit-secondary" onClick={handleHideToday}>
               오늘 하루 안 보기
