@@ -70,7 +70,7 @@ export const downloadDashboardCandidateReport = async (idleLandId) => {
 
 export const downloadAnalysisSnapshotReport = async (analysisId) => {
   const { data } = await instance.post(
-    `/pdf/generate/idle-land/${analysisId}`,
+    `/pdf/generate/analysis/${analysisId}`,
     null,
     { responseType: 'blob', skipErrorModal: true },
   );
