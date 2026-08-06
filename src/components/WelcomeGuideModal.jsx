@@ -2,7 +2,6 @@ import { useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import '../styles/AuthPage.css';
 
-const HIDE_UNTIL_KEY = 'welcome-guide-hide-date';
 const BUTTON_SIZE = 52;
 const DRAG_THRESHOLD = 5;
 
@@ -33,13 +32,9 @@ const GUIDE_CONTENT = {
   },
 };
 
-const todayKey = () => new Date().toDateString();
-
-const shouldAutoShow = () => localStorage.getItem(HIDE_UNTIL_KEY) !== todayKey();
-
 const WelcomeGuideModal = () => {
   const { pathname } = useLocation();
-  const [open, setOpen] = useState(shouldAutoShow);
+  const [open, setOpen] = useState(true);
   const [position, setPosition] = useState(() => ({
     left: 24,
     top: window.innerHeight - BUTTON_SIZE - 24,
@@ -51,11 +46,6 @@ const WelcomeGuideModal = () => {
   if (!guide) return null;
 
   const handleClose = () => {
-    setOpen(false);
-  };
-
-  const handleHideToday = () => {
-    localStorage.setItem(HIDE_UNTIL_KEY, todayKey());
     setOpen(false);
   };
 
@@ -148,9 +138,6 @@ const WelcomeGuideModal = () => {
                 <p key={item.title}><strong>{item.title}</strong><br />{item.desc}</p>
               ))}
             </div>
-            <button type="button" className="auth-submit auth-submit-secondary" onClick={handleHideToday}>
-              오늘 하루 안 보기
-            </button>
           </div>
         </div>
       )}
