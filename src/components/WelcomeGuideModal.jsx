@@ -41,7 +41,15 @@ const WelcomeGuideModal = () => {
   }));
   const dragRef = useRef(null);
   const draggedRef = useRef(false);
+  const [lastPathname, setLastPathname] = useState(pathname);
   const guide = GUIDE_CONTENT[pathname];
+
+  if (pathname !== lastPathname) {
+    setLastPathname(pathname);
+    if (guide && !open) {
+      setOpen(true);
+    }
+  }
 
   if (!guide) return null;
 
