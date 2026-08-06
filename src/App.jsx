@@ -22,6 +22,7 @@ import AdminIdleLandsPage from './pages/AdminIdleLandsPage';
 import DashboardPage from './pages/DashboardPage';
 import AnalysisHistoryPage from './pages/AnalysisHistoryPage';
 import ErrorToast from './components/ErrorToast';
+import WelcomeGuideModal from './components/WelcomeGuideModal';
 
 export const AppRoutes = () => (
   <Routes>
@@ -59,6 +60,7 @@ function App() {
           <AppRoutes />
         </div>
         <ErrorToast />
+        <WelcomeGuideModal />
       </BrowserRouter>
     </AuthProvider>
   );
