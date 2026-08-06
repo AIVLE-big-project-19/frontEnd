@@ -120,11 +120,12 @@ const SignupPage = () => {
     }
   };
 
+  const passwordInvalid = password.length > 0 && !isValidPassword(password);
   const passwordMismatch = passwordConfirm.length > 0 && password !== passwordConfirm;
   const passwordMatches = passwordConfirm.length > 0 && password === passwordConfirm;
 
   const canSubmit = emailVerified && loginIdChecked && termsAgreed && privacyAgreed
-    && !passwordMismatch && !isSubmitting;
+    && isValidPassword(password) && !passwordMismatch && !isSubmitting;
 
   return (
     <div className="auth-page">
@@ -211,6 +212,7 @@ const SignupPage = () => {
             autoComplete="new-password"
             placeholder="비밀번호 입력 (8~16자리/영문 숫자 특수기호 포함)"
           />
+          {passwordInvalid && <p className="auth-error">{PASSWORD_RULE_MESSAGE}</p>}
         </div>
 
         <div className="auth-field">
