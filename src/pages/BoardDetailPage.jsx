@@ -8,7 +8,7 @@ import { allowsComments, getBoardCategoryKey, INQUIRY_CATEGORY, isAdminOnlyCateg
 import "../styles/board.css";
 import "../styles/RichTextEditor.css";
 import dayjs from 'dayjs';
-import DOMPurify from 'dompurify';
+import { toSafeHtml } from '../utils/richText';
 
 function BoardDetailPage() {
     const { boardId } = useParams();
@@ -213,7 +213,7 @@ function BoardDetailPage() {
 
                     <div
                         className="board-detail-content rte-rendered"
-                        dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(board.content) }}
+                        dangerouslySetInnerHTML={{ __html: toSafeHtml(board.content) }}
                     />
 
                     {representativeImage && attachmentUrls[representativeImage.attachmentId] && (
