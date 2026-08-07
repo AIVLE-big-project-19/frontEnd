@@ -12,6 +12,8 @@ const formatDate = (value) => value
 
 const statusLabel = (value) => ANALYSIS_HISTORY_STATUSES.find((item) => item.value === value)?.label || '검토 중';
 
+const PAGE_SIZE = 20;
+
 function AdminAnalysisLogsPage() {
   const { isAdmin, isInitializing } = useAuth();
   const navigate = useNavigate();
@@ -19,6 +21,7 @@ function AdminAnalysisLogsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [query, setQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     if (isInitializing || !isAdmin) return;
@@ -44,6 +47,19 @@ function AdminAnalysisLogsPage() {
       || item.loginId?.toLowerCase().includes(normalizedQuery)
     ));
   }, [logs, query]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredLogs.length / PAGE_SIZE));
+  const paginatedLogs = useMemo(() => (
+    filteredLogs.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
+  ), [currentPage, filteredLogs]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [query]);
+
+  useEffect(() => {
+    if (currentPage > totalPages) setCurrentPage(totalPages);
+  }, [currentPage, totalPages]);
 
   if (isInitializing) {
     return <Layout><div className="admin-users-state">권한을 확인하는 중...</div></Layout>;
@@ -109,7 +125,7 @@ function AdminAnalysisLogsPage() {
                 </tr>
               </thead>
               <tbody>
-                {filteredLogs.map((item) => (
+                {paginatedLogs.map((item) => (
                   <tr key={item.analysisId}>
                     <td data-label="사용자">{item.loginId || '(탈퇴한 사용자)'}</td>
                     <td data-label="주소">{item.address}</td>
@@ -124,6 +140,14 @@ function AdminAnalysisLogsPage() {
               </tbody>
             </table>
           </div>
+        )}
+
+        {filteredLogs.length > PAGE_SIZE && (
+          <nav className="admin-log-pagination" aria-label="분석 로그 페이지 이동">
+            <button type="button" onClick={() => setCurrentPage((page) => Math.max(1, page - 1))} disabled={currentPage === 1}>이전</button>
+            <span>{currentPage} / {totalPages}</span>
+            <button type="button" onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))} disabled={currentPage === totalPages}>다음</button>
+          </nav>
         )}
       </main>
     </Layout>
