@@ -50,11 +50,11 @@ test('의사결정에 필요한 핵심 지표와 다음 행동을 보여준다',
 
   expect(screen.getByRole('heading', { name: '설치 권장' })).toBeInTheDocument();
   expect(screen.getByText('135,000 kWh')).toBeInTheDocument();
-  expect(screen.getByText('0.2 억')).toBeInTheDocument();
+  expect(screen.getByText('2,400 만원')).toBeInTheDocument();
   expect(screen.getByRole('img', { name: '1월부터 12월까지 월별 예상 발전량 막대 그래프' })).toBeInTheDocument();
   expect(screen.getByLabelText('1월 6,000 kWh')).toHaveClass('minimum');
   expect(screen.getByLabelText('6월 118,200 kWh')).toHaveClass('maximum');
-  expect(screen.getByText('120k')).toBeInTheDocument();
+  expect(screen.getByText('119k')).toBeInTheDocument();
   expect(screen.getAllByText('AI 추정 가용 면적')).toHaveLength(2);
   expect(screen.getAllByText('면적 기반 개략 용량')).toHaveLength(2);
   expect(screen.getByText('건물 지붕형·7.5㎡/kW 가정')).toBeInTheDocument();
