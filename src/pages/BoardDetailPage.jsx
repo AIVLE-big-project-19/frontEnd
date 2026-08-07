@@ -6,7 +6,9 @@ import CommentList from "../components/CommentList";
 import Layout from "../components/Layout";
 import { allowsComments, getBoardCategoryKey, INQUIRY_CATEGORY, isAdminOnlyCategory } from "../constants/boardCategory";
 import "../styles/board.css";
+import "../styles/RichTextEditor.css";
 import dayjs from 'dayjs';
+import DOMPurify from 'dompurify';
 
 function BoardDetailPage() {
     const { boardId } = useParams();
@@ -209,9 +211,10 @@ function BoardDetailPage() {
     <span>조회수: {board.viewCount}</span>
 </div>
 
-                    <div className="board-detail-content">
-                        {board.content}
-                    </div>
+                    <div
+                        className="board-detail-content rte-rendered"
+                        dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(board.content) }}
+                    />
 
                     {representativeImage && attachmentUrls[representativeImage.attachmentId] && (
                         <section className="board-representative-image">
