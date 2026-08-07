@@ -9,7 +9,8 @@ const getMonthlyExtremes = (monthlyGeneration) => {
   const values = monthlyGeneration.map((item) => Number(item.value) || 0);
   const maxValue = Math.max(...values, 0);
   const minValue = Math.min(...values);
-  const yAxisMax = Math.max(10000, Math.ceil(maxValue / 10000) * 10000);
+  // Y축은 kWh를 k 단위로 표시하므로, 최대값을 올림한 정수 k를 상한으로 사용합니다.
+  const yAxisMax = Math.max(1000, Math.ceil(maxValue / 1000) * 1000);
 
   return {
     maxIndex: values.indexOf(maxValue),
@@ -238,7 +239,7 @@ const AnalysisReportDashboard = ({ report, onDownload }) => {
             ]}
           />
         </dt>
-        <dd>{formatNumber(report.economics.annualRevenue == null ? null : report.economics.annualRevenue / 100000000, ' 억')}</dd>
+        <dd>{formatNumber(report.economics.annualRevenue == null ? null : report.economics.annualRevenue / 10000, ' 만원')}</dd>
         <small>O&M 차감 예상 ROI {formatNumber(report.economics.roiPercent, '%')} · 단순 회수 {formatNumber(report.economics.paybackYears, '년')}</small>
       </div>
     </dl>
