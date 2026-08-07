@@ -4,6 +4,7 @@ import { createBoard } from "../api/boardApi";
 import { useAuth } from "../context/AuthContext";
 import { BOARD_CATEGORIES, isAdminOnlyCategory } from "../constants/boardCategory";
 import Layout from "../components/Layout";
+import RichTextEditor from "../components/RichTextEditor";
 import "../styles/board.css";
 import { getMyProfile } from "../api/myPageApi";
 
@@ -182,12 +183,7 @@ function BoardWritePage() {
 
                     <div className="board-form-group">
                         <label>내용</label>
-                        <textarea
-                            className="board-textarea"
-                            placeholder="내용을 입력하세요"
-                            value={content}
-                            onChange={(e) => setContent(e.target.value)}
-                        />
+                        <RichTextEditor value={content} onChange={setContent} placeholder="내용을 입력하세요" />
                     </div>
 
                     <div className="board-form-group">

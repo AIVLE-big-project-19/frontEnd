@@ -4,6 +4,7 @@ import { getBoard, updateBoard } from "../api/boardApi";
 import { useAuth } from "../context/AuthContext";
 import { INQUIRY_CATEGORY, isAdminOnlyCategory } from "../constants/boardCategory";
 import Layout from "../components/Layout";
+import RichTextEditor from "../components/RichTextEditor";
 import "../styles/board.css";
 
 function BoardEditPage() {
@@ -180,11 +181,7 @@ function BoardEditPage() {
 
                     <div className="board-form-group">
                         <label>내용</label>
-                        <textarea
-                            className="board-textarea"
-                            value={content}
-                            onChange={(e) => setContent(e.target.value)}
-                        />
+                        <RichTextEditor value={content} onChange={setContent} />
                     </div>
 
                     <div className="board-form-group">
