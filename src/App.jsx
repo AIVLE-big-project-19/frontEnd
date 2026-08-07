@@ -19,6 +19,7 @@ import MyPage from './pages/MyPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminUsersPage from './pages/AdminUsersPage';
 import AdminIdleLandsPage from './pages/AdminIdleLandsPage';
+import AdminAnalysisLogsPage from './pages/AdminAnalysisLogsPage';
 import DashboardPage from './pages/DashboardPage';
 import AnalysisHistoryPage from './pages/AnalysisHistoryPage';
 import ErrorToast from './components/ErrorToast';
@@ -47,6 +48,7 @@ export const AppRoutes = () => (
     <Route path="/mypage" element={<ProtectedRoute><MyPage /></ProtectedRoute>} />
     <Route path="/admin/users" element={<ProtectedRoute><AdminUsersPage /></ProtectedRoute>} />
     <Route path="/admin/idle-lands" element={<ProtectedRoute><AdminIdleLandsPage /></ProtectedRoute>} />
+    <Route path="/admin/analysis-logs" element={<ProtectedRoute><AdminAnalysisLogsPage /></ProtectedRoute>} />
 
     
   </Routes>
