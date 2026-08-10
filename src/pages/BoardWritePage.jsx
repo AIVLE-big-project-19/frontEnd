@@ -3,7 +3,9 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { createBoard } from "../api/boardApi";
 import { useAuth } from "../context/AuthContext";
 import { BOARD_CATEGORIES, isAdminOnlyCategory } from "../constants/boardCategory";
+import { ALLOWED_ATTACHMENT_ACCEPT } from "../constants/boardAttachment";
 import Layout from "../components/Layout";
+import RichTextEditor from "../components/RichTextEditor";
 import "../styles/board.css";
 import { getMyProfile } from "../api/myPageApi";
 
@@ -182,17 +184,12 @@ function BoardWritePage() {
 
                     <div className="board-form-group">
                         <label>내용</label>
-                        <textarea
-                            className="board-textarea"
-                            placeholder="내용을 입력하세요"
-                            value={content}
-                            onChange={(e) => setContent(e.target.value)}
-                        />
+                        <RichTextEditor value={content} onChange={setContent} placeholder="내용을 입력하세요" />
                     </div>
 
                     <div className="board-form-group">
                         <label>첨부 파일</label>
-                        <input className="board-file-input" type="file" multiple onChange={selectFiles} />
+                        <input className="board-file-input" type="file" multiple accept={ALLOWED_ATTACHMENT_ACCEPT} onChange={selectFiles} />
                         <p className="board-form-help">최대 10개, 파일당 10MB, 총 50MB까지 첨부할 수 있습니다.</p>
                         {files.length > 0 && <ul className="board-selected-files">
                             {files.map((file, index) => <li key={`${file.name}-${index}`}>

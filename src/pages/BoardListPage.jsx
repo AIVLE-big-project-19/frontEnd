@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { getBoards, toggleBoardPin } from "../api/boardApi";
 import BoardCard from "../components/BoardCard";
+import FaqAccordionItem from "../components/FaqAccordionItem";
 import Layout from "../components/Layout";
 import { BOARD_CATEGORY_DETAILS, isAdminOnlyCategory } from "../constants/boardCategory";
 import { useAuth } from "../context/AuthContext";
@@ -154,12 +155,16 @@ function BoardListPage() {
 
                         <div className="board-list">
                             {boards.map((board) => (
-                                <BoardCard
-                                    key={board.boardId}
-                                    board={board}
-                                    canPin={isAdmin && selectedCategory === "공지사항"}
-                                    onTogglePin={handleTogglePin}
-                                />
+                                selectedCategory === "FAQ"
+                                    ? <FaqAccordionItem key={board.boardId} board={board} />
+                                    : (
+                                        <BoardCard
+                                            key={board.boardId}
+                                            board={board}
+                                            canPin={isAdmin && selectedCategory === "공지사항"}
+                                            onTogglePin={handleTogglePin}
+                                        />
+                                    )
                             ))}
                         </div>
 

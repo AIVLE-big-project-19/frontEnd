@@ -1,0 +1,37 @@
+.rte-wrapper { overflow: hidden; background: #fff; border: 1px solid #cbd5e1; border-radius: 8px; }
+.rte-wrapper:focus-within { border-color: var(--teal-600, #0b8b83); box-shadow: 0 0 0 3px rgba(11, 139, 131, 0.15); }
+
+.rte-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 3px; padding: 7px 9px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; }
+.rte-toolbar-btn { display: inline-flex; align-items: center; justify-content: center; min-width: 30px; height: 30px; padding: 0 7px; color: #334155; background: transparent; border: 1px solid transparent; border-radius: 6px; font-size: 13px; font-weight: 700; cursor: pointer; }
+.rte-toolbar-btn:hover:not(:disabled) { background: #e6edf1; }
+.rte-toolbar-btn.active { color: #0b8b83; background: #e1f4ef; border-color: #b6e3db; }
+.rte-toolbar-btn:disabled { color: #b7c1cb; cursor: not-allowed; }
+.rte-divider { width: 1px; height: 20px; margin: 0 4px; background: #dde6ea; }
+
+.rte-toolbar .rte-color-swatch { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; margin: 0; cursor: pointer; border-radius: 6px; }
+.rte-toolbar .rte-color-swatch:hover { background: #e6edf1; }
+.rte-color-swatch span { display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; font-size: 13px; font-weight: 800; line-height: 1; border-radius: 4px; pointer-events: none; }
+.rte-color-swatch input[type="color"] { position: absolute; inset: 0; width: 100%; height: 100%; padding: 0; border: 0; opacity: 0; cursor: pointer; }
+
+.rte-emoji-root { position: relative; display: inline-flex; }
+.rte-emoji-popover { position: absolute; top: 36px; left: 0; z-index: 20; display: grid; grid-template-columns: repeat(8, 1fr); gap: 2px; width: 248px; padding: 8px; background: #fff; border: 1px solid #dde6ea; border-radius: 8px; box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12); }
+.rte-emoji-item { display: flex; align-items: center; justify-content: center; height: 28px; font-size: 17px; background: transparent; border: 0; border-radius: 5px; cursor: pointer; }
+.rte-emoji-item:hover { background: #edf2f4; }
+
+.rte-content { min-height: 260px; max-height: 520px; padding: 14px 16px; overflow-y: auto; color: #1f2937; font-size: 14px; line-height: 1.7; }
+.rte-content .ProseMirror { outline: none; }
+.rte-content p { margin: 0 0 10px; }
+.rte-content p:last-child { margin-bottom: 0; }
+.rte-content h2 { margin: 18px 0 10px; font-size: 21px; font-weight: 800; }
+.rte-content h3 { margin: 16px 0 8px; font-size: 17px; font-weight: 800; }
+.rte-content ul, .rte-content ol { margin: 0 0 10px; padding-left: 22px; }
+.rte-content blockquote { margin: 0 0 10px; padding: 4px 14px; color: #52606d; border-left: 3px solid #cbd5e1; }
+.rte-content p.is-editor-empty:first-child::before { float: left; height: 0; color: #94a3b8; content: attr(data-placeholder); pointer-events: none; }
+
+/* 게시글 상세에서 저장된 HTML을 그대로 렌더링할 때도 동일한 스타일을 적용 */
+.board-detail-content.rte-rendered h2 { margin: 18px 0 10px; font-size: 21px; font-weight: 800; }
+.board-detail-content.rte-rendered h3 { margin: 16px 0 8px; font-size: 17px; font-weight: 800; }
+.board-detail-content.rte-rendered p { margin: 0 0 12px; }
+.board-detail-content.rte-rendered ul, .board-detail-content.rte-rendered ol { margin: 0 0 12px; padding-left: 22px; }
+.board-detail-content.rte-rendered blockquote { margin: 0 0 12px; padding: 4px 14px; color: #52606d; border-left: 3px solid #cbd5e1; }
+.board-detail-content.rte-rendered strong { font-weight: 800; }
