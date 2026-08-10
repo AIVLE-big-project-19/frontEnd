@@ -72,7 +72,6 @@ function AdminIdleLandsPage() {
             <h1>유휴부지 데이터 관리</h1>
             <p>유휴부지 원본(Uninstalled) CSV를 업로드하면 기존 데이터를 전량 교체합니다.</p>
           </div>
-          <button type="button" className="admin-users-back" onClick={() => navigate('/mypage')}>마이페이지</button>
         </div>
 
         {error && <div className="admin-users-error" role="alert">{error}</div>}
