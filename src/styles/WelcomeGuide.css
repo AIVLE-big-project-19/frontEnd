@@ -29,6 +29,20 @@
   max-height: min(500px, calc(100vh - 24px));
 }
 
+.welcome-guide-window .chatbot-header {
+  user-select: none;
+  touch-action: none;
+  cursor: grab;
+}
+
+.welcome-guide-window.is-dragging .chatbot-header {
+  cursor: grabbing;
+}
+
+.welcome-guide-window .chatbot-close-btn {
+  cursor: pointer;
+}
+
 .welcome-guide-messages {
   flex: 0 1 auto;
   gap: 10px;

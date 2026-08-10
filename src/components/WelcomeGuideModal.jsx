@@ -62,8 +62,10 @@ const WelcomeGuideModal = () => {
   const guide = GUIDE_CONTENT[pathname];
   const [open, setOpen] = useState(false);
   const [position, setPosition] = useState({ left: 24, top: 88 });
+  const [dragging, setDragging] = useState(false);
   const overlayIdRef = useRef(Symbol('welcome-guide'));
   const guideWindowRef = useRef(null);
+  const dragRef = useRef(null);
 
   useEffect(() => {
     setOpen(false);
@@ -93,11 +95,55 @@ const WelcomeGuideModal = () => {
     };
   }, [open]);
 
+  useEffect(() => {
+    if (!dragging) return undefined;
+
+    const handlePointerMove = (event) => {
+      const drag = dragRef.current;
+      const windowElement = guideWindowRef.current;
+      if (!drag || !windowElement || event.pointerId !== drag.pointerId) return;
+
+      const { width, height } = windowElement.getBoundingClientRect();
+      const left = Math.max(12, Math.min(event.clientX - drag.offsetX, window.innerWidth - width - 12));
+      const top = Math.max(12, Math.min(event.clientY - drag.offsetY, window.innerHeight - height - 12));
+      setPosition({ left, top });
+    };
+
+    const stopDragging = (event) => {
+      if (event.pointerId !== dragRef.current?.pointerId) return;
+      dragRef.current = null;
+      setDragging(false);
+    };
+
+    window.addEventListener('pointermove', handlePointerMove);
+    window.addEventListener('pointerup', stopDragging);
+    window.addEventListener('pointercancel', stopDragging);
+    return () => {
+      window.removeEventListener('pointermove', handlePointerMove);
+      window.removeEventListener('pointerup', stopDragging);
+      window.removeEventListener('pointercancel', stopDragging);
+    };
+  }, [dragging]);
+
+  const handleDragStart = (event) => {
+    if (event.button !== 0 || event.target.closest('button')) return;
+    const rect = guideWindowRef.current?.getBoundingClientRect();
+    if (!rect) return;
+
+    event.preventDefault();
+    dragRef.current = {
+      pointerId: event.pointerId,
+      offsetX: event.clientX - rect.left,
+      offsetY: event.clientY - rect.top,
+    };
+    setDragging(true);
+  };
+
   if (!guide || !open) return null;
 
   return (
-    <div ref={guideWindowRef} className="welcome-guide-window chatbot-window" style={position} role="dialog" aria-labelledby="welcome-guide-title">
-      <div className="chatbot-header">
+    <div ref={guideWindowRef} className={`welcome-guide-window chatbot-window${dragging ? ' is-dragging' : ''}`} style={position} role="dialog" aria-labelledby="welcome-guide-title">
+      <div className="chatbot-header" onPointerDown={handleDragStart}>
         <span id="welcome-guide-title">{guide.title}</span>
         <button type="button" className="chatbot-close-btn" aria-label="닫기" onClick={() => setOpen(false)}>×</button>
       </div>
