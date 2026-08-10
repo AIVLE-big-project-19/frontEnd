@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { downloadAnalysisSnapshotReport, downloadDashboardCandidateReport } from '../api/dashboardApi';
 import { deleteAnalysisHistory, fetchAnalysisHistory, updateAnalysisHistoryManagement } from '../api/analysisHistoryApi';
 import { buildAnalysisReportViewModel } from '../utils/analysisReportModel';
+import { GuideTrigger } from '../components/WelcomeGuideModal';
 import {
   ANALYSIS_HISTORY_STATUSES,
   loadAnalysisHistory,
@@ -158,7 +159,7 @@ function AnalysisHistoryPage() {
         <div className="analysis-history-hero">
           <div>
             <p className="analysis-history-eyebrow">SOLAR AIVLE · ANALYSIS ARCHIVE</p>
-            <h1>분석 이력 관리</h1>
+            <div className="guide-title-row"><h1>분석 이력 관리</h1><GuideTrigger /></div>
             <p>분석한 후보지를 저장하고 검토 상태와 비교 결과를 관리하세요.</p>
           </div>
         </div>

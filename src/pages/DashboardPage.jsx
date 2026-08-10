@@ -5,6 +5,7 @@ import { fromLonLat } from 'ol/proj';
 import Layout from '../components/Layout';
 import MapView from '../components/MapView';
 import AnalysisReportDashboard from '../components/AnalysisReportDashboard';
+import { GuideTrigger } from '../components/WelcomeGuideModal';
 import {
   downloadDashboardCandidateReport,
   downloadAnalysisSnapshotReport,
@@ -248,7 +249,7 @@ const DashboardPage = () => {
         <div className="dashboard-hero">
           <div>
             <p className="eyebrow">태양광 후보지 사업성 분석</p>
-            <h1>통합 대시보드</h1>
+            <div className="guide-title-row"><h1>통합 대시보드</h1><GuideTrigger /></div>
             <span>
               {hasTransferredCandidates
                 ? '선택한 후보지를 비교하고 상세 사업성을 확인하세요.'

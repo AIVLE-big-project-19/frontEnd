@@ -1,6 +1,7 @@
 import { Fragment, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { consumeTopOverlay, registerOverlay, unregisterOverlay } from '../utils/overlayStack';
 import { deleteAllNotifications, deleteNotification, fetchNotifications, markAllNotificationsRead, markNotificationRead } from '../api/notificationApi';
 import './NotificationBell.css';
 
@@ -16,6 +17,7 @@ const NotificationBell = () => {
   const [unreadCount, setUnreadCount] = useState(0);
   const [selectedIds, setSelectedIds] = useState([]);
   const bellWrapRef = useRef(null);
+  const overlayIdRef = useRef(Symbol('notification'));
 
   const load = async () => {
     try {
@@ -37,14 +39,27 @@ const NotificationBell = () => {
   useEffect(() => {
     if (!open) return undefined;
 
+    registerOverlay(overlayIdRef.current);
+
     const handleOutsidePointerDown = (event) => {
       if (!bellWrapRef.current?.contains(event.target)) {
         setOpen(false);
       }
     };
 
+    const handleEscape = (event) => {
+      if (event.key === 'Escape' && consumeTopOverlay(overlayIdRef.current)) {
+        setOpen(false);
+      }
+    };
+
     document.addEventListener('pointerdown', handleOutsidePointerDown);
-    return () => document.removeEventListener('pointerdown', handleOutsidePointerDown);
+    document.addEventListener('keydown', handleEscape);
+    return () => {
+      unregisterOverlay(overlayIdRef.current);
+      document.removeEventListener('pointerdown', handleOutsidePointerDown);
+      document.removeEventListener('keydown', handleEscape);
+    };
   }, [open]);
 
   const handleNotificationClick = async (notification) => {

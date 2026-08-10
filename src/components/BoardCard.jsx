@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { getBoardCategoryKey } from "../constants/boardCategory";
 import dayjs from 'dayjs';
 
-function BoardCard({ board }) {
+function BoardCard({ board, canPin = false, onTogglePin }) {
     const categoryKey = getBoardCategoryKey(board.category);
     const showWriter = categoryKey !== "faq";
     const isNewNotice = categoryKey === "notice" && dayjs().diff(dayjs(board.createdAt), "day") < 3;
@@ -18,6 +18,20 @@ function BoardCard({ board }) {
                     {board.title}
                                         {isNewNotice && <span className="board-new-badge">NEW</span>}
                 </h3>
+
+                {canPin && (
+                    <button
+                        type="button"
+                        className="board-pin-button"
+                        onClick={(event) => {
+                            event.preventDefault();
+                            event.stopPropagation();
+                            onTogglePin?.(board);
+                        }}
+                    >
+                        {board.pinned ? '고정 해제' : '상단 고정'}
+                    </button>
+                )}
 
                 <div className="board-card-meta">
                     {categoryKey === "inquiry" && (

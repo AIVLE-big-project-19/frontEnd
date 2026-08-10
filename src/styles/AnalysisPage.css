@@ -14,7 +14,7 @@
 }
 
 .search-bar-container::before {
-  display: block;
+  display: none;
   margin: 0 10px 2px;
   color: var(--navy-900);
   content: "AI 태양광 입지 분석";
@@ -34,6 +34,18 @@
   font-size: 11px;
   font-weight: 800;
   letter-spacing: 0.12em;
+}
+
+.analysis-page-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 10px 2px;
+  color: var(--navy-900);
+  font-size: 30px;
+  font-weight: 800;
+  line-height: 1.25;
+  letter-spacing: -0.03em;
 }
 
 .search-input-row {
@@ -670,13 +682,14 @@
     box-shadow: none;
   }
 
-  .search-bar-container::before,
   .search-bar-container::after {
     margin-right: 2px;
     margin-left: 2px;
   }
 
-  .search-bar-container::before {
+  .analysis-page-title {
+    margin-right: 2px;
+    margin-left: 2px;
     font-size: 26px;
   }
 
