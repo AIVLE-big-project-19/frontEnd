@@ -168,5 +168,36 @@ export const buildAnalysisReportViewModel = ({
       moduleDirection: roofSource.moduleDirection || source.moduleDirection || null,
       installAngleDegrees: toNumberOrNull(roofSource.installAngleDegrees ?? source.installAngleDegrees),
     },
+    policy: buildPolicyViewModel(source),
+  };
+};
+
+// 정책·자금지원 추천 Agent(AI_agent) 연동 결과. Agent 호출이 실패했거나 아직 실행되지 않았으면
+// 백엔드에서 이 필드들이 전부 null로 오므로, 화면에서는 존재하는 것만 그려주면 된다.
+const buildPolicyViewModel = (source) => {
+  const regulatoryAssessment = source.regulatoryAssessment || null;
+  const businessRoute = source.businessRoute || null;
+  const subsidies = Array.isArray(source.subsidyRecommendations) ? source.subsidyRecommendations : [];
+
+  return {
+    regulatoryAssessment: regulatoryAssessment ? {
+      finalDecision: regulatoryAssessment.finalDecision || null,
+      finalReason: regulatoryAssessment.finalReason || null,
+      setbackViolation: Boolean(regulatoryAssessment.setbackViolation),
+      dataGaps: Array.isArray(regulatoryAssessment.dataGaps) ? regulatoryAssessment.dataGaps : [],
+    } : null,
+    businessRoute: businessRoute ? {
+      routeType: businessRoute.routeType || null,
+      reason: businessRoute.reason || null,
+    } : null,
+    subsidies: subsidies.map((program, index) => ({
+      key: `subsidy-${index}`,
+      programName: program.programName || '추천 지원사업',
+      status: program.status || null,
+      summary: program.summary || '',
+      sourceUrl: program.sourceUrl || null,
+      requiredChecks: Array.isArray(program.requiredChecks) ? program.requiredChecks : [],
+    })),
+    caution: source.agentCaution || null,
   };
 };

@@ -1363,6 +1363,121 @@
   text-align: center;
 }
 
+.policy-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.policy-assessment {
+  padding: 9px 10px;
+  background: #f8fafb;
+  border: 1px solid #e5eaee;
+  border-radius: 5px;
+}
+
+.policy-assessment strong {
+  display: block;
+  color: #102a43;
+  font-size: 11px;
+}
+
+.policy-assessment p {
+  margin: 3px 0 0;
+  color: #64748b;
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+.policy-setback-warning {
+  display: inline-block;
+  margin-top: 6px;
+  padding: 2px 6px;
+  color: #9f291f;
+  background: #f8e7e5;
+  border-radius: 3px;
+  font-size: 9px;
+  font-weight: 750;
+}
+
+.policy-route {
+  margin: 0;
+  color: #64748b;
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+.policy-route b {
+  color: #102a43;
+}
+
+.policy-subsidy-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.policy-subsidy-item {
+  padding: 9px 10px;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid #e7ebef;
+}
+
+.policy-subsidy-item:last-child {
+  border-bottom: 0;
+}
+
+.policy-subsidy-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.policy-subsidy-heading strong {
+  color: #102a43;
+  font-size: 11px;
+}
+
+.policy-subsidy-status {
+  flex: 0 0 auto;
+  padding: 2px 5px;
+  color: #16645c;
+  background: #e4f1ef;
+  border-radius: 3px;
+  font-size: 8px;
+  font-weight: 750;
+}
+
+.policy-subsidy-item p {
+  margin: 3px 0 0;
+  color: #64748b;
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+.policy-subsidy-checks {
+  display: block;
+  margin-top: 4px;
+  color: #8a6817;
+  font-size: 9px;
+}
+
+.policy-subsidy-item a {
+  display: inline-block;
+  margin-top: 4px;
+  color: #0b8b83;
+  font-size: 10px;
+}
+
+.policy-caution {
+  margin: 0;
+  color: #64748b;
+  font-size: 9px;
+  line-height: 1.5;
+}
+
 .next-action-panel ol {
   position: relative;
   display: grid;
