@@ -74,7 +74,6 @@ function AdminUsersPage() {
             <h1>회원 권한 관리</h1>
             <p>전체 회원의 게시판 권한을 관리합니다.</p>
           </div>
-          <button type="button" className="admin-users-back" onClick={() => navigate('/mypage')}>마이페이지</button>
         </div>
 
         {error && <div className="admin-users-error" role="alert">{error}</div>}
