@@ -14,3 +14,16 @@ export const deleteAnalysisHistory = async (analysisId) => {
   const { data } = await instance.delete(`/analysis-history/${analysisId}`, { skipErrorModal: true });
   return data.data;
 };
+
+export const deleteSelectedAnalysisHistory = async (analysisIds) => {
+  const { data } = await instance.delete('/analysis-history', {
+    data: { analysisIds },
+    skipErrorModal: true,
+  });
+  return data.data;
+};
+
+export const deleteAllAnalysisHistory = async () => {
+  const { data } = await instance.delete('/analysis-history/all', { skipErrorModal: true });
+  return data.data;
+};
