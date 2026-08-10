@@ -62,7 +62,7 @@ const KpiHelp = ({ label, formula, description, checks, sources }) => (
   </span>
 );
 
-const AnalysisReportDashboard = ({ report, onDownload }) => {
+const AnalysisReportDashboard = ({ report, onDownload, isDownloading = false }) => {
   const forecast = report.visuals.generationForecast;
   const capacityEstimate = report.economics.capacityEstimate;
   const economicAssumptions = report.economics.economicAssumptions;
@@ -109,7 +109,16 @@ const AnalysisReportDashboard = ({ report, onDownload }) => {
         </div>
         <h2 id="decision-report-title">{report.site.address}</h2>
       </div>
-      <button type="button" disabled={report.source !== 'analysis'} onClick={() => onDownload(report.site.type)}>분석 보고서 조회</button>
+      <button
+        type="button"
+        className={isDownloading ? 'is-loading' : ''}
+        disabled={report.source !== 'analysis' || isDownloading}
+        aria-busy={isDownloading}
+        onClick={() => onDownload(report.site.type)}
+      >
+        <span>{isDownloading ? '다운로드 중' : '분석 보고서 조회'}</span>
+        {isDownloading && <span className="report-download-spinner" aria-hidden="true" />}
+      </button>
     </div>
 
     <div className="decision-summary">

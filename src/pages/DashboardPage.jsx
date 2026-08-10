@@ -53,6 +53,7 @@ const DashboardPage = () => {
   const [analysis, setAnalysis] = useState(null);
   const [candidateLoading, setCandidateLoading] = useState(false);
   const [analysisLoading, setAnalysisLoading] = useState(false);
+  const [reportDownloading, setReportDownloading] = useState(false);
   const analysisLoadingRef = useRef(false);
   const [activeMobilePanel, setActiveMobilePanel] = useState('site');
   const [status, setStatus] = useState({
@@ -227,7 +228,8 @@ const DashboardPage = () => {
   };
 
   const downloadReport = async (targetType) => {
-    if (!analyzedCandidate) return;
+    if (!analyzedCandidate || reportDownloading) return;
+    setReportDownloading(true);
     try {
       const reportBlob = analysis?.analysisId
         ? await downloadAnalysisSnapshotReport(analysis.analysisId)
@@ -238,8 +240,11 @@ const DashboardPage = () => {
       link.download = `SolarAivle_${analyzedCandidate.sourceId || analyzedCandidate.id}_${targetType}.pdf`;
       link.click();
       URL.revokeObjectURL(url);
+      setStatus({ type: 'success', text: '분석 보고서 다운로드가 완료되었습니다.' });
     } catch {
       setStatus({ type: 'error', text: '보고서 생성에 실패했습니다. 잠시 후 다시 시도해 주세요.' });
+    } finally {
+      setReportDownloading(false);
     }
   };
 
@@ -406,7 +411,11 @@ const DashboardPage = () => {
           </div>
 
           <div className={`dashboard-report-pane ${activeMobilePanel === 'result' ? 'mobile-active' : ''}`}>
-            <AnalysisReportDashboard report={reportViewModel} onDownload={downloadReport} />
+              <AnalysisReportDashboard
+                report={reportViewModel}
+                onDownload={downloadReport}
+                isDownloading={reportDownloading}
+              />
           </div>
         </div>
       </section>

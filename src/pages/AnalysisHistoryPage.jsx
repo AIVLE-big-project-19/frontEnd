@@ -3,7 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
 import { useAuth } from '../context/AuthContext';
 import { downloadAnalysisSnapshotReport, downloadDashboardCandidateReport } from '../api/dashboardApi';
-import { deleteAnalysisHistory, fetchAnalysisHistory, updateAnalysisHistoryManagement } from '../api/analysisHistoryApi';
+import {
+  deleteAllAnalysisHistory,
+  deleteAnalysisHistory,
+  deleteSelectedAnalysisHistory,
+  fetchAnalysisHistory,
+  updateAnalysisHistoryManagement,
+} from '../api/analysisHistoryApi';
 import { buildAnalysisReportViewModel } from '../utils/analysisReportModel';
 import { GuideTrigger } from '../components/WelcomeGuideModal';
 import {
@@ -37,6 +43,7 @@ function AnalysisHistoryPage() {
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [query, setQuery] = useState('');
   const [compareIds, setCompareIds] = useState([]);
+  const [selectedIds, setSelectedIds] = useState([]);
   const [downloadingId, setDownloadingId] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -86,6 +93,12 @@ function AnalysisHistoryPage() {
     if (currentPage > totalPages) setCurrentPage(totalPages);
   }, [currentPage, totalPages]);
 
+  useEffect(() => {
+    setSelectedIds((current) => current.filter((id) => (
+      history.some((item) => historyEntryKey(item) === id)
+    )));
+  }, [history]);
+
   const compareItems = useMemo(() => compareIds
     .map((id) => history.find((item) => historyEntryKey(item) === String(id)))
     .filter(Boolean)
@@ -129,8 +142,65 @@ function AnalysisHistoryPage() {
       setHistory(removeAnalysisHistoryEntry(loginId, item.candidateId));
     }
     setCompareIds((current) => current.filter((id) => id !== entryKey));
+    setSelectedIds((current) => current.filter((id) => id !== entryKey));
     if (remoteItem?.analysisId) {
       deleteAnalysisHistory(remoteItem.analysisId).catch(() => window.alert('분석 이력 삭제에 실패했습니다.'));
+    }
+  };
+
+  const toggleSelection = (item) => {
+    const entryKey = historyEntryKey(item);
+    setSelectedIds((current) => (
+      current.includes(entryKey)
+        ? current.filter((id) => id !== entryKey)
+        : [...current, entryKey]
+    ));
+  };
+
+  const toggleAllFilteredSelection = () => {
+    const filteredIds = filteredHistory.map(historyEntryKey);
+    const allSelected = filteredIds.length > 0 && filteredIds.every((id) => selectedIds.includes(id));
+    setSelectedIds((current) => (
+      allSelected
+        ? current.filter((id) => !filteredIds.includes(id))
+        : Array.from(new Set([...current, ...filteredIds]))
+    ));
+  };
+
+  const deleteSelectedEntries = () => {
+    const itemsToDelete = history.filter((item) => selectedIds.includes(historyEntryKey(item)));
+    if (itemsToDelete.length === 0) return;
+    if (!window.confirm(`선택한 분석 이력 ${itemsToDelete.length}개를 삭제하시겠습니까?`)) return;
+
+    const remoteIds = itemsToDelete
+      .map((item) => item.analysisId)
+      .filter(Boolean);
+    const localItems = itemsToDelete.filter((item) => !item.analysisId);
+
+    setHistory((current) => current.filter((item) => !selectedIds.includes(historyEntryKey(item))));
+    setCompareIds((current) => current.filter((id) => !selectedIds.includes(id)));
+    setSelectedIds([]);
+    localItems.forEach((item) => removeAnalysisHistoryEntry(loginId, item.candidateId));
+    if (remoteIds.length > 0) {
+      deleteSelectedAnalysisHistory(remoteIds)
+        .catch(() => window.alert('선택한 분석 이력 삭제에 실패했습니다.'));
+    }
+  };
+
+  const deleteAllEntries = () => {
+    if (history.length === 0) return;
+    if (!window.confirm(`저장된 분석 이력 ${history.length}개를 모두 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.`)) return;
+
+    const remoteItems = history.filter((item) => item.analysisId);
+    const localItems = history.filter((item) => !item.analysisId);
+    setHistory([]);
+    setCompareIds([]);
+    setSelectedIds([]);
+    setCurrentPage(1);
+    localItems.forEach((item) => removeAnalysisHistoryEntry(loginId, item.candidateId));
+    if (remoteItems.length > 0) {
+      deleteAllAnalysisHistory()
+        .catch(() => window.alert('분석 이력 전체 삭제에 실패했습니다.'));
     }
   };
 
@@ -206,7 +276,25 @@ function AnalysisHistoryPage() {
           </section>
         )}
 
-        <div className="history-list-heading"><h2>저장된 후보지</h2><span>{filteredHistory.length}건</span></div>
+        <div className="history-list-heading">
+          <div className="history-list-title"><h2>저장된 후보지</h2><span>{filteredHistory.length}건</span></div>
+          {history.length > 0 && (
+            <div className="history-bulk-actions">
+              <label className="history-select-all">
+                <input
+                  type="checkbox"
+                  checked={filteredHistory.length > 0 && filteredHistory.every((item) => selectedIds.includes(historyEntryKey(item)))}
+                  onChange={toggleAllFilteredSelection}
+                />
+                전체 선택
+              </label>
+              <button type="button" onClick={deleteSelectedEntries} disabled={selectedIds.length === 0}>
+                선택 삭제{selectedIds.length > 0 ? ` (${selectedIds.length})` : ''}
+              </button>
+              <button type="button" className="danger" onClick={deleteAllEntries}>전체 삭제</button>
+            </div>
+          )}
+        </div>
         {filteredHistory.length === 0 ? (
           <div className="history-empty">
             <strong>{history.length === 0 ? '아직 저장된 분석 이력이 없습니다.' : '조건에 맞는 분석 이력이 없습니다.'}</strong>
@@ -219,6 +307,13 @@ function AnalysisHistoryPage() {
               const report = buildAnalysisReportViewModel({ analysis: item.analysis });
               return (
                 <article className={`history-card${item.favorite ? ' is-favorite' : ''}`} key={historyEntryKey(item)}>
+                  <label className="history-card-select" aria-label={`${item.address} 선택`}>
+                    <input
+                      type="checkbox"
+                      checked={selectedIds.includes(historyEntryKey(item))}
+                      onChange={() => toggleSelection(item)}
+                    />
+                  </label>
                   <div className="history-card-main">
                     <div className="history-card-topline">
                       <span className={`history-site-type ${item.siteType === 'ROOF' ? 'roof' : 'land'}`}>{item.siteType === 'ROOF' ? '지붕/옥상' : '토지'}</span>

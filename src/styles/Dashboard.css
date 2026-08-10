@@ -598,6 +598,10 @@
 }
 
 .decision-report-header button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
   min-height: 36px;
   padding: 0 12px;
   color: #fff;
@@ -620,6 +624,24 @@
   background: #eef1f4;
   border-color: #d7dee5;
   cursor: not-allowed;
+}
+
+.decision-report-header button.is-loading {
+  min-width: 104px;
+  color: #fff;
+  background: #24445f;
+  border-color: #24445f;
+  cursor: wait;
+  opacity: .86;
+}
+
+.report-download-spinner {
+  width: 13px;
+  height: 13px;
+  border: 2px solid rgba(255, 255, 255, .34);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: dashboard-spin .75s linear infinite;
 }
 
 .decision-summary {
