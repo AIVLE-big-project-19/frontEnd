@@ -365,6 +365,7 @@
   position: relative;
   display: grid;
   grid-template-columns: var(--board-category-width) minmax(0, 1fr);
+  min-height: 88px;
   align-items: stretch;
   overflow: hidden;
   background: #fff;
@@ -411,23 +412,50 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 20px 18px;
+  padding: 14px 18px;
   background: linear-gradient(135deg, var(--category-soft, #f0f7f8), #f8fafc);
   border-right: 1px solid var(--slate-200);
 }
 
 .board-card-body {
+  position: relative;
   min-width: 0;
-  padding: 20px 24px;
+  padding: 14px 24px;
+}
+
+.board-card.category-notice .board-card-body {
+  padding-right: 125px;
 }
 
 .board-card-title {
-  margin: 0 0 13px;
+  margin: 0 0 9px;
   color: var(--navy-900);
   font-size: 19px;
   font-weight: 750;
   line-height: 1.4;
   letter-spacing: -0.02em;
+}
+
+.board-pin-button {
+  position: absolute;
+  top: 15px;
+  right: 18px;
+  margin: 0;
+  padding: 6px 9px;
+  color: #0b716b;
+  background: #fff;
+  border: 1px solid #9dd8d1;
+  border-radius: 6px;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.board-pin-button:hover {
+  color: #fff;
+  background: #0b8b83;
+  border-color: #0b8b83;
 }
 
 .board-card-title a {
@@ -981,13 +1009,22 @@ select.board-input {
 
   .board-card-category {
     justify-content: flex-start;
-    padding: 13px 16px;
+    padding: 10px 16px;
     border-right: 0;
     border-bottom: 1px solid var(--slate-200);
   }
 
   .board-card-body {
-    padding: 17px 16px;
+    padding: 14px 16px;
+  }
+
+  .board-card.category-notice .board-card-body {
+    padding-right: 125px;
+  }
+
+  .board-pin-button {
+    top: 13px;
+    right: 16px;
   }
 
   .board-card-title {

@@ -4,6 +4,7 @@ import Layout from '../components/Layout';
 import MapView from '../components/MapView';
 import SearchBar from '../components/SearchBar';
 import ChatBot from '../components/ChatBot';
+import { GuideTrigger } from '../components/WelcomeGuideModal';
 import '../styles/AnalysisPage.css';
 import { transform } from 'ol/proj';
 import { searchIdleLands, downloadIdleLandReport } from '../api/idleLandApi';
@@ -165,6 +166,7 @@ const AnalysisPage = () => {
       ) : (
         <>
           <div className="search-bar-container">
+            <div className="analysis-page-title"><span>AI 태양광 입지 분석</span><GuideTrigger /></div>
             <SearchBar onSearchResult={handleSearch} onIdleLandSearch={handleIdleLandSearch} />
 
             {idleLandSearched && (

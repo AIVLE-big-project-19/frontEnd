@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { getBoards } from "../api/boardApi";
+import { getBoards, toggleBoardPin } from "../api/boardApi";
 import BoardCard from "../components/BoardCard";
 import Layout from "../components/Layout";
 import { BOARD_CATEGORY_DETAILS, isAdminOnlyCategory } from "../constants/boardCategory";
@@ -34,11 +34,25 @@ function BoardListPage() {
         : 0;
     const [refreshKey, setRefreshKey] = useState(0);
 
+    const handleTogglePin = async (board) => {
+        try {
+            const response = await toggleBoardPin(board.boardId);
+            const updatedBoard = response.data.data;
+            setBoards((current) => current.map((item) => (
+                item.boardId === updatedBoard.boardId ? updatedBoard : item
+            )));
+            setRefreshKey((value) => value + 1);
+        } catch (error) {
+            console.error(error);
+            alert("공지사항 고정 상태를 변경하지 못했습니다.");
+        }
+    };
+
     useEffect(() => {
         const loadBoards = async () => {
             if (isInitializing) return;
             try {
-                const response = await getBoards(currentPage, 6, selectedCategory);
+                const response = await getBoards(currentPage, 10, selectedCategory);
                 const data = response.data.data;
 
                 if (data.totalPages > 0 && currentPage >= data.totalPages) {
@@ -143,6 +157,8 @@ function BoardListPage() {
                                 <BoardCard
                                     key={board.boardId}
                                     board={board}
+                                    canPin={isAdmin && selectedCategory === "공지사항"}
+                                    onTogglePin={handleTogglePin}
                                 />
                             ))}
                         </div>

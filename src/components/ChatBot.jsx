@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { sendChatMessage, sendChatPdf } from '../api/chatApi';
+import { consumeTopOverlay, getOverlayZIndex, registerOverlay, unregisterOverlay } from '../utils/overlayStack';
 import '../styles/ChatBot.css';
 
 const ChatBot = () => {
@@ -15,6 +16,24 @@ const ChatBot = () => {
   const [reportName, setReportName] = useState(null);
   const messagesEndRef = useRef(null);
   const fileInputRef = useRef(null);
+  const overlayIdRef = useRef(Symbol('chatbot'));
+  const rootRef = useRef(null);
+
+  useEffect(() => {
+    if (!isOpen) return undefined;
+    registerOverlay(overlayIdRef.current);
+    if (rootRef.current) rootRef.current.style.zIndex = String(getOverlayZIndex(overlayIdRef.current));
+    const handleEscape = (event) => {
+      if (event.key === 'Escape' && consumeTopOverlay(overlayIdRef.current)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('keydown', handleEscape);
+    return () => {
+      unregisterOverlay(overlayIdRef.current);
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [isOpen]);
 
   const applyBotResponse = (data) => {
     const reply = data?.data?.reply ?? '죄송해요, 답변을 가져오지 못했어요.';
@@ -97,7 +116,7 @@ const ChatBot = () => {
   };
 
   return (
-    <div className="chatbot-root">
+    <div ref={rootRef} className="chatbot-root">
       {isOpen && (
         <div className="chatbot-window">
           <div className="chatbot-header">

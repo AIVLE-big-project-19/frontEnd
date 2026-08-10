@@ -1,0 +1,68 @@
+.guide-trigger-btn {
+  display: inline-grid;
+  width: 30px;
+  height: 30px;
+  flex: 0 0 30px;
+  place-items: center;
+  padding: 0;
+  color: #fff;
+  background: var(--teal-600);
+  border: 2px solid #fff;
+  border-radius: 50%;
+  box-shadow: 0 4px 12px rgba(7, 26, 47, .18);
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.guide-trigger-btn:hover {
+  background: var(--teal-700);
+  transform: translateY(-1px);
+}
+
+.welcome-guide-window {
+  position: fixed;
+  z-index: 1001;
+  height: auto;
+  min-height: 0;
+  max-height: min(500px, calc(100vh - 24px));
+}
+
+.welcome-guide-messages {
+  flex: 0 1 auto;
+  gap: 10px;
+  max-height: min(420px, calc(100vh - 104px));
+}
+
+.welcome-guide-message {
+  display: grid;
+  gap: 5px;
+}
+
+.welcome-guide-message strong {
+  color: var(--navy-900);
+  font-size: 14px;
+}
+
+.welcome-guide-message span {
+  color: #475467;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.guide-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.guide-title-row h1 {
+  margin: 0;
+}
+
+.analysis-guide-title {
+  margin: 0 auto 14px;
+  padding: 0 24px;
+  max-width: 1440px;
+}

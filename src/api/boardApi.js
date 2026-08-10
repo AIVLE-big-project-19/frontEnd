@@ -20,6 +20,10 @@ export const deleteBoard = (boardId) => {
     return api.delete(`/boards/${boardId}`, { skipErrorModal: true });
 };
 
+export const toggleBoardPin = (boardId) => {
+    return api.patch(`/boards/${boardId}/pin`, {}, { skipErrorModal: true });
+};
+
 export const getBoardAttachment = (boardId, attachmentId) =>
     api.get(`/boards/${boardId}/attachments/${attachmentId}`, { responseType: "blob" });
 
