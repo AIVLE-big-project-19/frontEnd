@@ -86,7 +86,6 @@ function AdminAnalysisLogsPage() {
             <h1>전체 분석 로그</h1>
             <p>모든 사용자가 실행한 후보지 분석 이력을 한눈에 확인합니다.</p>
           </div>
-          <button type="button" className="admin-users-back" onClick={() => navigate('/mypage')}>마이페이지</button>
         </div>
 
         {error && <div className="admin-users-error" role="alert">{error}</div>}
