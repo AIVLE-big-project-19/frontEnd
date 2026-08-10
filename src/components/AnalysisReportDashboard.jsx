@@ -23,7 +23,7 @@ const getMonthlyExtremes = (monthlyGeneration) => {
 const getScoreState = (value) => {
   if (value == null) return { label: '미산정', className: 'unavailable' };
   if (value >= 80) return { label: '양호', className: 'good' };
-  if (value >= 70) return { label: '검토', className: 'review' };
+  if (value >= 50) return { label: '검토', className: 'review' };
   return { label: '주의', className: 'caution' };
 };
 
