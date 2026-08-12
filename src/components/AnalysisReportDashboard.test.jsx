@@ -3,6 +3,25 @@ import { expect, test, vi } from 'vitest';
 import AnalysisReportDashboard from './AnalysisReportDashboard';
 import { buildAnalysisReportViewModel } from '../utils/analysisReportModel';
 
+test('규제·인허가 점수를 3단계 구간과 해당 위치로 표시한다', () => {
+  const report = buildAnalysisReportViewModel({
+    analysis: {
+      siteType: 'LAND',
+      scores: { regulation: 79 },
+    },
+  });
+
+  const { container } = render(<AnalysisReportDashboard report={report} onDownload={vi.fn()} />);
+
+  expect(screen.getByText('확인 필요')).toBeInTheDocument();
+  expect(screen.getByRole('meter', { name: '규제·인허가 점수' }))
+    .toHaveAttribute('aria-valuetext', '확인 필요 79점');
+  expect(screen.getByRole('button', { name: '사업 추진 조건 산정 방식 보기' })).toBeInTheDocument();
+  expect(screen.getByRole('dialog', { name: '사업 추진 조건 산정 방식' }))
+    .toHaveTextContent('규제 조건과 인허가 위험을 규칙 기반으로 검토한 점수');
+  expect(parseFloat(container.querySelector('.regulation-score-marker').style.left)).toBeCloseTo(66.67, 1);
+});
+
 test('의사결정에 필요한 핵심 지표와 다음 행동을 보여준다', () => {
   const report = buildAnalysisReportViewModel({
     analysis: {

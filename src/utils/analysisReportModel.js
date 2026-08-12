@@ -153,9 +153,24 @@ export const buildAnalysisReportViewModel = ({
         : Math.min(100, paybackYears / Math.max(10, Math.ceil(paybackYears / 5) * 5) * 100),
     },
     scores: [
-      { key: 'ml', label: '입지·일사 조건', value: toNumberOrNull(scoreSource.ml ?? source.mlScore) },
-      { key: 'vision', label: siteType === 'ROOF' ? '옥상 설치 환경' : '부지 설치 환경', value: toNumberOrNull(scoreSource.vision ?? source.visionScore) },
-      { key: 'regulation', label: '규제·인허가', value: toNumberOrNull(scoreSource.regulation ?? source.regulationScore) },
+      {
+        key: 'ml',
+        label: '입지·일사 조건',
+        value: toNumberOrNull(scoreSource.ml ?? source.mlScore),
+        reason: scoreSource.mlReason ?? source.mlReason ?? null,
+      },
+      {
+        key: 'vision',
+        label: siteType === 'ROOF' ? '옥상 설치 환경' : '부지 설치 환경',
+        value: toNumberOrNull(scoreSource.vision ?? source.visionScore),
+        reason: scoreSource.visionReason ?? source.visionReason ?? null,
+      },
+      {
+        key: 'regulation',
+        label: '규제·인허가',
+        value: toNumberOrNull(scoreSource.regulation ?? source.regulationScore),
+        reason: scoreSource.regulationReason ?? scoreSource.ruleReason ?? source.regulationReason ?? null,
+      },
     ],
     risks,
     actions,
@@ -167,6 +182,10 @@ export const buildAnalysisReportViewModel = ({
       shadowAreaM2: toNumberOrNull(roofSource.shadowAreaM2 ?? source.shadowAreaM2),
       moduleDirection: roofSource.moduleDirection || source.moduleDirection || null,
       installAngleDegrees: toNumberOrNull(roofSource.installAngleDegrees ?? source.installAngleDegrees),
+      roadDistanceM: toNumberOrNull(roofSource.roadDistanceM ?? source.roadDistanceM),
+      buildingDistanceM: toNumberOrNull(roofSource.buildingDistanceM ?? source.buildingDistanceM),
+      shapeEfficiency: toNumberOrNull(roofSource.shapeEfficiency ?? source.shapeEfficiency),
+      estimatedPanelCount: toNumberOrNull(roofSource.estimatedPanelCount ?? source.estimatedPanelCount),
     },
     policy: buildPolicyViewModel(source),
   };
