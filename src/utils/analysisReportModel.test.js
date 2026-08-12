@@ -29,7 +29,15 @@ test('향후 중첩 API 응답을 대시보드 표시 모델로 변환한다', (
         monthly: Array.from({ length: 12 }, (_, index) => ({ generationKwh: 10000 + index * 100 })),
       },
       scores: { ml: 90, vision: 92, regulation: 94 },
-      roofAnalysis: { usableAreaM2: 910, shadowRate: 11, moduleDirection: '남남서향' },
+      roofAnalysis: {
+        usableAreaM2: 910,
+        shadowRate: 11,
+        moduleDirection: '남남서향',
+        roadDistanceM: 18.5,
+        buildingDistanceM: 32,
+        shapeEfficiency: 0.82,
+        estimatedPanelCount: 210,
+      },
       risks: [{ key: 'grid', label: '계통', status: '확인', level: 'check', detail: '용량 협의 필요' }],
       checklist: [{ key: 'visit', title: '현장 방문', detail: '옥상 상태 확인' }],
     },
@@ -44,6 +52,9 @@ test('향후 중첩 API 응답을 대시보드 표시 모델로 변환한다', (
   expect(report.site.usableAreaM2).toBe(910);
   expect(report.scores.map((item) => item.value)).toEqual([90, 92, 94]);
   expect(report.roof.moduleDirection).toBe('남남서향');
+  expect(report.roof.roadDistanceM).toBe(18.5);
+  expect(report.roof.shapeEfficiency).toBe(0.82);
+  expect(report.roof.estimatedPanelCount).toBe(210);
   expect(report.risks[0].detail).toBe('용량 협의 필요');
   expect(report.actions[0].title).toBe('현장 방문');
   expect(report.visuals.monthlyGeneration).toHaveLength(12);

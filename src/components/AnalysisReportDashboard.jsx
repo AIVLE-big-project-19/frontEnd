@@ -27,6 +27,21 @@ const getScoreState = (value) => {
   return { label: '주의', className: 'caution' };
 };
 
+const getRegulationState = (value) => {
+  if (value == null) return { label: '미산정', className: 'unavailable' };
+  if (value >= 80) return { label: '적합', className: 'good' };
+  if (value >= 50) return { label: '확인 필요', className: 'review' };
+  return { label: '제한 가능성', className: 'caution' };
+};
+
+const getRegulationScorePosition = (value) => {
+  if (value == null) return 0;
+  const score = Math.min(100, Math.max(0, value));
+  if (score < 50) return score / 49 * (100 / 3);
+  if (score < 80) return (100 / 3) + ((score - 50) / 29 * (100 / 3));
+  return (200 / 3) + ((score - 80) / 20 * (100 / 3));
+};
+
 const getSiteTypeLabel = (type) => {
   if (type === 'ROOF') return '건물 지붕형';
   if (type === 'PARKING_LOT') return '주차장형';
@@ -56,6 +71,40 @@ const KpiHelp = ({ label, formula, description, checks, sources }) => (
           <a key={source.href} href={source.href} target="_blank" rel="noreferrer">
             {source.label}<span aria-hidden="true"> ↗</span>
           </a>
+        ))}
+      </span>
+    </span>
+  </span>
+);
+
+const scoreMethods = {
+  ml: '일사량·경사도·계통 접근성 등 입지 조건을 분석한 점수',
+  vision: '영상에서 확인한 가용 면적·경사·음영·장애물 등을 반영한 점수',
+  regulation: '규제 조건과 인허가 위험을 규칙 기반으로 검토한 점수',
+};
+
+const ScoresHelp = ({ scores }) => (
+  <span className="kpi-help scores-help">
+    <button
+      type="button"
+      className="kpi-help-trigger scores-help-trigger"
+      aria-label="사업 추진 조건 산정 방식 보기"
+      aria-haspopup="dialog"
+    >
+      i
+    </button>
+    <span className="kpi-help-popover scores-help-popover" role="dialog" aria-label="사업 추진 조건 산정 방식">
+      <strong>사업 추진 조건 산정 기준</strong>
+      <span className="scores-help-list">
+        {scores.map((item) => (
+          <span className="scores-help-item" key={item.key}>
+            <span className="scores-help-title">
+              <b>{item.label}</b>
+              <em>{formatNumber(item.value, '점')}</em>
+            </span>
+            <span>{scoreMethods[item.key]}</span>
+            {item.reason && <small>{item.reason}</small>}
+          </span>
         ))}
       </span>
     </span>
@@ -98,6 +147,21 @@ const AnalysisReportDashboard = ({ report, onDownload, isDownloading = false }) 
     : `${formatNumber(forecast?.specificYieldKwhPerKwpYear ?? 1300, 'kWh/kWp·년')} 고정 가정`;
 
   const monthlyExtremes = getMonthlyExtremes(report.visuals.monthlyGeneration);
+  const shapeEfficiencyPercent = report.roof.shapeEfficiency == null
+    ? null
+    : report.roof.shapeEfficiency <= 1
+    ? report.roof.shapeEfficiency * 100
+    : report.roof.shapeEfficiency;
+  const technicalMetrics = [
+    { label: '부지 유형', value: [report.roof.type, report.roof.structure].filter(Boolean).join(' · ') || null },
+    { label: '부지 경사', value: report.roof.slopeDegrees == null ? null : formatNumber(report.roof.slopeDegrees, '°') },
+    { label: '경사 방향', value: report.roof.moduleDirection || null },
+    { label: '도로까지 거리', value: report.roof.roadDistanceM == null ? null : formatNumber(report.roof.roadDistanceM, ' m') },
+    { label: '건물까지 거리', value: report.roof.buildingDistanceM == null ? null : formatNumber(report.roof.buildingDistanceM, ' m') },
+    { label: '형상 효율', value: shapeEfficiencyPercent == null ? null : formatNumber(shapeEfficiencyPercent, '%') },
+    { label: '예상 패널 수', value: report.roof.estimatedPanelCount == null ? null : formatNumber(report.roof.estimatedPanelCount, '개') },
+    { label: '발전량 산정 적용 각도', value: forecast?.tiltDegrees == null ? null : formatNumber(forecast.tiltDegrees, '°') },
+  ].filter((item) => item.value != null);
 
   return (
   <section className="decision-report" aria-labelledby="decision-report-title">
@@ -309,14 +373,19 @@ const AnalysisReportDashboard = ({ report, onDownload, isDownloading = false }) 
     <div className="decision-detail-grid">
       <article className="decision-panel">
         <div className="decision-panel-heading">
-          <div><h3>사업 추진 조건</h3></div>
+          <div className="decision-panel-title-with-help">
+            <h3>사업 추진 조건</h3>
+            <ScoresHelp scores={report.scores} />
+          </div>
           <b>{report.scores.length}개 지표</b>
         </div>
         <div className="decision-score-list">
           {report.scores.map((item) => {
-            const state = getScoreState(item.value);
+            const isRegulation = item.key === 'regulation';
+            const state = isRegulation ? getRegulationState(item.value) : getScoreState(item.value);
+            const scorePosition = getRegulationScorePosition(item.value);
             return (
-              <div className="decision-score-item" key={item.key}>
+              <div className={`decision-score-item ${isRegulation ? 'regulation-score-item' : ''}`} key={item.key}>
                 <div className="decision-score-item-heading">
                   <div>
                     <strong>{item.label}</strong>
@@ -324,16 +393,34 @@ const AnalysisReportDashboard = ({ report, onDownload, isDownloading = false }) 
                   </div>
                   <b>{formatNumber(item.value, '점')}</b>
                 </div>
-                <div
-                  className="decision-score-track"
-                  role="progressbar"
-                  aria-label={`${item.label} 점수`}
-                  aria-valuemin="0"
-                  aria-valuemax="100"
-                  aria-valuenow={item.value ?? 0}
-                >
-                  <i style={{ width: `${item.value ?? 0}%` }} />
-                </div>
+                {isRegulation ? (
+                  <div className="regulation-score-scale">
+                    <div
+                      className="regulation-score-track"
+                      role="meter"
+                      aria-label={`${item.label} 점수`}
+                      aria-valuemin="0"
+                      aria-valuemax="100"
+                      aria-valuenow={item.value ?? undefined}
+                      aria-valuetext={item.value == null ? '미산정' : `${state.label} ${item.value}점`}
+                    >
+                      {item.value != null && (
+                        <i className="regulation-score-marker" style={{ left: `${scorePosition}%` }} />
+                      )}
+                    </div>
+                  </div>
+                ) : (
+                  <div
+                    className="decision-score-track"
+                    role="progressbar"
+                    aria-label={`${item.label} 점수`}
+                    aria-valuemin="0"
+                    aria-valuemax="100"
+                    aria-valuenow={item.value ?? 0}
+                  >
+                    <i style={{ width: `${item.value ?? 0}%` }} />
+                  </div>
+                )}
               </div>
             );
           })}
@@ -381,12 +468,9 @@ const AnalysisReportDashboard = ({ report, onDownload, isDownloading = false }) 
     <details className="technical-details">
       <summary>상세 기술 지표 보기</summary>
       <dl>
-        <div><dt>{report.site.type === 'ROOF' ? '지붕 구조' : '부지 유형'}</dt><dd>{[report.roof.type, report.roof.structure].filter(Boolean).join(' · ') || '-'}</dd></div>
-        <div><dt>{report.site.type === 'ROOF' ? '지붕 경사' : '부지 경사'}</dt><dd>{formatNumber(report.roof.slopeDegrees, '°')}</dd></div>
-        <div><dt>{report.site.type === 'ROOF' ? '음영 비율' : '식생·장애물 비율'}</dt><dd>{formatNumber(report.roof.shadowRate, '%')}</dd></div>
-        <div><dt>{report.site.type === 'ROOF' ? '음영 면적' : '장애물 면적'}</dt><dd>{formatNumber(report.roof.shadowAreaM2, ' m²')}</dd></div>
-        <div><dt>모듈 방향</dt><dd>{report.roof.moduleDirection}</dd></div>
-        <div><dt>설치 각도</dt><dd>{formatNumber(report.roof.installAngleDegrees, '°')}</dd></div>
+        {technicalMetrics.map((item) => (
+          <div key={item.label}><dt>{item.label}</dt><dd>{item.value}</dd></div>
+        ))}
       </dl>
     </details>
   </section>
