@@ -914,6 +914,10 @@
   white-space: normal;
 }
 
+.kpi-help-popover > code.multiline-formula {
+  white-space: pre-line;
+}
+
 .kpi-help-popover > b {
   margin-top: 2px;
   color: #334e68;

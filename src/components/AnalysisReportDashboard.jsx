@@ -49,7 +49,7 @@ const getSiteTypeLabel = (type) => {
   return type || '미확인';
 };
 
-const KpiHelp = ({ label, formula, description, checks, sources }) => (
+const KpiHelp = ({ label, formula, description, checks, sources, multilineFormula = false }) => (
   <span className="kpi-help">
     <button
       type="button"
@@ -61,7 +61,7 @@ const KpiHelp = ({ label, formula, description, checks, sources }) => (
     </button>
     <span className="kpi-help-popover" role="dialog" aria-label={`${label} 산정 기준과 공식 출처`}>
       <strong>{label}</strong>
-      <code>{formula}</code>
+      <code className={multilineFormula ? 'multiline-formula' : ''}>{formula}</code>
       <span>{description}</span>
       <b>직접 확인할 사항</b>
       <span>{checks}</span>
@@ -302,7 +302,8 @@ const AnalysisReportDashboard = ({ report, onDownload, isDownloading = false }) 
           기본 가정 기준 연간 예상 매출
           <KpiHelp
             label="기본 가정 기준 연간 예상 매출"
-            formula={`매출 = 예상 발전량 × 160원/kWh · 순수익 = 매출 - (설비용량 × ${formatNumber(installationCostPerKw, '원/kW')} × ${formatNumber(annualOmRatePercent, '%')})`}
+            formula={`매출\n= 예상 발전량 × 160원/kWh · 순수익\n= 매출 - (설비용량 × ${formatNumber(installationCostPerKw, '원/kW')} × ${formatNumber(annualOmRatePercent, '%')})`}
+            multilineFormula
             description={`${capacityTypeLabel} 설치비 ${formatNumber(installationCostPerKw, '원/kW')}와 연간 O&M ${formatNumber(annualOmRatePercent, '%')}를 적용합니다. ROI와 회수기간은 O&M 차감 후 연간 순수익 기준입니다. 실제 수익은 SMP, REC, 계약조건과 추가 비용에 따라 달라집니다.`}
             checks="계약 방식과 최신 SMP·REC 가격을 확인하고 유지보수비, 보험료, 임대료, 세금, 금융비용을 별도로 반영하세요."
             sources={[
