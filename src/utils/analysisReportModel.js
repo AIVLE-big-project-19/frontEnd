@@ -4,6 +4,16 @@ const toNumberOrNull = (value) => {
   return Number.isFinite(parsed) ? parsed : null;
 };
 
+const toMeasuredDistanceOrNull = (value) => {
+  const parsed = toNumberOrNull(value);
+  return parsed === 999 ? null : parsed;
+};
+
+const toPositiveNumberOrNull = (value) => {
+  const parsed = toNumberOrNull(value);
+  return parsed != null && parsed > 0 ? parsed : null;
+};
+
 const normalizeRisk = (risk, index) => ({
   key: risk?.key || `risk-${index}`,
   label: risk?.label || '확인 필요',
@@ -182,10 +192,12 @@ export const buildAnalysisReportViewModel = ({
       shadowAreaM2: toNumberOrNull(roofSource.shadowAreaM2 ?? source.shadowAreaM2),
       moduleDirection: roofSource.moduleDirection || source.moduleDirection || null,
       installAngleDegrees: toNumberOrNull(roofSource.installAngleDegrees ?? source.installAngleDegrees),
-      roadDistanceM: toNumberOrNull(roofSource.roadDistanceM ?? source.roadDistanceM),
-      buildingDistanceM: toNumberOrNull(roofSource.buildingDistanceM ?? source.buildingDistanceM),
+      roadDistanceM: toMeasuredDistanceOrNull(roofSource.roadDistanceM ?? source.roadDistanceM),
+      buildingDistanceM: toMeasuredDistanceOrNull(roofSource.buildingDistanceM ?? source.buildingDistanceM),
       shapeEfficiency: toNumberOrNull(roofSource.shapeEfficiency ?? source.shapeEfficiency),
-      estimatedPanelCount: toNumberOrNull(roofSource.estimatedPanelCount ?? source.estimatedPanelCount),
+      estimatedPanelCount: toPositiveNumberOrNull(
+        roofSource.estimatedPanelCount ?? source.estimatedPanelCount,
+      ),
     },
     policy: buildPolicyViewModel(source),
   };
