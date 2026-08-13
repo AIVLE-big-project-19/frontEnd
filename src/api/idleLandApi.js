@@ -17,15 +17,6 @@ export const downloadIdleLandReport = async (idleLandId) => {
   return data;
 };
 
-export const fetchParcelGeometry = async (longitude, latitude) => {
-  const { data } = await instance.get('/idle-lands/parcel-geometry', {
-    params: { longitude, latitude },
-    skipErrorModal: true,
-  });
-  return data.data;
-};
-
-
 export const fetchIdleLandParcelData = async (idleLandId) => {
   const { data } = await instance.get(`/idle-lands/${idleLandId}/parcel-data`, {
     skipErrorModal: true,
