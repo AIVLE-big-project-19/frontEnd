@@ -15,6 +15,15 @@ const parcelStyle = new Style({
   fill: new Fill({ color: 'rgba(255, 221, 0, 0.15)' }),
 });
 
+
+const panelStyleFn = (feature) => {
+  const valid = feature.get('valid');
+  return new Style({
+    stroke: new Stroke({ color: valid ? '#22c55e' : '#ef4444', width: 1 }),
+    fill: new Fill({ color: valid ? 'rgba(34, 197, 94, 0.35)' : 'rgba(239, 68, 68, 0.25)' }),
+  });
+};
+
 const geoJsonFormat = new GeoJSON();
 
 // 빨간 핀 아이콘을 별도 이미지 파일 없이 인라인 SVG로 그림
@@ -45,11 +54,12 @@ const buildMarkerStyle = (label) => new Style({
     : undefined,
 });
 
-const MapView = ({ apiKey, setMap, selectedCoordinates, selectedAddress, parcelGeometry }) => {
+const MapView = ({ apiKey, setMap, selectedCoordinates, selectedAddress, parcelGeometry, panelLayout }) => {
   const mapElement = useRef(null);
   const mapRef = useRef(null);
   const markerSource = useRef(new VectorSource());
   const parcelSource = useRef(new VectorSource());
+  const panelSource = useRef(new VectorSource());
 
   useEffect(() => {
     const initialMap = new Map({
@@ -58,6 +68,7 @@ const MapView = ({ apiKey, setMap, selectedCoordinates, selectedAddress, parcelG
       layers: [
         new TileLayer({ source: new XYZ({ url: `https://api.vworld.kr/req/wmts/1.0.0/${apiKey}/Satellite/{z}/{y}/{x}.jpeg` }) }),
         new VectorLayer({ source: parcelSource.current, style: parcelStyle }),
+        new VectorLayer({ source: panelSource.current, style: panelStyleFn }),
         new VectorLayer({ source: markerSource.current }),
       ],
       view: new View({ center: fromLonLat([127.0486, 37.2635]), zoom: 14 }),
@@ -92,6 +103,18 @@ const MapView = ({ apiKey, setMap, selectedCoordinates, selectedAddress, parcelG
     );
     parcelSource.current.addFeature(feature);
   }, [parcelGeometry]);
+
+  useEffect(() => {
+    if (!mapRef.current) return;
+    panelSource.current.clear();
+    if (!panelLayout) return;
+    // 패널 배치도 필지 경계와 동일하게 EPSG:4326으로 내려온다.
+    const features = geoJsonFormat.readFeatures(
+      panelLayout,
+      { dataProjection: 'EPSG:4326', featureProjection: 'EPSG:3857' },
+    );
+    panelSource.current.addFeatures(features);
+  }, [panelLayout]);
 
   return <div ref={mapElement} style={{ width: '100%', height: '50vh' }} />;
 };

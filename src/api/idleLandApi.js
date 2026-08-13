@@ -17,6 +17,13 @@ export const downloadIdleLandReport = async (idleLandId) => {
   return data;
 };
 
+export const fetchIdleLandParcelData = async (idleLandId) => {
+  const { data } = await instance.get(`/idle-lands/${idleLandId}/parcel-data`, {
+    skipErrorModal: true,
+  });
+  return data.data;
+};
+
 export const uploadIdleLandCsv = async (file) => {
   const formData = new FormData();
   formData.append('file', file);

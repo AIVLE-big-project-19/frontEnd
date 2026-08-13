@@ -7,11 +7,10 @@ import ChatBot from '../components/ChatBot';
 import { GuideTrigger } from '../components/WelcomeGuideModal';
 import '../styles/AnalysisPage.css';
 import { transform } from 'ol/proj';
-import { searchIdleLands, downloadIdleLandReport } from '../api/idleLandApi';
+import { searchIdleLands, downloadIdleLandReport, fetchIdleLandParcelData } from '../api/idleLandApi';
 import { fetchAddressByPoint } from '../api/mapApi';
 import { saveDashboardSelections } from '../utils/dashboardSelection';
 import instance from '../api/axiosInstance';
-import parcelPolygonsUrl from '../data/parcelPolygons.json?url';
 
 const GRADE_CLASS = { A: 'grade-a', B: 'grade-b', C: 'grade-c' };
 
@@ -31,7 +30,7 @@ const AnalysisPage = () => {
   const [selectedCoordinates, setSelectedCoordinates] = useState(null);
   const [selectedAddress, setSelectedAddress] = useState(null);
   const [selectedParcelGeometry, setSelectedParcelGeometry] = useState(null);
-  const [parcelFeatures, setParcelFeatures] = useState([]);
+  const [selectedPanelLayout, setSelectedPanelLayout] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -39,50 +38,6 @@ const AnalysisPage = () => {
       .then(({ data }) => setApiKey(data.apiKey))
       .catch((err) => console.error("키 로딩 실패", err));
   }, []);
-
-  useEffect(() => {
-    fetch(parcelPolygonsUrl)
-      .then((res) => res.json())
-      .then((data) => setParcelFeatures(data.features || []))
-      .catch((err) => console.error("필지 경계 데이터 로딩 실패", err));
-  }, []);
-
-  // 레이캐스팅으로 점이 하나의 폴리곤 링 내부에 있는지 판정 (표준 point-in-polygon 알고리즘)
-  const isPointInRing = (lon, lat, ring) => {
-    let inside = false;
-    for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
-      const [xi, yi] = ring[i];
-      const [xj, yj] = ring[j];
-      const intersect = yi > lat !== yj > lat && lon < ((xj - xi) * (lat - yi)) / (yj - yi) + xi;
-      if (intersect) inside = !inside;
-    }
-    return inside;
-  };
-
-  // MultiPolygon(구멍 포함) 내부에 점이 있는지 판정: 외곽선 안쪽 && 어떤 구멍에도 속하지 않아야 함
-  const isPointInMultiPolygon = (lon, lat, multiPolygonCoords) =>
-    multiPolygonCoords.some(([outerRing, ...holes]) => {
-      if (!isPointInRing(lon, lat, outerRing)) return false;
-      return !holes.some((hole) => isPointInRing(lon, lat, hole));
-    });
-
-
-  const findParcelGeometry = (lon, lat) => {
-    const numLon = Number(lon);
-    const numLat = Number(lat);
-    if (!Number.isFinite(numLon) || !Number.isFinite(numLat) || parcelFeatures.length === 0) return null;
-
-    const matched = parcelFeatures.find((feature) => {
-      const coords = feature.geometry?.coordinates;
-      return coords && isPointInMultiPolygon(numLon, numLat, coords);
-    });
-
-    if (!matched) {
-      console.info('[parcel] 이 좌표를 포함하는 필지 경계 데이터가 없습니다:', numLon, numLat);
-      return null;
-    }
-    return matched.geometry;
-  };
 
   useEffect(() => {
     if (map && apiKey) {
@@ -136,12 +91,22 @@ const AnalysisPage = () => {
     }
   };
 
-  const handleIdleLandItemClick = (item) => {
+  const handleIdleLandItemClick = async (item) => {
     if (item.longitude == null || item.latitude == null) return;
     setSelectedCoordinates(transform([item.longitude, item.latitude], 'EPSG:4326', 'EPSG:3857'));
     setSelectedAddress(item.address || null);
-    // 클릭한 주소와 매칭되는 필지가 있으면 그 폴리곤만 그리고, 없으면 이전에 그려진 선을 지운다.
-    setSelectedParcelGeometry(findParcelGeometry(item.longitude, item.latitude));
+   
+    setSelectedParcelGeometry(null);
+    setSelectedPanelLayout(null);
+    try {
+      const data = await fetchIdleLandParcelData(item.id);
+      setSelectedParcelGeometry(data?.parcelGeometry || null);
+      setSelectedPanelLayout(data?.panelLayout || null);
+    } catch (error) {
+      console.error('필지·패널 데이터 조회 실패', error);
+      setSelectedParcelGeometry(null);
+      setSelectedPanelLayout(null);
+    }
   };
 
   const handleIdleLandSelection = (itemId) => {
@@ -151,6 +116,13 @@ const AnalysisPage = () => {
         : [...current, itemId]
     ));
   };
+
+  const panelSummary = selectedPanelLayout?.features?.length
+    ? {
+        total: selectedPanelLayout.features.length,
+        valid: selectedPanelLayout.features.filter((f) => f.properties?.valid).length,
+      }
+    : null;
 
   const handleDashboardAnalysis = () => {
     const selectedCandidates = idleLandResults.filter((item) => selectedIdleLandIds.includes(item.id));
@@ -240,7 +212,14 @@ const AnalysisPage = () => {
           </div>
 
           <div className="map-container">
-            <MapView apiKey={apiKey} setMap={setMap} selectedCoordinates={selectedCoordinates} selectedAddress={selectedAddress} parcelGeometry={selectedParcelGeometry} />
+            <MapView apiKey={apiKey} setMap={setMap} selectedCoordinates={selectedCoordinates} selectedAddress={selectedAddress} parcelGeometry={selectedParcelGeometry} panelLayout={selectedPanelLayout} />
+
+            {panelSummary && (
+              <div className="panel-count-badge">
+                예상 설치 가능 패널 <strong>{panelSummary.valid}개</strong>
+                {panelSummary.valid !== panelSummary.total && ` (전체 ${panelSummary.total}개 중)`}
+              </div>
+            )}
 
             <div className="address-display">
               {currentAddress}
