@@ -117,6 +117,13 @@ const AnalysisPage = () => {
     ));
   };
 
+  const panelSummary = selectedPanelLayout?.features?.length
+    ? {
+        total: selectedPanelLayout.features.length,
+        valid: selectedPanelLayout.features.filter((f) => f.properties?.valid).length,
+      }
+    : null;
+
   const handleDashboardAnalysis = () => {
     const selectedCandidates = idleLandResults.filter((item) => selectedIdleLandIds.includes(item.id));
     const candidates = saveDashboardSelections(selectedCandidates);
@@ -206,6 +213,13 @@ const AnalysisPage = () => {
 
           <div className="map-container">
             <MapView apiKey={apiKey} setMap={setMap} selectedCoordinates={selectedCoordinates} selectedAddress={selectedAddress} parcelGeometry={selectedParcelGeometry} panelLayout={selectedPanelLayout} />
+
+            {panelSummary && (
+              <div className="panel-count-badge">
+                예상 설치 가능 패널 <strong>{panelSummary.valid}개</strong>
+                {panelSummary.valid !== panelSummary.total && ` (전체 ${panelSummary.total}개 중)`}
+              </div>
+            )}
 
             <div className="address-display">
               {currentAddress}
