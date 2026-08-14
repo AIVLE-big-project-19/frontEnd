@@ -6,6 +6,7 @@ import Layout from '../components/Layout';
 import MapView from '../components/MapView';
 import AnalysisReportDashboard from '../components/AnalysisReportDashboard';
 import { GuideTrigger } from '../components/WelcomeGuideModal';
+import ChatBot from '../components/ChatBot';
 import {
   downloadDashboardCandidateReport,
   downloadAnalysisSnapshotReport,
@@ -418,6 +419,7 @@ const DashboardPage = () => {
               />
           </div>
         </div>
+              <ChatBot />
       </section>
     </Layout>
   );

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
 import { useAuth } from '../context/AuthContext';
+import ChatBot from '../components/ChatBot';
 import { downloadAnalysisSnapshotReport, downloadDashboardCandidateReport } from '../api/dashboardApi';
 import {
   deleteAllAnalysisHistory,
@@ -348,6 +349,7 @@ function AnalysisHistoryPage() {
             <button type="button" onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))} disabled={currentPage === totalPages}>다음</button>
           </nav>
         )}
+                      <ChatBot />
       </section>
     </Layout>
   );

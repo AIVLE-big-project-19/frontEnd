@@ -237,7 +237,6 @@ const AnalysisPage = () => {
         </>
       )}
 
-      <ChatBot />
     </Layout>
   );
 };
