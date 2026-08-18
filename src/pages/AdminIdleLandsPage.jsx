@@ -89,7 +89,7 @@ function AdminIdleLandsPage() {
           <div>
             <span>ADMINISTRATION</span>
             <h1>유휴부지 데이터 관리</h1>
-            <p>유휴부지 원본(Uninstalled) CSV를 업로드하면 기존 데이터를 전량 교체합니다.</p>
+            <p>유휴부지 CSV를 업로드하면 기존 데이터를 전량 교체합니다.</p>
           </div>
         </div>
 
