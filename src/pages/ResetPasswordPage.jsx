@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, Navigate, useLocation } from 'react-router-dom';
 import * as authApi from '../api/authApi';
 import { isValidPassword, PASSWORD_RULE_MESSAGE } from '../utils/passwordRules';
+import { getServerMessage } from '../utils/serverMessage';
 import PasswordResetSuccessModal from '../components/PasswordResetSuccessModal';
 import '../styles/AuthPage.css';
 
@@ -53,8 +54,6 @@ const ResetPasswordPage = () => {
     return <Navigate to="/find-id" replace />;
   }
 
-  const serverMessage = (err, fallback) => err.response?.data?.message || fallback;
-
   const passwordMismatch = passwordConfirm.length > 0 && password !== passwordConfirm;
   const passwordMatches = passwordConfirm.length > 0 && password === passwordConfirm;
   const canSubmit = statusVerified && !passwordMismatch && !isSubmitting;
@@ -71,7 +70,7 @@ const ResetPasswordPage = () => {
       await authApi.resetPassword(loginId, password);
       setResetDone(true);
     } catch (err) {
-      setFormError(serverMessage(err, '비밀번호 변경에 실패했습니다. 잠시 후 다시 시도해주세요.'));
+      setFormError(getServerMessage(err, '비밀번호 변경에 실패했습니다. 잠시 후 다시 시도해주세요.'));
     } finally {
       setIsSubmitting(false);
     }

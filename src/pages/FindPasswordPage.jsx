@@ -2,11 +2,11 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import * as authApi from '../api/authApi';
 import { isValidPassword, PASSWORD_RULE_MESSAGE } from '../utils/passwordRules';
-import { useCountdown } from '../hooks/useCountdown';
+import { useCountdown, DEFAULT_CODE_DURATION_SECONDS } from '../hooks/useCountdown';
+import { getServerMessage } from '../utils/serverMessage';
+import { isValidEmail, EMAIL_FORMAT_MESSAGE } from '../utils/emailRules';
 import PasswordResetSuccessModal from '../components/PasswordResetSuccessModal';
 import '../styles/AuthPage.css';
-
-const CODE_DURATION_SECONDS = 300;
 
 const FindPasswordPage = () => {
   const [step, setStep] = useState('credentials'); // 'credentials' | 'code' | 'password'
@@ -23,17 +23,15 @@ const FindPasswordPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [resetDone, setResetDone] = useState(false);
 
-  const countdown = useCountdown(CODE_DURATION_SECONDS);
-
-  const serverMessage = (err, fallback) => err.response?.data?.message || fallback;
+  const countdown = useCountdown(DEFAULT_CODE_DURATION_SECONDS);
 
   const handleSendCode = async () => {
     if (!loginId) {
       setCredentialsError('아이디를 입력해주세요.');
       return;
     }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setCredentialsError('올바른 이메일 형식이 아닙니다.');
+    if (!isValidEmail(email)) {
+      setCredentialsError(EMAIL_FORMAT_MESSAGE);
       return;
     }
     try {
@@ -44,7 +42,7 @@ const FindPasswordPage = () => {
       countdown.start();
       setStep('code');
     } catch (err) {
-      setCredentialsError(serverMessage(err, '인증코드 발송에 실패했습니다.'));
+      setCredentialsError(getServerMessage(err, '인증코드 발송에 실패했습니다.'));
     }
   };
 
@@ -55,7 +53,7 @@ const FindPasswordPage = () => {
       countdown.start();
       setCodeMessage({ type: 'info', text: '인증코드를 다시 발송했습니다. 메일함을 확인해주세요.' });
     } catch (err) {
-      setCodeMessage({ type: 'error', text: serverMessage(err, '인증코드 발송에 실패했습니다.') });
+      setCodeMessage({ type: 'error', text: getServerMessage(err, '인증코드 발송에 실패했습니다.') });
     }
   };
 
@@ -69,7 +67,7 @@ const FindPasswordPage = () => {
       countdown.stop();
       setStep('password');
     } catch (err) {
-      setCodeMessage({ type: 'error', text: serverMessage(err, '인증 확인에 실패했습니다.') });
+      setCodeMessage({ type: 'error', text: getServerMessage(err, '인증 확인에 실패했습니다.') });
     }
   };
 
@@ -89,7 +87,7 @@ const FindPasswordPage = () => {
       await authApi.resetPassword(loginId, password);
       setResetDone(true);
     } catch (err) {
-      setFormError(serverMessage(err, '비밀번호 변경에 실패했습니다. 잠시 후 다시 시도해주세요.'));
+      setFormError(getServerMessage(err, '비밀번호 변경에 실패했습니다. 잠시 후 다시 시도해주세요.'));
     } finally {
       setIsSubmitting(false);
     }
