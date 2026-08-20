@@ -1,10 +1,11 @@
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { googleLogin } from '../api/authApi';
 import { getMyProfile } from '../api/myPageApi';
 import { useAuth } from '../context/AuthContext';
 import { setAccessToken } from '../auth/tokenStorage';
 import { buildGoogleRedirectUri, consumeGoogleOAuthState } from '../auth/googleOAuth';
+import { useRunOnce } from '../hooks/useRunOnce';
 import '../styles/AuthPage.css';
 
 const GENERIC_ERROR_MESSAGE = '구글 로그인에 실패했습니다. 다시 시도해주세요.';
@@ -14,15 +15,12 @@ const GoogleCallbackPage = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const auth = useAuth();
-  const hasRun = useRef(false);
+  const hasRun = useRunOnce();
 
   useEffect(() => {
-    // StrictMode는 개발 모드에서 mount effect를 두 번 실행한다. 구글 인가 code는 1회용이라
-    // 두 번째 호출이 이미 소모된 code로 실패해 첫 호출의 성공을 덮어쓸 수 있으므로 1회만 실행되게 막는다.
-    if (hasRun.current) {
+    if (hasRun()) {
       return;
     }
-    hasRun.current = true;
 
     const fail = (message) => {
       navigate('/login', { replace: true, state: { message } });
@@ -65,7 +63,7 @@ const GoogleCallbackPage = () => {
     };
 
     run();
-  }, [searchParams, navigate, auth]);
+  }, [searchParams, navigate, auth, hasRun]);
 
   return (
     <div className="auth-page">
