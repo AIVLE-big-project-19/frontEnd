@@ -31,6 +31,7 @@ const formatDate = (value) => value
   : '-';
 const PAGE_SIZE = 10;
 const historyEntryKey = (item) => String(item.analysisId ?? item.id ?? `candidate-${item.candidateId}`);
+const getReport = (item) => buildAnalysisReportViewModel({ analysis: item.analysis });
 
 const statusLabel = (value) => ANALYSIS_HISTORY_STATUSES.find((item) => item.value === value)?.label || '검토 중';
 
@@ -106,20 +107,32 @@ function AnalysisHistoryPage() {
       (Number(right.suitabilityScore) || 0) - (Number(left.suitabilityScore) || 0)
     )), [compareIds, history]);
 
+  const comparisonRows = useMemo(() => [
+    { label: '적합도', value: (item) => formatNumber(item.suitabilityScore, '점') },
+    { label: '설치 유형', value: (item) => (item.siteType === 'ROOF' ? '지붕/옥상' : '토지') },
+    { label: '예상 발전량', value: (item) => formatNumber(getReport(item).economics.annualGenerationKwh, ' kWh') },
+    { label: '연간 예상 수익', value: (item) => formatNumber(getReport(item).economics.annualRevenue, '원') },
+    { label: '회수 기간', value: (item) => formatNumber(getReport(item).economics.paybackYears, '년') },
+  ], []);
+
+  const removeFromSelections = (entryKeys) => {
+    const keys = new Set(entryKeys);
+    setCompareIds((current) => current.filter((id) => !keys.has(id)));
+    setSelectedIds((current) => current.filter((id) => !keys.has(id)));
+  };
+
   const updateEntry = (item, updates) => {
     const entryKey = historyEntryKey(item);
-    const next = updateAnalysisHistoryEntry(loginId, item.candidateId, updates);
-    const remoteItem = history.find((historyItem) => historyEntryKey(historyItem) === entryKey);
-    if (remoteItem?.analysisId) {
+    if (item.analysisId) {
       setHistory((current) => current.map((item) => (
         historyEntryKey(item) === entryKey ? { ...item, ...updates } : item
       )));
-      updateAnalysisHistoryManagement(remoteItem.analysisId, {
-        favorite: updates.favorite ?? remoteItem.favorite ?? false,
-        status: updates.status ?? remoteItem.status ?? 'REVIEWING',
+      updateAnalysisHistoryManagement(item.analysisId, {
+        favorite: updates.favorite ?? item.favorite ?? false,
+        status: updates.status ?? item.status ?? 'REVIEWING',
       }).catch(() => window.alert('분석 이력 변경에 실패했습니다.'));
     } else {
-      setHistory(next);
+      setHistory(updateAnalysisHistoryEntry(loginId, item.candidateId, updates));
     }
   };
 
@@ -135,16 +148,14 @@ function AnalysisHistoryPage() {
   const deleteEntry = (item) => {
     if (!window.confirm('이 분석 이력을 삭제하시겠습니까?')) return;
     const entryKey = historyEntryKey(item);
-    const remoteItem = history.find((historyItem) => historyEntryKey(historyItem) === entryKey);
-    if (remoteItem?.analysisId) {
+    if (item.analysisId) {
       setHistory((current) => current.filter((historyItem) => historyEntryKey(historyItem) !== entryKey));
     } else {
       setHistory(removeAnalysisHistoryEntry(loginId, item.candidateId));
     }
-    setCompareIds((current) => current.filter((id) => id !== entryKey));
-    setSelectedIds((current) => current.filter((id) => id !== entryKey));
-    if (remoteItem?.analysisId) {
-      deleteAnalysisHistory(remoteItem.analysisId).catch(() => window.alert('분석 이력 삭제에 실패했습니다.'));
+    removeFromSelections([entryKey]);
+    if (item.analysisId) {
+      deleteAnalysisHistory(item.analysisId).catch(() => window.alert('분석 이력 삭제에 실패했습니다.'));
     }
   };
 
@@ -177,9 +188,10 @@ function AnalysisHistoryPage() {
       .filter(Boolean);
     const localItems = itemsToDelete.filter((item) => !item.analysisId);
 
-    setHistory((current) => current.filter((item) => !selectedIds.includes(historyEntryKey(item))));
-    setCompareIds((current) => current.filter((id) => !selectedIds.includes(id)));
-    setSelectedIds([]);
+    const entryKeys = itemsToDelete.map(historyEntryKey);
+    const selectedKeySet = new Set(entryKeys);
+    setHistory((current) => current.filter((item) => !selectedKeySet.has(historyEntryKey(item))));
+    removeFromSelections(entryKeys);
     localItems.forEach((item) => removeAnalysisHistoryEntry(loginId, item.candidateId));
     if (remoteIds.length > 0) {
       deleteSelectedAnalysisHistory(remoteIds)
@@ -194,8 +206,7 @@ function AnalysisHistoryPage() {
     const remoteItems = history.filter((item) => item.analysisId);
     const localItems = history.filter((item) => !item.analysisId);
     setHistory([]);
-    setCompareIds([]);
-    setSelectedIds([]);
+    removeFromSelections(history.map(historyEntryKey));
     setCurrentPage(1);
     localItems.forEach((item) => removeAnalysisHistoryEntry(loginId, item.candidateId));
     if (remoteItems.length > 0) {
@@ -264,11 +275,12 @@ function AnalysisHistoryPage() {
                 <table className="history-compare-table">
                   <thead><tr><th>지표</th>{compareItems.map((item, index) => <th key={historyEntryKey(item)}><span className="history-compare-rank">{index + 1}위</span>{item.address}</th>)}</tr></thead>
                   <tbody>
-                    <tr><th>적합도</th>{compareItems.map((item) => <td key={historyEntryKey(item)}>{formatNumber(item.suitabilityScore, '점')}</td>)}</tr>
-                    <tr><th>설치 유형</th>{compareItems.map((item) => <td key={historyEntryKey(item)}>{item.siteType === 'ROOF' ? '지붕/옥상' : '토지'}</td>)}</tr>
-                    <tr><th>예상 발전량</th>{compareItems.map((item) => <td key={historyEntryKey(item)}>{formatNumber(buildAnalysisReportViewModel({ analysis: item.analysis }).economics.annualGenerationKwh, ' kWh')}</td>)}</tr>
-                    <tr><th>연간 예상 수익</th>{compareItems.map((item) => <td key={historyEntryKey(item)}>{formatNumber(buildAnalysisReportViewModel({ analysis: item.analysis }).economics.annualRevenue, '원')}</td>)}</tr>
-                    <tr><th>회수 기간</th>{compareItems.map((item) => <td key={historyEntryKey(item)}>{formatNumber(buildAnalysisReportViewModel({ analysis: item.analysis }).economics.paybackYears, '년')}</td>)}</tr>
+                    {comparisonRows.map((row) => (
+                      <tr key={row.label}>
+                        <th>{row.label}</th>
+                        {compareItems.map((item) => <td key={historyEntryKey(item)}>{row.value(item)}</td>)}
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>
@@ -304,7 +316,7 @@ function AnalysisHistoryPage() {
         ) : (
           <div className="history-list">
             {paginatedHistory.map((item) => {
-              const report = buildAnalysisReportViewModel({ analysis: item.analysis });
+              const report = getReport(item);
               return (
                 <article className={`history-card${item.favorite ? ' is-favorite' : ''}`} key={historyEntryKey(item)}>
                   <label className="history-card-select" aria-label={`${item.address} 선택`}>
