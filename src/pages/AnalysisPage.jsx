@@ -3,11 +3,10 @@ import { useNavigate } from "react-router-dom";
 import Layout from '../components/Layout';
 import MapView from '../components/MapView';
 import SearchBar from '../components/SearchBar';
-import ChatBot from '../components/ChatBot';
 import { GuideTrigger } from '../components/WelcomeGuideModal';
 import '../styles/AnalysisPage.css';
 import { transform } from 'ol/proj';
-import { searchIdleLands, downloadIdleLandReport, fetchIdleLandParcelData } from '../api/idleLandApi';
+import { searchIdleLands, fetchIdleLandParcelData } from '../api/idleLandApi';
 import { fetchAddressByPoint } from '../api/mapApi';
 import { saveDashboardSelections } from '../utils/dashboardSelection';
 import instance from '../api/axiosInstance';
@@ -16,16 +15,12 @@ const GRADE_CLASS = { A: 'grade-a', B: 'grade-b', C: 'grade-c' };
 
 const AnalysisPage = () => {
   const [map, setMap] = useState(null);
-  const [results, setResults] = useState([]);
-  const [isSearched, setIsSearched] = useState(false);
   const [apiKey, setApiKey] = useState(null);
   const [currentAddress, setCurrentAddress] = useState("지도를 이동해 보세요.");
-  const [recentSearches, setRecentSearches] = useState([]);
   const [idleLandResults, setIdleLandResults] = useState([]);
   const [idleLandLoading, setIdleLandLoading] = useState(false);
   const [idleLandSearched, setIdleLandSearched] = useState(false);
   const [idleLandError, setIdleLandError] = useState('');
-  const [downloadingId, setDownloadingId] = useState(null);
   const [selectedIdleLandIds, setSelectedIdleLandIds] = useState([]);
   const [selectedCoordinates, setSelectedCoordinates] = useState(null);
   const [selectedAddress, setSelectedAddress] = useState(null);
@@ -61,20 +56,6 @@ const AnalysisPage = () => {
     }
   }, [map, apiKey]);
 
-
-  const handleItemClick = (item) => {
-    setSelectedCoordinates([parseFloat(item.point.x), parseFloat(item.point.y)]);
-    setRecentSearches((prev) => {
-      const updated = [item, ...prev.filter((i) => i.title !== item.title)].slice(0, 3);
-      return updated;
-    });
-  };
-
-  const handleSearch = (data) => {
-    setResults(data);
-    setIsSearched(true);
-  };
-
   const handleIdleLandSearch = async (keyword) => {
     setIdleLandLoading(true);
     setIdleLandSearched(true);
@@ -95,7 +76,6 @@ const AnalysisPage = () => {
     if (item.longitude == null || item.latitude == null) return;
     setSelectedCoordinates(transform([item.longitude, item.latitude], 'EPSG:4326', 'EPSG:3857'));
     setSelectedAddress(item.address || null);
-   
     setSelectedParcelGeometry(null);
     setSelectedPanelLayout(null);
     try {
@@ -130,7 +110,6 @@ const AnalysisPage = () => {
     navigate('/dashboard', { state: { selectedCandidates: candidates } });
   };
 
-
   return (
     <Layout>
       {!apiKey ? (
@@ -139,7 +118,7 @@ const AnalysisPage = () => {
         <>
           <div className="search-bar-container">
             <div className="analysis-page-title"><span>AI 태양광 입지 분석</span><GuideTrigger /></div>
-            <SearchBar onSearchResult={handleSearch} onIdleLandSearch={handleIdleLandSearch} />
+            <SearchBar onSearchResult={() => {}} onIdleLandSearch={handleIdleLandSearch} />
 
             {idleLandSearched && (
               <div className="idle-land-panel">
@@ -204,11 +183,6 @@ const AnalysisPage = () => {
                 )}
               </div>
             )}
-
-            
-                
-
-
           </div>
 
           <div className="map-container">
@@ -223,9 +197,7 @@ const AnalysisPage = () => {
 
             <div className="address-display">
               {currentAddress}
-
             </div>
-
 
             {map && (
               <div className="zoom-controls">
@@ -236,7 +208,6 @@ const AnalysisPage = () => {
           </div>
         </>
       )}
-
     </Layout>
   );
 };
