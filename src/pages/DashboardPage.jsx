@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
 import { fromLonLat } from 'ol/proj';
 import Layout from '../components/Layout';
 import MapView from '../components/MapView';
@@ -16,7 +15,6 @@ import {
 import { KOREA_REGIONS, SUPPORTED_SIDO_LIST } from '../data/koreaRegions';
 import { buildAnalysisReportViewModel } from '../utils/analysisReportModel';
 import { loadDashboardSelections, normalizeDashboardSelections } from '../utils/dashboardSelection';
-import { saveAnalysisHistoryEntry } from '../utils/analysisHistory';
 import { API_BASE_URL } from '../api/axiosInstance';
 import '../styles/Dashboard.css';
 
@@ -28,7 +26,6 @@ const formatScore = (value) => (
 
 const DashboardPage = () => {
   const location = useLocation();
-  const { loginId } = useAuth();
   const transferredCandidates = useMemo(() => {
     const routed = normalizeDashboardSelections(location.state?.selectedCandidates);
     return routed.length > 0 ? routed : loadDashboardSelections();
@@ -180,7 +177,6 @@ const DashboardPage = () => {
       const detail = await fetchDashboardCandidateAnalysis(candidate.id);
       setAnalysis(detail);
       setAnalyzedCandidate(candidate);
-      if (loginId) saveAnalysisHistoryEntry(loginId, candidate, detail);
       const hasEconomicEstimate = [
         detail.capacityKw,
         detail.annualGenerationKwh,
