@@ -9,7 +9,7 @@ const getMonthlyExtremes = (monthlyGeneration) => {
   const values = monthlyGeneration.map((item) => Number(item.value) || 0);
   const maxValue = Math.max(...values, 0);
   const minValue = Math.min(...values);
-  // Y축은 kWh를 k 단위로 표시하므로, 최대값을 올림한 정수 k를 상한으로 사용합니다.
+  // 참고: Y축 눈금은 kWh를 천 단위로 표시하므로 최댓값을 1,000 단위로 올림한다.
   const yAxisMax = Math.max(1000, Math.ceil(maxValue / 1000) * 1000);
 
   return {

@@ -41,12 +41,9 @@ const buildMonthlyGeneration = (source, annualGenerationKwh) => {
       const totalWeight = monthlyGenerationShape.reduce((sum, item) => sum + item, 0);
       return annualGenerationKwh * weight / totalWeight;
     });
-  const maxValue = Math.max(...values, 1);
-
   return values.map((value, index) => ({
     month: index + 1,
     value: Math.round(value),
-    heightPercent: Math.max(8, Math.round(value / maxValue * 100)),
   }));
 };
 
@@ -203,8 +200,7 @@ export const buildAnalysisReportViewModel = ({
   };
 };
 
-// 정책·자금지원 추천 Agent(AI_agent) 연동 결과. Agent 호출이 실패했거나 아직 실행되지 않았으면
-// 백엔드에서 이 필드들이 전부 null로 오므로, 화면에서는 존재하는 것만 그려주면 된다.
+// 참고: 정책·자금지원 Agent가 실행되지 않았거나 실패하면 관련 필드가 null이므로 존재하는 값만 표시한다.
 const buildPolicyViewModel = (source) => {
   const regulatoryAssessment = source.regulatoryAssessment || null;
   const businessRoute = source.businessRoute || null;
