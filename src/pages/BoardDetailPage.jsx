@@ -37,7 +37,6 @@ function BoardDetailPage() {
                 const response = await getBoard(boardId);
                 if (active) setBoard(response.data.data);
             } catch (error) {
-                console.log(error);
                 if (active) {
                     alert(error.response?.status === 403
                         ? "본인이 작성한 1:1 문의만 열람할 수 있습니다."
@@ -64,7 +63,9 @@ function BoardDetailPage() {
             return [attachment.attachmentId, url];
         })).then((entries) => {
             if (active) setAttachmentUrls(Object.fromEntries(entries));
-        }).catch((error) => console.log(error));
+        }).catch(() => {
+            if (active) setAttachmentUrls({});
+        });
         return () => {
             active = false;
             urls.forEach((url) => URL.revokeObjectURL(url));
@@ -124,8 +125,7 @@ function BoardDetailPage() {
             await deleteBoard(boardId);
             alert("게시글이 삭제되었습니다.");
             navigate(categoryListPath(board.category));
-        } catch (error) {
-            console.log(error);
+        } catch {
             alert("게시글 삭제에 실패했습니다.");
         }
     };

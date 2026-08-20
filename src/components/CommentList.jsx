@@ -17,16 +17,15 @@ function CommentList({ boardId, boardCategory }) {
         try {
             const response = await getComments(boardId);
             setComments(response.data.data);
-        } catch (error) {
-            console.error(error);
+        } catch {
             alert(`${responseLabel} 목록을 불러오지 못했습니다.`);
         } finally {
             setLoading(false);
         }
-    }, [boardId]);
+    }, [boardId, responseLabel]);
 
     useEffect(() => {
-        // Initial server synchronization is intentionally triggered when the board changes.
+        // 참고: 게시글이 바뀐 직후 서버 댓글과 동기화하기 위해 초기 조회를 실행한다.
         // eslint-disable-next-line react-hooks/set-state-in-effect
         loadComments();
     }, [loadComments]);
@@ -52,7 +51,6 @@ function CommentList({ boardId, boardCategory }) {
             cancelEditing();
             await loadComments();
         } catch (error) {
-            console.error(error);
             alert(error.response?.status === 403
                 ? `본인이 작성한 ${responseLabel}만 수정할 수 있습니다.`
                 : `${responseLabel} 수정에 실패했습니다.`);
@@ -66,7 +64,6 @@ function CommentList({ boardId, boardCategory }) {
             await deleteComment(commentId);
             await loadComments();
         } catch (error) {
-            console.error(error);
             alert(error.response?.status === 403
                 ? `본인이 작성한 ${responseLabel}만 삭제할 수 있습니다.`
                 : `${responseLabel} 삭제에 실패했습니다.`);
