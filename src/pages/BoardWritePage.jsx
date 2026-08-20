@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { createBoard } from "../api/boardApi";
 import { useAuth } from "../context/AuthContext";
@@ -14,9 +14,11 @@ function BoardWritePage() {
     const [searchParams] = useSearchParams();
     const { isLoggedIn, loginId, isAdmin, isInitializing } = useAuth();
 
-    const availableCategories = isAdmin
-        ? BOARD_CATEGORIES
-        : BOARD_CATEGORIES.filter((item) => !isAdminOnlyCategory(item));
+    const availableCategories = useMemo(() => (
+        isAdmin
+            ? BOARD_CATEGORIES
+            : BOARD_CATEGORIES.filter((item) => !isAdminOnlyCategory(item))
+    ), [isAdmin]);
     const requestedCategory = searchParams.get("category");
 
     const [title, setTitle] = useState("");
@@ -31,8 +33,10 @@ function BoardWritePage() {
 
         const requestedCategoryAllowed = BOARD_CATEGORIES.includes(requestedCategory)
             && (isAdmin || !isAdminOnlyCategory(requestedCategory));
+        // 참고: 권한 확인이 끝난 뒤 URL 카테고리를 작성 가능한 값으로 동기화한다.
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setCategory(requestedCategoryAllowed ? requestedCategory : (availableCategories[0] ?? ""));
-    }, [isAdmin, isInitializing, requestedCategory]);
+    }, [availableCategories, isAdmin, isInitializing, requestedCategory]);
 
     useEffect(() => {
         if (!isLoggedIn) return;
@@ -49,6 +53,8 @@ function BoardWritePage() {
 
     useEffect(() => {
         const nextPreviews = files.filter((file) => file.type.startsWith("image/")).map((file) => ({ file, url: URL.createObjectURL(file) }));
+        // 참고: 선택 파일이 바뀐 직후 객체 URL 미리보기 목록을 동기화한다.
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setPreviews(nextPreviews);
         return () => nextPreviews.forEach((preview) => URL.revokeObjectURL(preview.url));
     }, [files]);
@@ -113,7 +119,6 @@ function BoardWritePage() {
             alert("게시글이 등록되었습니다.");
             navigate(`/boards/${createdBoardId}`, { replace: true });
         } catch (error) {
-            console.log(error);
             alert(error.response?.data?.message ?? "게시글 등록에 실패했습니다.");
         }
     };

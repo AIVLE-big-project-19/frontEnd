@@ -33,8 +33,7 @@ function CommentForm({ boardId, onCommentCreated, allowSecret = false, responseL
             setContent("");
             setSecret(false);
             await onCommentCreated?.();
-        } catch (error) {
-            console.error(error);
+        } catch {
             alert(`${responseLabel} 등록에 실패했습니다.`);
         }
     };

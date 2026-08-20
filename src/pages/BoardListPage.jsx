@@ -43,8 +43,7 @@ function BoardListPage() {
                 item.boardId === updatedBoard.boardId ? updatedBoard : item
             )));
             setRefreshKey((value) => value + 1);
-        } catch (error) {
-            console.error(error);
+        } catch {
             alert("공지사항 고정 상태를 변경하지 못했습니다.");
         }
     };
@@ -69,8 +68,7 @@ function BoardListPage() {
                     first: data.first,
                     last: data.last,
                 });
-            } catch (error) {
-                console.log(error);
+            } catch {
                 alert("게시글 목록을 불러오지 못했습니다.");
             } finally {
                 setLoading(false);
@@ -79,25 +77,6 @@ function BoardListPage() {
 
         loadBoards();
     }, [currentPage, isInitializing, refreshKey, selectedCategory, setSearchParams]);
-
-    const selectCategory = (category) => {
-        const nextCategory = BOARD_CATEGORY_DETAILS.find(({ name }) => name === category);
-        if (communityCategory && nextCategory) {
-            navigate(`/community/${nextCategory.key}`);
-            return;
-        }
-        if (category === selectedCategory) {
-            if (currentPage !== 0) {
-                setLoading(true);
-                setSearchParams({ category, page: "1" });
-                return;
-            }
-            setRefreshKey((value) => value + 1);
-            return;
-        }
-        setLoading(true);
-        setSearchParams({ category, page: "1" });
-    };
 
     const moveToPage = (page) => {
         if (page < 0 || page >= pageInfo.totalPages || page === pageInfo.page) return;
