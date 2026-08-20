@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
+import ChatBot from '../components/ChatBot';
 import { downloadAnalysisSnapshotReport, downloadDashboardCandidateReport } from '../api/dashboardApi';
 import {
   deleteAllAnalysisHistory,
@@ -40,9 +41,11 @@ function AnalysisHistoryPage() {
   const [selectedIds, setSelectedIds] = useState([]);
   const [downloadingId, setDownloadingId] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     let active = true;
+    setIsLoading(true);
     fetchAnalysisHistory()
       .then((remoteHistory) => {
         if (!active) return;
@@ -59,6 +62,9 @@ function AnalysisHistoryPage() {
       })
       .catch(() => {
         if (active) setHistory([]);
+      })
+      .finally(() => {
+        if (active) setIsLoading(false);
       });
     return () => { active = false; };
   }, []);
@@ -277,7 +283,12 @@ function AnalysisHistoryPage() {
             </div>
           )}
         </div>
-        {filteredHistory.length === 0 ? (
+        {isLoading ? (
+          <div className="history-empty">
+            <span className="history-loading-spinner" aria-hidden="true" />
+            <strong>저장된 후보지를 불러오는 중입니다...</strong>
+          </div>
+        ) : filteredHistory.length === 0 ? (
           <div className="history-empty">
             <strong>{history.length === 0 ? '아직 저장된 분석 이력이 없습니다.' : '조건에 맞는 분석 이력이 없습니다.'}</strong>
             <p>통합 대시보드에서 후보지를 분석하면 이곳에 자동으로 저장됩니다.</p>
@@ -330,6 +341,7 @@ function AnalysisHistoryPage() {
             <button type="button" onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))} disabled={currentPage === totalPages}>다음</button>
           </nav>
         )}
+                      <ChatBot />
       </section>
     </Layout>
   );

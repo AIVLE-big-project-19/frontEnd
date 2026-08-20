@@ -1,6 +1,22 @@
 import { expect, test } from 'vitest';
 import { buildAnalysisReportViewModel } from './analysisReportModel';
 
+test('결측 대체값은 상세 기술 지표 값으로 사용하지 않는다', () => {
+  const report = buildAnalysisReportViewModel({
+    analysis: {
+      roofAnalysis: {
+        roadDistanceM: 999,
+        buildingDistanceM: 999,
+        estimatedPanelCount: 0,
+      },
+    },
+  });
+
+  expect(report.roof.roadDistanceM).toBeNull();
+  expect(report.roof.buildingDistanceM).toBeNull();
+  expect(report.roof.estimatedPanelCount).toBeNull();
+});
+
 test('향후 중첩 API 응답을 대시보드 표시 모델로 변환한다', () => {
   const report = buildAnalysisReportViewModel({
     analysis: {

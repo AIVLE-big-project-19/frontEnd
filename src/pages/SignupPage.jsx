@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import * as authApi from '../api/authApi';
 import { isValidPassword, PASSWORD_RULE_MESSAGE } from '../utils/passwordRules';
+import { getServerMessage } from '../utils/serverMessage';
+import { isValidEmail, EMAIL_FORMAT_MESSAGE } from '../utils/emailRules';
 import TermsModal from '../components/TermsModal';
 import solarAivleLogo from '../assets/solar-aivle-logo.png';
 import '../styles/AuthPage.css';
@@ -27,8 +29,6 @@ const SignupPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const navigate = useNavigate();
-
-  const serverMessage = (err, fallback) => err.response?.data?.message || fallback;
 
   const handleLoginIdChange = (e) => {
     setLoginId(e.target.value);
@@ -57,13 +57,13 @@ const SignupPage = () => {
         setLoginIdMessage({ type: 'error', text: '이미 사용 중인 아이디입니다.' });
       }
     } catch (err) {
-      setLoginIdMessage({ type: 'error', text: serverMessage(err, '중복확인에 실패했습니다.') });
+      setLoginIdMessage({ type: 'error', text: getServerMessage(err, '중복확인에 실패했습니다.') });
     }
   };
 
   const handleSendCode = async () => {
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setEmailMessage({ type: 'error', text: '올바른 이메일 형식이 아닙니다.' });
+    if (!isValidEmail(email)) {
+      setEmailMessage({ type: 'error', text: EMAIL_FORMAT_MESSAGE });
       return;
     }
     try {
@@ -71,7 +71,7 @@ const SignupPage = () => {
       setCodeSent(true);
       setEmailMessage({ type: 'info', text: '인증코드를 발송했습니다. 메일함을 확인해주세요.' });
     } catch (err) {
-      setEmailMessage({ type: 'error', text: serverMessage(err, '인증코드 발송에 실패했습니다.') });
+      setEmailMessage({ type: 'error', text: getServerMessage(err, '인증코드 발송에 실패했습니다.') });
     }
   };
 
@@ -81,7 +81,7 @@ const SignupPage = () => {
       setEmailVerified(true);
       setEmailMessage({ type: 'info', text: '이메일 인증이 완료되었습니다.' });
     } catch (err) {
-      setEmailMessage({ type: 'error', text: serverMessage(err, '인증 확인에 실패했습니다.') });
+      setEmailMessage({ type: 'error', text: getServerMessage(err, '인증 확인에 실패했습니다.') });
     }
   };
 
@@ -114,7 +114,7 @@ const SignupPage = () => {
     } catch (err) {
       const fieldData = err.response?.data?.data;
       const fieldMessage = fieldData && typeof fieldData === 'object' ? Object.values(fieldData)[0] : null;
-      setFormError(fieldMessage || serverMessage(err, '회원가입에 실패했습니다. 잠시 후 다시 시도해주세요.'));
+      setFormError(fieldMessage || getServerMessage(err, '회원가입에 실패했습니다. 잠시 후 다시 시도해주세요.'));
     } finally {
       setIsSubmitting(false);
     }

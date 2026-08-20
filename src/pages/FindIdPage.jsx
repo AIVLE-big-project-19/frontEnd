@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import * as authApi from '../api/authApi';
-import { useCountdown } from '../hooks/useCountdown';
+import { useCountdown, DEFAULT_CODE_DURATION_SECONDS } from '../hooks/useCountdown';
+import { getServerMessage } from '../utils/serverMessage';
+import { isValidEmail, EMAIL_FORMAT_MESSAGE } from '../utils/emailRules';
 import '../styles/AuthPage.css';
-
-const CODE_DURATION_SECONDS = 300;
 
 const FindIdPage = () => {
   const [email, setEmail] = useState('');
@@ -14,10 +14,8 @@ const FindIdPage = () => {
   const [result, setResult] = useState(null);
   const [message, setMessage] = useState({ type: '', text: '' });
 
-  const countdown = useCountdown(CODE_DURATION_SECONDS);
+  const countdown = useCountdown(DEFAULT_CODE_DURATION_SECONDS);
   const navigate = useNavigate();
-
-  const serverMessage = (err, fallback) => err.response?.data?.message || fallback;
 
   const handleEmailChange = (e) => {
     setEmail(e.target.value);
@@ -29,8 +27,8 @@ const FindIdPage = () => {
   };
 
   const handleSendCode = async () => {
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setMessage({ type: 'error', text: '올바른 이메일 형식이 아닙니다.' });
+    if (!isValidEmail(email)) {
+      setMessage({ type: 'error', text: EMAIL_FORMAT_MESSAGE });
       return;
     }
     try {
@@ -41,7 +39,7 @@ const FindIdPage = () => {
       countdown.start();
       setMessage({ type: 'info', text: '인증코드를 발송했습니다. 메일함을 확인해주세요.' });
     } catch (err) {
-      setMessage({ type: 'error', text: serverMessage(err, '인증코드 발송에 실패했습니다.') });
+      setMessage({ type: 'error', text: getServerMessage(err, '인증코드 발송에 실패했습니다.') });
     }
   };
 
@@ -57,7 +55,7 @@ const FindIdPage = () => {
       countdown.stop();
       setMessage({ type: 'info', text: '인증이 완료되었습니다.' });
     } catch (err) {
-      setMessage({ type: 'error', text: serverMessage(err, '인증 확인에 실패했습니다.') });
+      setMessage({ type: 'error', text: getServerMessage(err, '인증 확인에 실패했습니다.') });
     }
   };
 

@@ -1,27 +1,12 @@
-import { useEffect, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { getTerms } from '../api/termsApi';
+import { useTerms } from '../hooks/useTerms';
 import '../styles/AuthPage.css';
 
 const TITLES = { TERMS: '이용약관', PRIVACY: '개인정보처리방침' };
 
 const TermsModal = ({ type, onClose }) => {
-  const [state, setState] = useState({ status: 'loading', data: null });
-
-  useEffect(() => {
-    let ignore = false;
-    getTerms(type)
-      .then((terms) => {
-        if (!ignore) setState({ status: 'success', data: terms });
-      })
-      .catch(() => {
-        if (!ignore) setState({ status: 'error', data: null });
-      });
-    return () => {
-      ignore = true;
-    };
-  }, [type]);
+  const state = useTerms(type);
 
   return (
     <div className="modal-overlay" onClick={onClose}>

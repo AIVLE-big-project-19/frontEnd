@@ -1,11 +1,9 @@
 import { useState, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { sendChatMessage, sendChatPdf } from '../api/chatApi';
 import { consumeTopOverlay, getOverlayZIndex, registerOverlay, unregisterOverlay } from '../utils/overlayStack';
 import '../styles/ChatBot.css';
 
 const ChatBot = () => {
-  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
     { role: 'bot', text: '안녕하세요! 후보지 조회 추천을 해드릴게요!\n PDF 보고서를 한 번 첨부해두시면, 이후에는 그냥 채팅으로 편하게 질문하실 수 있어요!' },
@@ -37,16 +35,7 @@ const ChatBot = () => {
 
   const applyBotResponse = (data) => {
     const reply = data?.data?.reply ?? '죄송해요, 답변을 가져오지 못했어요.';
-    const action = data?.data?.action;
-
     setMessages((prev) => [...prev, { role: 'bot', text: reply }]);
-
-    if (action?.type === 'NAVIGATE' && action.path) {
-      setTimeout(() => {
-        navigate(action.path);
-        setIsOpen(false);
-      }, 600);
-    }
   };
 
   useEffect(() => {

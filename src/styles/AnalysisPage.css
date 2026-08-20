@@ -30,7 +30,7 @@
   order: -1;
   margin: 0 10px -6px;
   color: var(--teal-700);
-  content: "SOLAR SPATIAL INTELLIGENCE";
+  content: "SOLAR AIVLE · ANALYSIS";
   font-size: 11px;
   font-weight: 800;
   letter-spacing: 0.12em;
@@ -550,6 +550,27 @@
   font-size: 15px;
   font-weight: 700;
   line-height: 1.4;
+}
+
+.panel-count-badge {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  z-index: 100;
+  padding: 8px 14px;
+  color: var(--navy-900);
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(203, 213, 225, 0.9);
+  border-left: 4px solid #22c55e;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(7, 26, 47, 0.14);
+  backdrop-filter: blur(10px);
+  font-size: 14px;
+}
+
+.panel-count-badge strong {
+  font-size: 15px;
+  font-weight: 700;
 }
 
 .pdf-actions {

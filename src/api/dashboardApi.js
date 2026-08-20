@@ -1,15 +1,5 @@
 import instance from './axiosInstance';
 
-export const createSiteAnalysis = async (payload) => {
-  const { data } = await instance.post('/dashboard/analyses', payload, { skipErrorModal: true });
-  return data.data;
-};
-
-export const fetchDemoAnalyses = async () => {
-  const { data } = await instance.get('/dashboard/analyses/demo', { skipErrorModal: true });
-  return data.data;
-};
-
 const toDashboardCandidate = (item) => ({
   id: item.id,
   sourceId: item.sourceId,
@@ -21,15 +11,6 @@ const toDashboardCandidate = (item) => ({
   grade: item.solarReadinessGrade,
   candidateRank: item.candidateRank,
 });
-
-export const fetchDashboardCandidates = async (query) => {
-  const params = query?.trim() ? { q: query.trim() } : undefined;
-  const { data } = await instance.get('/dashboard/candidates', {
-    ...(params && { params }),
-    skipErrorModal: true,
-  });
-  return (data.data || []).map(toDashboardCandidate);
-};
 
 export const fetchDashboardCandidatesByRegion = async ({
   sido,
