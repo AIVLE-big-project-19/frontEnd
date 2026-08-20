@@ -35,7 +35,6 @@ const DashboardPage = () => {
   }, [location.state]);
   const hasTransferredCandidates = transferredCandidates.length > 0;
   const [apiKey, setApiKey] = useState(null);
-  const [, setMap] = useState(null);
   const [selectedSido, setSelectedSido] = useState('');
   const [selectedSigungu, setSelectedSigungu] = useState('');
   const [selectedAssetType, setSelectedAssetType] = useState('ALL');
@@ -396,7 +395,7 @@ const DashboardPage = () => {
                 <b>{selectedCandidate?.address || '후보지를 선택해 주세요.'}</b>
               </div>
               {apiKey
-                ? <MapView apiKey={apiKey} setMap={setMap} selectedCoordinates={coordinates} />
+                ? <MapView apiKey={apiKey} selectedCoordinates={coordinates} />
                 : <div className="map-loading">지도를 불러오는 중...</div>}
               {selectedCandidate && (
                 <button
