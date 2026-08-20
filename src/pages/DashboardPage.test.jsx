@@ -8,10 +8,6 @@ const { fetchAnalysisMock } = vi.hoisted(() => ({
   fetchAnalysisMock: vi.fn(),
 }));
 
-vi.mock('../context/AuthContext', () => ({
-  useAuth: () => ({ loginId: null }),
-}));
-
 vi.mock('../components/Layout', () => ({
   default: ({ children }) => <>{children}</>,
 }));
@@ -33,10 +29,6 @@ vi.mock('../api/dashboardApi', () => ({
   fetchDashboardCandidatesByRegion: vi.fn(),
   downloadAnalysisSnapshotReport: vi.fn(),
   downloadDashboardCandidateReport: vi.fn(),
-}));
-
-vi.mock('../utils/analysisHistory', () => ({
-  saveAnalysisHistoryEntry: vi.fn(),
 }));
 
 beforeEach(() => {

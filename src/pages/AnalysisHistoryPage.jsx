@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
-import { useAuth } from '../context/AuthContext';
 import { downloadAnalysisSnapshotReport, downloadDashboardCandidateReport } from '../api/dashboardApi';
 import {
   deleteAllAnalysisHistory,
@@ -12,12 +11,7 @@ import {
 } from '../api/analysisHistoryApi';
 import { buildAnalysisReportViewModel } from '../utils/analysisReportModel';
 import { GuideTrigger } from '../components/WelcomeGuideModal';
-import {
-  ANALYSIS_HISTORY_STATUSES,
-  loadAnalysisHistory,
-  removeAnalysisHistoryEntry,
-  updateAnalysisHistoryEntry,
-} from '../utils/analysisHistory';
+import { ANALYSIS_HISTORY_STATUSES } from '../utils/analysisHistory';
 import '../styles/AnalysisHistory.css';
 
 const formatNumber = (value, suffix = '') => (
@@ -37,7 +31,6 @@ const statusLabel = (value) => ANALYSIS_HISTORY_STATUSES.find((item) => item.val
 
 function AnalysisHistoryPage() {
   const navigate = useNavigate();
-  const { loginId } = useAuth();
   const [history, setHistory] = useState([]);
   const [filter, setFilter] = useState('ALL');
   const [typeFilter, setTypeFilter] = useState('ALL');
@@ -65,10 +58,10 @@ function AnalysisHistoryPage() {
         setHistory(uniqueHistory);
       })
       .catch(() => {
-        if (active) setHistory(loadAnalysisHistory(loginId));
+        if (active) setHistory([]);
       });
     return () => { active = false; };
-  }, [loginId]);
+  }, []);
 
   const filteredHistory = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
@@ -123,17 +116,13 @@ function AnalysisHistoryPage() {
 
   const updateEntry = (item, updates) => {
     const entryKey = historyEntryKey(item);
-    if (item.analysisId) {
-      setHistory((current) => current.map((item) => (
-        historyEntryKey(item) === entryKey ? { ...item, ...updates } : item
-      )));
-      updateAnalysisHistoryManagement(item.analysisId, {
-        favorite: updates.favorite ?? item.favorite ?? false,
-        status: updates.status ?? item.status ?? 'REVIEWING',
-      }).catch(() => window.alert('분석 이력 변경에 실패했습니다.'));
-    } else {
-      setHistory(updateAnalysisHistoryEntry(loginId, item.candidateId, updates));
-    }
+    setHistory((current) => current.map((historyItem) => (
+      historyEntryKey(historyItem) === entryKey ? { ...historyItem, ...updates } : historyItem
+    )));
+    updateAnalysisHistoryManagement(item.analysisId, {
+      favorite: updates.favorite ?? item.favorite ?? false,
+      status: updates.status ?? item.status ?? 'REVIEWING',
+    }).catch(() => window.alert('분석 이력 변경에 실패했습니다.'));
   };
 
   const toggleCompare = (item) => {
@@ -148,15 +137,9 @@ function AnalysisHistoryPage() {
   const deleteEntry = (item) => {
     if (!window.confirm('이 분석 이력을 삭제하시겠습니까?')) return;
     const entryKey = historyEntryKey(item);
-    if (item.analysisId) {
-      setHistory((current) => current.filter((historyItem) => historyEntryKey(historyItem) !== entryKey));
-    } else {
-      setHistory(removeAnalysisHistoryEntry(loginId, item.candidateId));
-    }
+    setHistory((current) => current.filter((historyItem) => historyEntryKey(historyItem) !== entryKey));
     removeFromSelections([entryKey]);
-    if (item.analysisId) {
-      deleteAnalysisHistory(item.analysisId).catch(() => window.alert('분석 이력 삭제에 실패했습니다.'));
-    }
+    deleteAnalysisHistory(item.analysisId).catch(() => window.alert('분석 이력 삭제에 실패했습니다.'));
   };
 
   const toggleSelection = (item) => {
@@ -183,36 +166,23 @@ function AnalysisHistoryPage() {
     if (itemsToDelete.length === 0) return;
     if (!window.confirm(`선택한 분석 이력 ${itemsToDelete.length}개를 삭제하시겠습니까?`)) return;
 
-    const remoteIds = itemsToDelete
-      .map((item) => item.analysisId)
-      .filter(Boolean);
-    const localItems = itemsToDelete.filter((item) => !item.analysisId);
-
     const entryKeys = itemsToDelete.map(historyEntryKey);
     const selectedKeySet = new Set(entryKeys);
     setHistory((current) => current.filter((item) => !selectedKeySet.has(historyEntryKey(item))));
     removeFromSelections(entryKeys);
-    localItems.forEach((item) => removeAnalysisHistoryEntry(loginId, item.candidateId));
-    if (remoteIds.length > 0) {
-      deleteSelectedAnalysisHistory(remoteIds)
-        .catch(() => window.alert('선택한 분석 이력 삭제에 실패했습니다.'));
-    }
+    deleteSelectedAnalysisHistory(itemsToDelete.map((item) => item.analysisId))
+      .catch(() => window.alert('선택한 분석 이력 삭제에 실패했습니다.'));
   };
 
   const deleteAllEntries = () => {
     if (history.length === 0) return;
     if (!window.confirm(`저장된 분석 이력 ${history.length}개를 모두 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.`)) return;
 
-    const remoteItems = history.filter((item) => item.analysisId);
-    const localItems = history.filter((item) => !item.analysisId);
     setHistory([]);
     removeFromSelections(history.map(historyEntryKey));
     setCurrentPage(1);
-    localItems.forEach((item) => removeAnalysisHistoryEntry(loginId, item.candidateId));
-    if (remoteItems.length > 0) {
-      deleteAllAnalysisHistory()
-        .catch(() => window.alert('분석 이력 전체 삭제에 실패했습니다.'));
-    }
+    deleteAllAnalysisHistory()
+      .catch(() => window.alert('분석 이력 전체 삭제에 실패했습니다.'));
   };
 
   const downloadReport = async (item) => {
