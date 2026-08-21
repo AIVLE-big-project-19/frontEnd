@@ -33,7 +33,6 @@ function BoardWritePage() {
 
         const requestedCategoryAllowed = BOARD_CATEGORIES.includes(requestedCategory)
             && (isAdmin || !isAdminOnlyCategory(requestedCategory));
-        // 참고: 권한 확인이 끝난 뒤 URL 카테고리를 작성 가능한 값으로 동기화한다.
         // eslint-disable-next-line react-hooks/set-state-in-effect
         setCategory(requestedCategoryAllowed ? requestedCategory : (availableCategories[0] ?? ""));
     }, [availableCategories, isAdmin, isInitializing, requestedCategory]);
@@ -53,7 +52,6 @@ function BoardWritePage() {
 
     useEffect(() => {
         const nextPreviews = files.filter((file) => file.type.startsWith("image/")).map((file) => ({ file, url: URL.createObjectURL(file) }));
-        // 참고: 선택 파일이 바뀐 직후 객체 URL 미리보기 목록을 동기화한다.
         // eslint-disable-next-line react-hooks/set-state-in-effect
         setPreviews(nextPreviews);
         return () => nextPreviews.forEach((preview) => URL.revokeObjectURL(preview.url));

@@ -26,7 +26,6 @@ const panelStyleFn = (feature) => {
 
 const geoJsonFormat = new GeoJSON();
 
-// 참고: 지도 핀은 별도 이미지 파일에 의존하지 않도록 인라인 SVG로 제공한다.
 const PIN_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="30" height="40" viewBox="0 0 30 40">
   <path d="M15 0C6.716 0 0 6.716 0 15c0 10.5 15 25 15 25s15-14.5 15-25C30 6.716 23.284 0 15 0z" fill="#e11d2e" stroke="#7f1d1d" stroke-width="1.5"/>
   <circle cx="15" cy="15" r="5.5" fill="#ffffff"/>
@@ -80,12 +79,10 @@ const MapView = ({ apiKey, setMap, selectedCoordinates, selectedAddress, parcelG
   useEffect(() => {
     if (!selectedCoordinates || !mapRef.current) return;
     markerSource.current.clear();
-    // 참고: VWorld 검색 좌표는 EPSG:900913(EPSG:3857)이므로 경위도로 재변환하지 않고 그대로 사용한다.
     const point = selectedCoordinates;
     const feature = new Feature(new Point(point));
     feature.setStyle(buildMarkerStyle(selectedAddress));
     markerSource.current.addFeature(feature);
-    // 참고: VWorld 위성 타일은 19레벨까지만 제공되므로 빈 타일이 보이지 않도록 확대 수준을 제한한다.
     mapRef.current.getView().animate({ center: point, zoom: 19, duration: 350 });
   }, [selectedCoordinates, selectedAddress]);
 
@@ -93,7 +90,6 @@ const MapView = ({ apiKey, setMap, selectedCoordinates, selectedAddress, parcelG
     if (!mapRef.current) return;
     parcelSource.current.clear();
     if (!parcelGeometry) return;
-    // 참고: 필지 GeoJSON은 EPSG:4326이므로 지도 좌표계인 EPSG:3857로 변환한다.
     const feature = geoJsonFormat.readFeature(
       { type: 'Feature', geometry: parcelGeometry },
       { dataProjection: 'EPSG:4326', featureProjection: 'EPSG:3857' },
@@ -105,7 +101,6 @@ const MapView = ({ apiKey, setMap, selectedCoordinates, selectedAddress, parcelG
     if (!mapRef.current) return;
     panelSource.current.clear();
     if (!panelLayout) return;
-    // 참고: 패널 배치도도 필지 경계와 동일한 EPSG:4326 좌표로 전달된다.
     const features = geoJsonFormat.readFeatures(
       panelLayout,
       { dataProjection: 'EPSG:4326', featureProjection: 'EPSG:3857' },

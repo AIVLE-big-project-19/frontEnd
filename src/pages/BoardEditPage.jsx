@@ -72,7 +72,6 @@ function BoardEditPage() {
 
     useEffect(() => {
         const nextPreviews = files.filter((file) => file.type.startsWith("image/")).map((file) => ({ file, url: URL.createObjectURL(file) }));
-        // 참고: 선택 파일이 바뀐 직후 객체 URL 미리보기 목록을 동기화한다.
         // eslint-disable-next-line react-hooks/set-state-in-effect
         setPreviews(nextPreviews);
         return () => nextPreviews.forEach((preview) => URL.revokeObjectURL(preview.url));

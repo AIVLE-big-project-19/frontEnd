@@ -9,7 +9,7 @@ import PasswordResetSuccessModal from '../components/PasswordResetSuccessModal';
 import '../styles/AuthPage.css';
 
 const FindPasswordPage = () => {
-  const [step, setStep] = useState('credentials'); // 'credentials' | 'code' | 'password'
+  const [step, setStep] = useState('credentials');
 
   const [loginId, setLoginId] = useState('');
   const [email, setEmail] = useState('');

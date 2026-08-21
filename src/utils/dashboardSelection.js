@@ -1,6 +1,6 @@
 const STORAGE_KEY = 'solarAivle.dashboardCandidates';
 
-export const toDashboardSelection = (item) => ({
+const toDashboardSelection = (item) => ({
   id: item.id,
   sourceId: item.sourceId,
   address: item.address,

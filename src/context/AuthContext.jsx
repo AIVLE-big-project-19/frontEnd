@@ -54,11 +54,7 @@ export const AuthProvider = ({ children }) => {
   const logout = useCallback(async () => {
     const session = loadSession();
     if (session) {
-      try {
-        await authApi.logout(session.refreshToken);
-      } catch {
-        // 서버 로그아웃 실패해도 로컬 세션은 정리한다
-      }
+      await authApi.logout(session.refreshToken).catch(() => {});
     }
     clearSession();
     setLoginId(null);

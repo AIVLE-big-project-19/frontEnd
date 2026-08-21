@@ -20,7 +20,6 @@ const LoginPage = () => {
   const [isLocked, setIsLocked] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [openTermsType, setOpenTermsType] = useState(null);
-  // sessionStorage에 남아있을 수 있는 "세션 만료" 1회성 메시지를 마운트 시 한 번만 읽고 지운다.
   const [expiredMessage] = useState(() => consumeAuthExpiredMessage());
 
   const infoMessage = location.state?.message;

@@ -374,7 +374,6 @@
   line-height: 1;
 }
 
-/* Board Card */
 .board-card {
   position: relative;
   display: grid;
@@ -561,7 +560,6 @@
   transform: translateY(-2px);
 }
 
-/* Detail */
 .board-detail-card {
   position: relative;
   overflow: hidden;
@@ -611,7 +609,6 @@
   word-break: break-word;
 }
 
-/* Write Form */
 .board-form-card {
   min-width: 0;
   width: 100%;
@@ -764,7 +761,6 @@ select.board-input {
   resize: vertical;
 }
 
-/* Comment */
 .comment-section {
   margin-top: 28px;
   padding: 28px;
