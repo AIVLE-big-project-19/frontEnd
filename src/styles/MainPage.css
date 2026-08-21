@@ -101,7 +101,6 @@
   .space-hero h1 { font-size: clamp(48px, 14vw, 82px); }
 }
 
-/* Restore the original application shell on every page except the home hero. */
 .app-container:not(.home-layout) header {
   position: relative;
   z-index: 500;
@@ -138,7 +137,6 @@
 .app-container:not(.home-layout) .footer-links { display: flex; gap: 16px; }
 .app-container:not(.home-layout) .footer-links a { color: #9fb1c4; font-size: 12px; text-decoration: none; }
 
-/* Community dropdown shared by the home card navigation and the original page header. */
 .nav-community-item { position: relative; display: flex; align-items: center; }
 .nav-community-item::after { position: absolute; top: 100%; right: 0; left: 0; height: 12px; content: ''; }
 .community-submenu { position: absolute; top: calc(100% + 9px); left: 50%; z-index: 60; display: none; min-width: 132px; padding: 7px; background: rgba(7,26,47,.96); border: 1px solid rgba(255,255,255,.22); border-radius: 9px; box-shadow: 0 10px 24px rgba(0,0,0,.28); transform: translateX(-50%); }
@@ -178,7 +176,6 @@
   .app-container:not(.home-layout) .main-content { height: auto; min-height: calc(100vh - 112px); overflow: visible; }
 }
 
-/* Shared brand lockup: the icon stays image-based while the wordmark colors are controlled by CSS. */
 .home-layout .logo-link,
 .app-container:not(.home-layout) .logo-link { display: inline-flex; align-items: center; gap: 7px; text-decoration: none; }
 .home-layout .logo-mark,

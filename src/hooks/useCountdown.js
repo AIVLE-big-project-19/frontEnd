@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 export const DEFAULT_CODE_DURATION_SECONDS = 300;
 
-export const formatCountdown = (totalSeconds) => {
+const formatCountdown = (totalSeconds) => {
   const minutes = Math.floor(totalSeconds / 60);
   const seconds = totalSeconds % 60;
   return `${minutes}:${String(seconds).padStart(2, '0')}`;

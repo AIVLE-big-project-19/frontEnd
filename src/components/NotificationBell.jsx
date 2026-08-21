@@ -20,13 +20,9 @@ const NotificationBell = () => {
   const overlayIdRef = useRef(Symbol('notification'));
 
   const load = async () => {
-    try {
-      const result = await fetchNotifications();
-      setNotifications((result?.items || []).slice(0, 5));
-      setUnreadCount(result?.unreadCount || 0);
-    } catch {
-      // 로그인 직후 토큰 교체 중인 일시적인 조회 실패는 무시합니다.
-    }
+    const result = await fetchNotifications().catch(() => null);
+    setNotifications((result?.items || []).slice(0, 5));
+    setUnreadCount(result?.unreadCount || 0);
   };
 
   useEffect(() => {

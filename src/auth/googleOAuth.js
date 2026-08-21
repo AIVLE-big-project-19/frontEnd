@@ -17,7 +17,6 @@ export const buildGoogleAuthUrl = () => {
   return `${GOOGLE_AUTH_ENDPOINT}?${params.toString()}`;
 };
 
-// 저장된 state를 1회성으로 읽고 즉시 제거한다(재사용/재생 공격 방지).
 export const consumeGoogleOAuthState = () => {
   const state = sessionStorage.getItem(STATE_STORAGE_KEY);
   sessionStorage.removeItem(STATE_STORAGE_KEY);

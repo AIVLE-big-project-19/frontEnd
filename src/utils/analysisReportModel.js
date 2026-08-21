@@ -200,7 +200,6 @@ export const buildAnalysisReportViewModel = ({
   };
 };
 
-// 참고: 정책·자금지원 Agent가 실행되지 않았거나 실패하면 관련 필드가 null이므로 존재하는 값만 표시한다.
 const buildPolicyViewModel = (source) => {
   const regulatoryAssessment = source.regulatoryAssessment || null;
   const businessRoute = source.businessRoute || null;

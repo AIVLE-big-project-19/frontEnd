@@ -25,7 +25,6 @@ function CommentList({ boardId, boardCategory }) {
     }, [boardId, responseLabel]);
 
     useEffect(() => {
-        // 참고: 게시글이 바뀐 직후 서버 댓글과 동기화하기 위해 초기 조회를 실행한다.
         // eslint-disable-next-line react-hooks/set-state-in-effect
         loadComments();
     }, [loadComments]);

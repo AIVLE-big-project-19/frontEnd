@@ -8,15 +8,6 @@ export const searchIdleLands = async (query) => {
   return data.data;
 };
 
-export const downloadIdleLandReport = async (idleLandId) => {
-  const { data } = await instance.post(
-    `/pdf/generate/idle-land/${idleLandId}`,
-    null,
-    { responseType: 'blob', skipErrorModal: true },
-  );
-  return data;
-};
-
 export const fetchIdleLandParcelData = async (idleLandId) => {
   const { data } = await instance.get(`/idle-lands/${idleLandId}/parcel-data`, {
     skipErrorModal: true,

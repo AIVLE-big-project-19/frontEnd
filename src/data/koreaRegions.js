@@ -1,4 +1,3 @@
-// 대한민국 시/도 및 시/군/구 목록 (2026년 기준 행정구역)
 export const KOREA_REGIONS = {
   서울특별시: [
     '종로구', '중구', '용산구', '성동구', '광진구', '동대문구', '중랑구', '성북구',
@@ -50,7 +49,4 @@ export const KOREA_REGIONS = {
   제주특별자치도: ['제주시', '서귀포시'],
 };
 
-export const SIDO_LIST = Object.keys(KOREA_REGIONS);
-
-// 유휴부지 후보지 데이터가 있는 지역만 검색 가능하도록 제한.
 export const SUPPORTED_SIDO_LIST = ['대전광역시', '충청북도', '충청남도', '세종특별자치시'];
